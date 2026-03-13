@@ -7,6 +7,7 @@ import AdminSubmenu from "./AdminSubmenu";
 import AllRecordsSubmenu from "./AllRecordsSubmenu";
 import SupportSubmenu from "./SupportSubmenu";
 import FinanceSubmenu from "./FinanceSubmenu";
+import DriverEngagementSubmenu from "./DriverEngagementSubmenu";
 import { NAV_UI } from "@/utils/constants";
 export function Topnav({ permissions = [] }) {
   const location = useLocation();
@@ -44,14 +45,17 @@ export function Topnav({ permissions = [] }) {
     // path.startsWith("/dashboard/user/testimonialview") ||
     // path.startsWith("/dashboard/user/testimonial/add");
 
-  const isFinanceSection = path.startsWith("/dashboard/finance");
+  const isFinanceSection = path.startsWith("/dashboard/finance")
+  const isDriverEngagementSection =
+    path.startsWith("/dashboard/driverengagement");
   const isAdminSection =
     path.startsWith("/dashboard/users") ||
     path.startsWith("/dashboard/admin/geo-markings") ||
     path.startsWith("/dashboard/user/versioncontrol") ||
     path.startsWith("/dashboard/user/discountmodule") ||
     path.startsWith("/dashboard/user/gst") ||
-    path.startsWith("/dashboard/driverengagement") ||
+    path.startsWith("/dashboard/finance/cash-back") ;
+    // path.startsWith("/dashboard/driverengagement") ||
     // Also show admin top bar on Trip Master and Calls
     path.startsWith("/dashboard/tripdetails")
 
@@ -65,6 +69,7 @@ export function Topnav({ permissions = [] }) {
     // !isDocVerifiction &&
     !isMarketingSection &&
     !isFinanceSection &&
+    !isDriverEngagementSection &&
     !isAdminSection
   ) {
     return null;
@@ -90,6 +95,7 @@ return (
       {isVendorsSection && <VendorsSubmenu />}
       {isMarketingSection && <MarketingSubmenu />}
       {isFinanceSection && <FinanceSubmenu />}
+      {isDriverEngagementSection && <DriverEngagementSubmenu permissions={permissions} />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
     </div>
     </div>

@@ -10,6 +10,16 @@ import { fetchZoneOptions } from "./zoneOptions";
 import DriverIncentiveComponentEditor from "./DriverIncentiveComponentEditor";
 import { createDefaultRule, createEditableRule, getTargetComponent } from "./edit.utils";
 
+const toTypeCode = (code = "") =>
+  code === "ONLINE_HOURS_BONUS"
+    ? "ONLINE_HOURS_RULES"
+    : code === "SERVICE_TRIP_BONUS"
+      ? "SERVICE_TRIP_RULES"
+      : code;
+
+const isAutoPartnerType = (partnerType = "") =>
+  String(partnerType || "").trim().toUpperCase() === "AUTO";
+
 function DriverIncentiveEdit() {
   const { id } = useParams();
   const location = useLocation();
@@ -26,6 +36,7 @@ function DriverIncentiveEdit() {
   const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
   const [componentRules, setComponentRules] = useState([]);
   const [form, setForm] = useState({
+    type: "",
     name: "",
     description: "",
     isActive: true,
@@ -95,11 +106,15 @@ function DriverIncentiveEdit() {
           "WEEKLY";
 
         setForm({
+          type: toTypeCode(component?.code || selectedCode || ""),
           name: selectedRow?.name || "",
           description: selectedRow?.description || "",
           isActive: typeof selectedRow?.isActive === "boolean" ? selectedRow.isActive : true,
           partnerType: scope?.partnerType || "CAB",
-          vehicleType: scope?.vehicleType || "ALL",
+          vehicleType:
+            (scope?.partnerType || "CAB") === "AUTO"
+              ? "AUTO"
+              : scope?.vehicleType || "ALL",
           zone: scope?.zone || "",
           code: component?.code || selectedCode || "",
           enabled: typeof component?.enabled === "boolean" ? component.enabled : true,
@@ -110,10 +125,13 @@ function DriverIncentiveEdit() {
         setComponentRules(
           Array.isArray(component?.rules) && component.rules.length > 0
             ? component.rules.map((rule) => ({
-              ...createEditableRule(rule, component?.code || selectedCode || ""),
+              ...createEditableRule(rule, component?.code || selectedCode || "", scope?.partnerType || "CAB"),
               period: resolvedPayoutFrequency,
             }))
-            : [{ ...createDefaultRule(component?.code || selectedCode || ""), period: resolvedPayoutFrequency }]
+            : [{
+              ...createDefaultRule(component?.code || selectedCode || "", scope?.partnerType || "CAB"),
+              period: resolvedPayoutFrequency,
+            }]
         );
       } catch (apiError) {
         setError(apiError?.message || "Failed to load incentive record");
@@ -141,11 +159,6 @@ function DriverIncentiveEdit() {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    if (!rowData) return;
-    if (!form.isActive) {
-      setError("Inactive incentive cannot be edited.");
-      return;
-    }
 
     const existingComponent = getTargetComponent(rowData, form.code);
     if (!existingComponent) {
@@ -168,7 +181,13 @@ function DriverIncentiveEdit() {
         condition: {
           metric: rule.metric || (nextComponent.code === "ONLINE_HOURS_BONUS" ? "onlineHours" : "tripCount"),
           period: form.payoutFrequency || rule.period || "WEEKLY",
-          serviceType: rule.serviceType || (nextComponent.code === "ONLINE_HOURS_BONUS" ? "ANY" : "RIDES"),
+          serviceType:
+            rule.serviceType ||
+            (isAutoPartnerType(form.partnerType)
+              ? "AUTO"
+              : nextComponent.code === "ONLINE_HOURS_BONUS"
+                ? "ANY"
+                : "RIDES"),
           op: rule.op || ">=",
           value: Number(rule.value || 0),
           bookingType: null,
@@ -192,7 +211,7 @@ function DriverIncentiveEdit() {
         enabled: Boolean(form.enabled),
         scope: {
           partnerType: form.partnerType || "CAB",
-          vehicleType: form.vehicleType || "ALL",
+          vehicleType: (form.partnerType || "CAB") === "AUTO" ? "AUTO" : form.vehicleType || "ALL",
           zone: form.zone || "",
         },
       });
@@ -202,10 +221,13 @@ function DriverIncentiveEdit() {
 
       const response = await updateDriverIncentiveComponent({
         settingId: parsedSettingId,
+        name: form.name,
+        type: form.type,
+        description: form.description,
         isActive: Boolean(form.isActive),
         scope: {
           partnerType: form.partnerType || "CAB",
-          vehicleType: form.vehicleType || "ALL",
+          vehicleType: (form.partnerType || "CAB") === "AUTO" ? "AUTO" : form.vehicleType || "ALL",
           zone: form.zone || "",
         },
         component: nextComponent,
@@ -257,8 +279,30 @@ function DriverIncentiveEdit() {
             )}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-3">
-                <div className="hidden">
+              <div>
+                <Typography variant="small" color="blue-gray" className="mb-1 font-semibold">
+                  Type
+                </Typography>
+                <input
+                  value={form.type || ""}
+                  disabled
+                  className="w-full rounded-md border border-blue-gray-200 bg-blue-gray-50 px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <Typography variant="small" color="blue-gray" className="mb-1 font-semibold">
+                  Name
+                </Typography>
+                <input
+                  value={form.name}
+                  onChange={(event) => onInputChange("name", event.target.value)}
+                  className="w-full rounded-md border border-blue-gray-200 px-3 py-2 text-sm"
+                  placeholder="Rule Name"
+                />
+              </div>
+
+              <div>
                   <Typography variant="small" color="blue-gray" className="mb-1 font-semibold">
                     Zone
                   </Typography>
@@ -269,11 +313,37 @@ function DriverIncentiveEdit() {
                   >
                     {zoneOptions.map((option) => (
                       <option key={option.value} value={option.value}>
-                        {option.label}
+                        {option.label || option.value}
                       </option>
                     ))}
                   </select>
-                </div>
+              </div>
+
+              <div>
+                <Typography variant="small" color="blue-gray" className="mb-1 font-semibold">
+                  Partner Type
+                </Typography>
+                <select
+                  value={form.partnerType}
+                  disabled
+                  className="w-full rounded-md border border-blue-gray-200 bg-blue-gray-50 px-3 py-2 text-sm"
+                >
+                  <option value="CAB">Cab</option>
+                  <option value="AUTO">Auto</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <Typography variant="small" color="blue-gray" className="mb-1 font-semibold">
+                  Description
+                </Typography>
+                <textarea
+                  value={form.description}
+                  onChange={(event) => onInputChange("description", event.target.value)}
+                  rows={3}
+                  className="w-full rounded-md border border-blue-gray-200 px-3 py-2 text-sm"
+                  placeholder="Description"
+                />
               </div>
             </div>
 
@@ -290,7 +360,6 @@ function DriverIncentiveEdit() {
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(event) => onInputChange("isActive", event.target.checked)}
-                  disabled
                   className="h-4 w-4 rounded border-blue-gray-300"
                 />
                 <Typography variant="small" color="blue-gray" className="font-semibold">
@@ -299,7 +368,7 @@ function DriverIncentiveEdit() {
               </label>
             </div>
 
-            <Button type="submit" color="blue" disabled={saving || !form.isActive}>
+            <Button type="submit" color="blue" disabled={saving}>
               {saving ? "Saving..." : "Update"}
             </Button>
           </form>

@@ -4,6 +4,7 @@ import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { parseInputValue } from "./shared/ruleMappings";
+import { extractApiErrorMessage, showTierErrorAlert } from "./shared/tierErrorAlert";
 import CommonFieldsSection from "./shared/CommonFieldsSection";
 import TierRulesSection from "./tier-rules/TierRulesSection";
 import IncentiveRulesSection from "./incentive-rules/IncentiveRulesSection";
@@ -99,7 +100,7 @@ function TierDetailsAdd() {
     event.preventDefault();
 
     if (!form.name?.trim()) {
-      alert("Name is required");
+      showTierErrorAlert("Name is required");
       return;
     }
 
@@ -125,14 +126,14 @@ function TierDetailsAdd() {
         },
       };
 
-      const response = await ApiRequestUtils.post(API_ROUTES.ADD_DE_TIER, payload);
+      const response = await ApiRequestUtils.post(API_ROUTES.ADD_DE_TIER, payload, 0, { suppressAlert: true });
       if (!response?.success) {
         throw new Error(response?.message || "Failed to save tier");
       }
       navigate("/dashboard/driverengagement");
     } catch (error) {
       console.error("Error saving tier:", error);
-      alert(error?.message || "Failed to save tier");
+      showTierErrorAlert(extractApiErrorMessage(error, "Failed to save tier"));
     } finally {
       setIsSubmitting(false);
     }

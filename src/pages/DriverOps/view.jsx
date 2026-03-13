@@ -10,6 +10,8 @@ import AreaWiseHourlyDemandLocal from "./areaWiseHourlyDemandLocal";
 import AreaWiseHourlyDemandDrop from "./areaWiseHourlyDemandDrop";
 import AreaWiseHourlyDemandOutstation from "./areaWiseHourlyDemandOutstation";
 import AreaWiseTripTypeShareBar from "./areaWiseTripTypeShareBar";
+import DriverTransactionsChart from "./driverTransactionsChart";
+import DriverTransactionsTable from"./driverTransactionsTable";
 import { Typography } from "@material-tailwind/react";
 import Select from "react-select";
 
@@ -577,6 +579,15 @@ const DriverOpsView = () => {
             d4BarYear
           )}
         />
+      </div>
+      <div className="p-2 space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
+          <Typography className="text-gray-700 text-lg font-medium">
+            Dashboard 5: Transactions
+          </Typography>          
+        </div>
+        <DriverTransactionsChart />
+        <DriverTransactionsTable />
       </div>
     </div>
   );

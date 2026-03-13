@@ -4,6 +4,7 @@ import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { normalizeTierRows } from "./shared/tierApi";
+import { extractApiErrorMessage, showTierErrorAlert } from "./shared/tierErrorAlert";
 import TierRulesSection from "./tier-rules/TierRulesSection";
 import IncentiveRulesSection from "./incentive-rules/IncentiveRulesSection";
 import DispatchRulesSection from "./dispatch-rules/DispatchRulesSection";
@@ -132,12 +133,12 @@ function TierDetailsEdit() {
     event.preventDefault();
 
     if (!rowData) {
-      alert("Tier not found");
+      showTierErrorAlert("Tier not found");
       return;
     }
 
     if (!form.name?.trim()) {
-      alert("Name is required");
+      showTierErrorAlert("Name is required");
       return;
     }
 
@@ -183,7 +184,7 @@ function TierDetailsEdit() {
 
       for (const route of updateRoutes) {
         try {
-          const result = await ApiRequestUtils.update(route, payload);
+          const result = await ApiRequestUtils.update(route, payload, 0, { suppressAlert: true });
           response = result;
           if (result?.success) break;
           lastErrorMessage = result?.message || `Update failed for route: ${route}`;
@@ -199,7 +200,7 @@ function TierDetailsEdit() {
       navigate("/dashboard/driverengagement");
     } catch (error) {
       console.error("Failed to update tier:", error);
-      alert(error?.message || "Failed to update tier");
+      showTierErrorAlert(extractApiErrorMessage(error, "Failed to update tier"));
     } finally {
       setIsSaving(false);
     }
@@ -297,7 +298,7 @@ function TierDetailsEdit() {
                   className="w-full rounded-md border border-blue-gray-200 bg-blue-gray-50 px-3 py-2 text-sm text-blue-gray-700"
                 >
                   <option value="CAB">Cab</option>
-                  {/* <option value="AUTO">Auto</option> */}
+                  <option value="AUTO">Auto</option>
                 </select>
               </div>
             </div>

@@ -322,13 +322,30 @@ function DispatchRulesSection({ registerBuilder, serviceAreas = [], selectedZone
 
   if (isAutoPartner) {
     return (
-      <div className="rounded-lg border border-blue-gray-100 p-4">
-        <Typography variant="small" color="blue-gray" className="font-semibold">
-          AUTO Dispatch Configuration
-        </Typography>
-        <Typography variant="small" color="gray" className="mt-2 text-sm">
-          Service access is fixed to AUTO for SILVER, GOLD, and ELITE. Unlock rules are not required.
-        </Typography>
+      <div className="space-y-4">
+        {TIER_KEYS.map((tierKey) => (
+          <details key={`auto-dispatch-${tierKey}`} className="rounded-lg border border-blue-gray-100 p-4" open>
+            <summary className="cursor-pointer select-none text-sm font-semibold text-blue-gray-800">
+              {tierKey}
+            </summary>
+            <div className="mt-3 space-y-3">
+              <div>
+                <Typography variant="small" color="blue-gray" className="mb-2 font-semibold">
+                  Service Access
+                </Typography>
+                <label className="inline-flex items-center gap-2">
+                  <input type="checkbox" checked disabled className="h-4 w-4 rounded border-blue-gray-300" />
+                  <Typography variant="small" color="blue-gray">
+                    Auto
+                  </Typography>
+                </label>
+                <Typography variant="small" color="gray" className="mt-1 text-xs">
+                  Auto is mandatory for AUTO partner.
+                </Typography>
+              </div>
+            </div>
+          </details>
+        ))}
       </div>
     );
   }

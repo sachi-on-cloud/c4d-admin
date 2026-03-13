@@ -78,6 +78,7 @@ import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
 import DriverIncentiveList from "./pages/marketing/DriverIncentive/list";
 import DriverIncentiveEdit from "./pages/marketing/DriverIncentive/edit";
+import DriverIncentiveAdd from "./pages/marketing/DriverIncentive/add";
 import InstantReward from "./pages/vendor/instantReward";
 import { VehiclesList } from "./pages/vendor/vehiclesList";
 import DriverNotificationList from "./pages/vendor/driverNotificationList";
@@ -225,6 +226,14 @@ export const routes = [
         path: "/vendors/driver-incentive",
         element: <DriverIncentiveList />,
         display: true,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive add",
+        path: "/vendors/driver-incentive/add",
+        element: <DriverIncentiveAdd />,
+        display: false,
         permission: "Marketing",
       },
       {

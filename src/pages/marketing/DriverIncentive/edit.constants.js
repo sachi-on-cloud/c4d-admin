@@ -10,7 +10,15 @@ export const PAYOUT_FREQUENCY_OPTIONS = [
 
 export const SERVICE_TYPE_OPTIONS_BY_CODE = {
   ONLINE_HOURS_BONUS: [{ value: "ANY", label: "All" }],
+  ONLINE_HOURS_RULES: [{ value: "ANY", label: "All" }],
   SERVICE_TRIP_BONUS: [
+    { value: "RIDES", label: "Rides" },
+    { value: "AUTO", label: "Auto" },
+    { value: "RENTAL_OUTSTATION", label: "Round Trip" },
+    { value: "RENTAL_HOURLY_PACKAGE", label: "Hourly Package" },
+    { value: "RENTAL_DROP_TAXI", label: "Drop Taxi" },
+  ],
+  SERVICE_TRIP_RULES: [
     { value: "RIDES", label: "Rides" },
     { value: "AUTO", label: "Auto" },
     { value: "RENTAL_OUTSTATION", label: "Round Trip" },

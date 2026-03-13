@@ -4,7 +4,7 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 const PARTNER_TYPES = [
   // "DRIVER", 
   "CAB",
-  // "AUTO"
+  "AUTO",
 ];
 
 const toLabelCase = (value = "") => {
@@ -38,7 +38,7 @@ function DriverIncentiveFilters({
             <select
               value={partnerType}
               onChange={(event) => onPartnerTypeChange(event.target.value)}
-              disabled
+              // disabled
               className="h-11 w-full rounded-lg border border-blue-gray-100 bg-white px-3 text-sm text-blue-gray-700 outline-none focus:border-blue-400"
             >
               {PARTNER_TYPES.map((item) => (

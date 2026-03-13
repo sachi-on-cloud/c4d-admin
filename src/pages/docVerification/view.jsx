@@ -350,6 +350,18 @@ const getDetails = useCallback(
       </PopoverContent>
     </Popover>
   );
+  const getStatusColor = (status) => {
+  const statusColors = {
+  VERIFIED: 'bg-green-100 text-green-500',
+  DECLINE: 'bg-red-100 text-red-500',
+  NOT_INTERESTED: 'bg-yellow-100 text-yellow-700',
+  NO_RESPONSE: 'bg-gray-300 text-gray-700',
+  PENDING: 'bg-blue-100 text-blue-500',
+  INVALID: 'bg-orange-100 text-orange-700',
+};
+  
+  return statusColors[status] || 'bg-primary-100 text-primary-500'; // default fallback
+};
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -391,9 +403,15 @@ const getDetails = useCallback(
               // color="gray"
               className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
+              <div className="flex justify-between">
               <Typography variant="h6" color="white">
                 All Documents List
               </Typography>
+               <Typography variant="h6" color="white">
+                {pagination.totalItems}
+              </Typography>
+              
+              </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
@@ -418,6 +436,9 @@ const getDetails = useCallback(
                               { value: "All", label: "All" },
                               { value: "PENDING", label: "Pending" },
                               { value: "APPROVED", label: "Approved" },
+                              { value: "NOT_INTERESTED", label: "Not Interested" },
+                              { value: "NO_RESPONSE", label: "No Response" },
+                              { value: "INVALID", label: "Invalid" },
                             ]}
                             selectedFilters={statusFilter}
                             onFilterChange={(value) => handleFilterChange("status", value)}
@@ -463,7 +484,7 @@ const getDetails = useCallback(
                           key === accounts.length - 1 ? "" : "border-b border-blue-gray-50"
                         }`;
 
-                        const status = data.isComplete ? "APPROVED" : "PENDING";
+                        const status = data.kycStatus;
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
                         const displayType = resolveAccountType(data);
                         const nameType = displayType === "Cab" ? "Account" : displayType;
@@ -510,8 +531,8 @@ const getDetails = useCallback(
                               <td className={className}>
                                 <Typography
                                   variant="ghost"
-                                  className={`px-2 rounded-xl text-xs font-semibold w-fit ${data.isComplete ? "bg-green-100 text-green-500" : " bg-primary-100 text-primary-500"}`}
-                                >
+                                   className={`px-2 rounded-xl text-xs font-semibold w-fit ${getStatusColor(status)}`}
+  >
                                   {status}
                                 </Typography>
                               </td>

@@ -4,6 +4,12 @@ export const getOptionValue = (option) =>
 export const getOptionLabel = (option) =>
   typeof option === "string" ? option : option?.label || option?.value || "";
 
+const isOnlineHoursCode = (code = "") =>
+  code === "ONLINE_HOURS_BONUS" || code === "ONLINE_HOURS_RULES";
+
+const isAutoPartnerType = (partnerType = "") =>
+  String(partnerType || "").trim().toUpperCase() === "AUTO";
+
 export const getTargetComponent = (row = {}, selectedCode = "") => {
   const components = Array.isArray(row?.components)
     ? row.components
@@ -16,10 +22,14 @@ export const getTargetComponent = (row = {}, selectedCode = "") => {
   return components.find((item) => item?.code === selectedCode) || components[0];
 };
 
-export const createEditableRule = (rule = {}, code = "") => {
+export const createEditableRule = (rule = {}, code = "", partnerType = "CAB") => {
   const condition = rule?.condition || {};
-  const fallbackMetric = code === "ONLINE_HOURS_BONUS" ? "onlineHours" : "tripCount";
-  const fallbackServiceType = code === "ONLINE_HOURS_BONUS" ? "ANY" : "RIDES";
+  const fallbackMetric = isOnlineHoursCode(code) ? "onlineHours" : "tripCount";
+  const fallbackServiceType = isAutoPartnerType(partnerType)
+    ? "AUTO"
+    : isOnlineHoursCode(code)
+      ? "ANY"
+      : "RIDES";
   return {
     metric: condition?.metric || fallbackMetric,
     period: condition?.period || "WEEKLY",
@@ -30,19 +40,24 @@ export const createEditableRule = (rule = {}, code = "") => {
   };
 };
 
-export const createDefaultRule = (code = "") =>
+export const createDefaultRule = (code = "", partnerType = "CAB") =>
   createEditableRule(
     {
       condition: {
-        metric: code === "ONLINE_HOURS_BONUS" ? "onlineHours" : "tripCount",
+        metric: isOnlineHoursCode(code) ? "onlineHours" : "tripCount",
         period: "WEEKLY",
-        serviceType: code === "ONLINE_HOURS_BONUS" ? "ANY" : "RIDES",
+        serviceType: isAutoPartnerType(partnerType)
+          ? "AUTO"
+          : isOnlineHoursCode(code)
+            ? "ANY"
+            : "RIDES",
         op: ">=",
         value: 1,
       },
       amount: 100,
     },
-    code
+    code,
+    partnerType
   );
 
 export const withCurrentOption = (options = [], currentValue = "") => {

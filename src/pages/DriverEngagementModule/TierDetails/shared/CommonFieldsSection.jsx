@@ -15,9 +15,9 @@ function CommonFieldsSection({ form, onInputChange, serviceAreas = [] }) {
         </div>
         <div>
           <Typography variant="small" color="blue-gray" className="mb-2 font-semibold">Partner Type</Typography>
-          <select name="partnerType" value={form.partnerType} onChange={onInputChange} disabled className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm text-blue-gray-700 outline-none focus:border-blue-500">
+          <select name="partnerType" value={form.partnerType} onChange={onInputChange} className="w-full rounded-md border border-blue-gray-200 bg-white px-3 py-2 text-sm text-blue-gray-700 outline-none focus:border-blue-500">
             <option value="CAB">Cab</option>
-            {/* <option value="AUTO">Auto</option> */}
+            <option value="AUTO">Auto</option>
           </select>
         </div>
         <div>
