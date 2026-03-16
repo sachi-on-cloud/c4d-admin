@@ -86,7 +86,7 @@ const GstEdit = () => {
 
       const response = await ApiRequestUtils.update(API_ROUTES.PUT_GST, payload);
       if (response?.success) {
-        navigate('/dashboard/user/gstList', {
+        navigate('/dashboard/finance/GSTList', {
           state: { gstUpdated: true, gstName: values.name },
         });
       }
@@ -187,7 +187,7 @@ const GstEdit = () => {
                 fullWidth
                 type="button"
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}
-                onClick={() => navigate('/dashboard/user/gstList')}
+                onClick={() => navigate('/dashboard/finance/GSTList')}
               >
                 Cancel
               </Button>

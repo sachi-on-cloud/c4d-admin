@@ -71,10 +71,12 @@ function VendorsSubmenu({ miniSidenav }) {
         ]
       : []),
   ];
+  const firstRowItems = items.slice(0, 4);
+  const secondRowItems = items.slice(4, 8);
+  const thirdRowItems = items.slice(8);
 
-  return (
-    <ul className={NAV_UI.topnav.list}>
-      {items.map(({ label, path, isSubMenu, subItems, icon }) => (
+  const renderItems = (menuItems) =>
+    menuItems.map(({ label, path, isSubMenu, subItems, icon }) => (
         <li key={label}>
           {isSubMenu ? (
             <>
@@ -96,7 +98,7 @@ function VendorsSubmenu({ miniSidenav }) {
               </Button>
               {(label === "Bike" ? openBikeSubMenu === label : openAutoSubMenu === label) && (
                 <ul className={NAV_UI.topnav.nestedList}>
-                  {subItems.map(({ label: subLabel, path: subPath, icon: subIcon }) => (
+                  {subItems.map(({ label: subLabel, path: subPath }) => (
                     <li key={subLabel}>
                       <NavLink to={subPath} end={false}>
                         {({ isActive }) => (
@@ -134,8 +136,18 @@ function VendorsSubmenu({ miniSidenav }) {
             </NavLink>
           )}
         </li>
-      ))}
-    </ul>
+    ));
+
+  return (
+    <div>
+      <ul className={NAV_UI.topnav.list}>{renderItems(firstRowItems)}</ul>
+      {secondRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(secondRowItems)}</ul>
+      ) : null}
+      {thirdRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(thirdRowItems)}</ul>
+      ) : null}
+    </div>
   );
 }
 

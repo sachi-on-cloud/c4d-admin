@@ -628,11 +628,11 @@ const RentalsPriceMasterDetails = () => {
 
 
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back
                             </Button>
                             <Button fullWidth className={`my-6 mx-2 border-2 border-gray-400 rounded-xl ${ColorStyles.editButton
-                                }`} onClick={() => navigate(`/dashboard/users/master-price/rentals-edit/${id}`)}>
+                                }`} onClick={() => navigate(`/dashboard/finance/master-price/rentals-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>

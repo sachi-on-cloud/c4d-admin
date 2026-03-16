@@ -142,14 +142,14 @@ export function MasterPriceView() {
 
     const onHandleAddNew = async () => {
         if (serviceType === 'DRIVER') {
-            navigate('/dashboard/users/master-price/driver-add');
+            navigate('/dashboard/finance/master-price/driver-add');
         } else if (serviceType === 'RIDES') {
-            navigate('/dashboard/users/master-price/rides-add');
+            navigate('/dashboard/finance/master-price/rides-add');
         } else if (serviceType === 'RENTAL') {
-            navigate('/dashboard/users/master-price/rentals-add');
+            navigate('/dashboard/finance/master-price/rentals-add');
         }
         else if (serviceType === 'AUTO') {
-        navigate('/dashboard/users/master-price/auto-add');     // ← add this block
+        navigate('/dashboard/finance/master-price/auto-add');     // ← add this block
     }
     };
     const tierList = useMemo(() => {
@@ -225,7 +225,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/details/${id}`)}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -366,7 +366,7 @@ export function MasterPriceView() {
                                             </div>
                                         </td>
                                         <td className={className}>
-                                            <div onClick={() => navigate(`/dashboard/users/master-price/details/${id}`)}>
+                                            <div onClick={() => navigate(`/dashboard/finance/master-price/details/${id}`)}>
                                             <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
                                                 { (period === '1' && extraCabType === '0') ? 'Custom Date' : period}
                                             </Typography>
@@ -490,7 +490,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rides-details/${id}`)}>
+                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rides-details/${id}`)}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -635,7 +635,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rentals-details/${id}`)}>
+                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rentals-details/${id}`)}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -799,7 +799,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/users/master-price/rentals-details/${id}`)}>
+                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rentals-details/${id}`)}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -976,7 +976,7 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <button onClick={() => navigate(`/dashboard/users/master-price/parcel-edit/${pkgId}`)} className={`px-3 py-1 rounded-lg text-xs font-semibold  ${ColorStyles.editButton}`} >
+                                                <button onClick={() => navigate(`/dashboard/finance/master-price/parcel-edit/${pkgId}`)} className={`px-3 py-1 rounded-lg text-xs font-semibold  ${ColorStyles.editButton}`} >
                                                     View / Edit
                                                 </button>
                                             </td>
@@ -1040,7 +1040,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    <span onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
+                                                    <span onClick={() => navigate(`/dashboard/finance/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
                                                         {type.toUpperCase()}
                                                     </span>
                                                 </Typography>
@@ -1067,7 +1067,7 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <button onClick={() => navigate(`/dashboard/users/master-price/auto-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
+                                                <button onClick={() => navigate(`/dashboard/finance/master-price/auto-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
                                                     Edit
                                                 </button>
                                             </td>

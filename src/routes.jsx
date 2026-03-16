@@ -458,7 +458,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
-        path: "/user/GSTList",
+        path: "/finance/GSTList",
         element: <GstView />,
         display: true,
         permission: "Users",
@@ -466,7 +466,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST add",
-        path: "/user/GST/add",
+        path: "/finance/GST/add",
         element: <GstAdd />,
         display: true,
         permission: "Users",
@@ -474,7 +474,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST edit",
-        path: "/user/GST/edit/:id",
+        path: "/finance/GST/edit/:id",
         element: <GstEdit />,
         display: true,
         permission: "Users",
@@ -762,7 +762,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Rides Price Table Add",
-        path: "/users/master-price/rides-add",
+        path: "/finance/master-price/rides-add",
         element: <MasterPriceTableAdd />,
         display: false,
         permission: "Users",
@@ -770,7 +770,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price View",
-        path: "/users/master-price",
+        path: "/finance/master-price",
         element: <MasterPriceView />,
         display: false,
         permission: "Users",
@@ -778,7 +778,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "instant reward",
-        path: "/users/instant-reward",
+        path: "/finance/instant-reward",
         element: <InstantReward />,
         display: true,
         permission: "Users",
@@ -786,7 +786,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Cash Back List",
-        path: "/users/cash-back/list",
+        path: "/finance/cash-back/list",
         element: <CashBackList />,
         display: false,
         permission: "Users",
@@ -794,7 +794,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Cash Back Add",
-        path: "/users/cash-back/add",
+        path: "/finance/cash-back/add",
         element: <CashBackAdd />,
         display: false,
         permission: "Users",
@@ -802,7 +802,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Cash Back Edit",
-        path: "/users/cash-back/edit/:id",
+        path: "/finance/cash-back/edit/:id",
         element: <CashBackEdit />,
         display: false,
         permission: "Users",
@@ -810,7 +810,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Add",
-        path: "/users/master-price/driver-add",
+        path: "/finance/master-price/driver-add",
         element: <MasterPriceAdd />,
         display: false,
         permission: "Users",
@@ -818,7 +818,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Details & Edit",
-        path: "/users/master-price/details/:id",
+        path: "/finance/master-price/details/:id",
         element: <MasterPriceDetailsAndEdit />,
         display: false,
         permission: "Users",
@@ -826,7 +826,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Driver Price Table Edit",
-        path: "/users/master-price/driver-edit/:id",
+        path: "/finance/master-price/driver-edit/:id",
         element: <DriverMasterPriceTableEdit />,
         display: false,
         permission: "Users",
@@ -834,7 +834,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Add",
-        path: "/users/master-price/rentals-add",
+        path: "/finance/master-price/rentals-add",
         element: <RentalsPriceMasterAdd />,
         display: false,
         permission: "Users",
@@ -842,7 +842,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Details",
-        path: "/users/master-price/rentals-details/:id",
+        path: "/finance/master-price/rentals-details/:id",
         element: <RentalsPriceMasterDetails />,
         display: false,
         permission: "Users",
@@ -850,7 +850,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Edit",
-        path: "/users/master-price/rentals-edit/:id",
+        path: "/finance/master-price/rentals-edit/:id",
         element: <RentalsMasterPriceEdit />,
         display: false,
         permission: "Users",
@@ -858,7 +858,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Master Price Edit",
-        path: "/users/master-price/auto-edit/:id",
+        path: "/finance/master-price/auto-edit/:id",
         element: <AutoMasterPriceEdit />,
         display: true,
         permission: "Users"
@@ -866,7 +866,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Master Price Add",
-        path: "/users/master-price/auto-add",
+        path: "/finance/master-price/auto-add",
         element: <AutoMasterPriceTableAdd />,
         display: true,
         permission: "Users"
@@ -930,7 +930,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Details",
-        path: "/users/master-price/rides-details/:id",
+        path: "/finance/master-price/rides-details/:id",
         element: <MasterPriceTableDetails />,
         display: false,
         permission: "Users",
@@ -938,7 +938,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Edit",
-        path: "/users/master-price/rides-edit/:id",
+        path: "/finance/master-price/rides-edit/:id",
         element: <MasterPriceTableEdit />,
         display: false,
         permission: "Users",
@@ -970,7 +970,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module list",
-        path: "/user/discountModuleList",
+        path: "/finance/discountModuleList",
         element: <DiscountView />,
         display: true,
         permission: "Users",
@@ -978,7 +978,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module edit",
-        path: "/user/discountModule/edit/:id",
+        path: "/finance/discountModule/edit/:id",
         element: <DiscountEdit />,
         display: true,
         permission: "Users",
@@ -986,7 +986,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module add",
-        path: "/user/discountModule/add",
+        path: "/finance/discountModule/add",
         element: <DiscountAdd />,
         display: true,
         permission: "Users",
@@ -1051,7 +1051,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Custom Discount",
-        path: "/users/custom-discount/add",
+        path: "/finance/custom-discount/add",
         element: <CustomerDiscountAdd />,
         display: false,
         permission: "Users",
@@ -1059,7 +1059,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Custom Discount List",
-        path: "/users/custom-discount/list",
+        path: "/finance/custom-discount/list",
         element: <CustomerDiscountList />,
         display: false,
         permission: "Users",
@@ -1157,7 +1157,7 @@ export const routes = [
         {
           icon: <UserIcon {...icon} />,
           name: "Parcel Master Price Edit",
-          path: "/users/master-price/parcel-edit/:id",
+          path: "/finance/master-price/parcel-edit/:id",
           element: <ParcelMasterPriceEdit />,
           display: true,
           permission: "Users"

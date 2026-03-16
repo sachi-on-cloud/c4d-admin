@@ -95,7 +95,7 @@ export function MasterPriceDetailsAndEdit() {
                 data = await ApiRequestUtils.post(API_ROUTES.ACTING_DRIVER_ADD_OUTSTAION_PACKAGE, masterpriceList);
             }
             if (data?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             }
         } catch (err) {
             console.log('ERROR IN SUBMIT :', err)
@@ -267,10 +267,10 @@ export function MasterPriceDetailsAndEdit() {
                             </div>
                         )}
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back
                             </Button>
-                            <Button fullWidth className={`my-6 mx-2  border-2 border-gray-400 rounded-xl ${ColorStyles.editButton}`} onClick={() => navigate(`/dashboard/users/master-price/driver-edit/${id}`)}>
+                            <Button fullWidth className={`my-6 mx-2  border-2 border-gray-400 rounded-xl ${ColorStyles.editButton}`} onClick={() => navigate(`/dashboard/finance/master-price/driver-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>

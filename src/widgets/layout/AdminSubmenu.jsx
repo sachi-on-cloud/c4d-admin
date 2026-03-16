@@ -26,38 +26,18 @@ function AdminSubmenu({ permissions = [] }) {
       );
     }
 
-    if (label === "Discount Module") {
-      return pathname.startsWith("/dashboard/user/discountmodule");
-    }
-
-    if (label === "TAX") {
-      return (
-        pathname.startsWith("/dashboard/user/gstlist") ||
-        pathname.startsWith("/dashboard/user/gst/")
-      );
-    }
-    if (label === "Cash Back") {
-      return pathname.startsWith("/dashboard/users/cash-back");
-    }
-
     return pathname.startsWith(target);
   };
 
   const primaryItems = [
     { label: "Users", path: "/dashboard/users", requiredPermission: "Users" },
-    { label: "Cash Back", path: "/dashboard/users/cash-back/list", requiredPermission: "Users" },
-    { label: "Master Price Table", path: "/dashboard/users/master-price", requiredPermission: "Users" },
-    { label: "Instant Reward", path: "/dashboard/users/instant-reward", requiredPermission: "Users" },
     { label: "GeoMarkings", path: "/dashboard/admin/geo-markings", requiredPermission: "Users" },
     { label: "Version Control", path: "/dashboard/user/versionControlList", requiredPermission: "Users" },
-    { label: "Custom Discount", path: "/dashboard/users/custom-discount/list", requiredPermission: "Users" },
-    { label: "TAX", path: "/dashboard/user/GSTList", requiredPermission: "Users" },
   ];
 
   // Secondary/shortcut items that can live on a second row
   const secondaryItems = [
     { label: "Driver Bonus", path: "/dashboard/users/driver-offer/list", requiredPermission: "Users" },
-    { label: "Discount Module", path: "/dashboard/user/discountModuleList", requiredPermission: "Users" },
     { label: "Trip Master Details", path: "/dashboard/tripDetails", requiredPermission: "Trip Master" },
     { label: "Trip Master Report", path: "/dashboard/reports/tripMasterReport", requiredPermission: "Trip Master" },
   ];

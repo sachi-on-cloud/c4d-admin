@@ -117,7 +117,7 @@ const CashBackList = () => {
         <Button
           size="sm"
           className={`rounded-xl p-4 ${ColorStyles.continueButtonColor}`}
-          onClick={() => navigate("/dashboard/users/cash-back/add")}
+          onClick={() => navigate("/dashboard/finance/cash-back/add")}
         >
           Add Cash Back
         </Button>
@@ -178,7 +178,7 @@ const CashBackList = () => {
                             size="sm"
                             className={`rounded-xl ${ColorStyles.continueButtonColor}`}
                             onClick={() =>
-                              navigate(`/dashboard/users/cash-back/edit/${row.id}`, {
+                              navigate(`/dashboard/finance/cash-back/edit/${row.id}`, {
                                 state: { cashBack: row.raw },
                               })
                             }

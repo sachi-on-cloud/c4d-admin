@@ -14,6 +14,7 @@ import {
   HomeIcon,
   UserCircleIcon,
   DocumentTextIcon,
+  ClipboardDocumentListIcon,
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
@@ -44,7 +45,7 @@ const menuItems = [
   { type: "item", name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance"},
   { type: "item", name: "Driver Engagement", path: "/dashboard/driverengagement", permission: "Driver Engagement" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
-  { type: "item", name: "Driver Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
+  { type: "item", name: "Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
   {
     type: "item",
     name: "Admin",
@@ -145,7 +146,7 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/user/bannerimg")
           // currentPath.startsWith("/dashboard/user/testimonial")
         );
-      case "Driver Reports":
+      case "Reports":
         return currentPath.startsWith("/dashboard/driver-ops");
       case "Driver Engagement":
         return currentPath.startsWith("/dashboard/driverengagement");
@@ -154,8 +155,6 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
           currentPath.startsWith("/dashboard/users") ||
           currentPath.startsWith("/dashboard/admin/geo-markings") ||
           currentPath.startsWith("/dashboard/user/versioncontrol") ||
-          currentPath.startsWith("/dashboard/user/discountmodule") ||
-          currentPath.startsWith("/dashboard/user/gst") ||
           currentPath.startsWith("/dashboard/reports/tripmasterreport") ||
           currentPath.startsWith("/dashboard/tripdetails")
         );
@@ -254,8 +253,8 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                           />
                         ) : null}
 
-                        {name === "Driver Reports" ? (
-                          <ChartBarIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
+                        {name === "Reports" ? (
+                          <ClipboardDocumentListIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                         {name === "Leads" ? (
                           <UsersIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />

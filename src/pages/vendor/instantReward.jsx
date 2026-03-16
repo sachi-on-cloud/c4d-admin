@@ -162,7 +162,7 @@ const handlePageChange = (page) => {
         fetchRewards(values.selectedType);
         setTimeout(() => {
           setModalData(null);
-          navigate('/dashboard/users/instant-reward');
+          navigate('/dashboard/finance/instant-reward');
         }, 2000);
       }
     } catch (error) {

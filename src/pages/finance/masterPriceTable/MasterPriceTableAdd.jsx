@@ -117,7 +117,7 @@ const PriceAdd = () => {
             }
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_RIDES_PRICE_TABLE, reqBody);
             if (data?.success) {
-                navigate('/dashboard/users/master-price')
+                navigate('/dashboard/finance/master-price')
             }
         } catch (error) {
             console.error('Error saving price details:', error);
@@ -307,7 +307,7 @@ const PriceAdd = () => {
                             </div>
                         </div>
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
                             <Button fullWidth  onClick={handleSubmit} disabled={!dirty || !isValid} className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}>

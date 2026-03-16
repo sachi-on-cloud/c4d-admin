@@ -12,6 +12,12 @@ import { NAV_UI } from "@/utils/constants";
 export function Topnav({ permissions = [] }) {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
+  const isCashBackRoute = path.startsWith("/dashboard/finance/cash-back");
+  const isMasterPriceRoute = path.startsWith("/dashboard/finance/master-price");
+  const isInstantRewardRoute = path.startsWith("/dashboard/finance/instant-reward");
+  const isDiscountModuleRoute = path.startsWith("/dashboard/finance/discountmodule");
+  const isCustomDiscountRoute = path.startsWith("/dashboard/finance/custom-discount");
+  const isTaxRoute = path.startsWith("/dashboard/finance/gst");
 
   const isAllRecordsSection =
     path.startsWith("/dashboard/booking/list") ||
@@ -45,19 +51,27 @@ export function Topnav({ permissions = [] }) {
     // path.startsWith("/dashboard/user/testimonialview") ||
     // path.startsWith("/dashboard/user/testimonial/add");
 
-  const isFinanceSection = path.startsWith("/dashboard/finance")
+  const isFinanceSection =
+    path.startsWith("/dashboard/finance") ||
+    isCashBackRoute ||
+    isMasterPriceRoute ||
+    isInstantRewardRoute ||
+    isDiscountModuleRoute ||
+    isCustomDiscountRoute ||
+    isTaxRoute;
   const isDriverEngagementSection =
     path.startsWith("/dashboard/driverengagement");
   const isAdminSection =
-    path.startsWith("/dashboard/users") ||
+    (path.startsWith("/dashboard/users") &&
+      !isCashBackRoute &&
+      !isMasterPriceRoute &&
+      !isInstantRewardRoute &&
+      !isCustomDiscountRoute) ||
     path.startsWith("/dashboard/admin/geo-markings") ||
     path.startsWith("/dashboard/user/versioncontrol") ||
-    path.startsWith("/dashboard/user/discountmodule") ||
-    path.startsWith("/dashboard/user/gst") ||
-    path.startsWith("/dashboard/finance/cash-back") ;
     // path.startsWith("/dashboard/driverengagement") ||
     // Also show admin top bar on Trip Master and Calls
-    path.startsWith("/dashboard/tripdetails")
+    path.startsWith("/dashboard/tripdetails");
 
 
   // If we are not in any section that has a top nav, render nothing
@@ -94,7 +108,7 @@ return (
       {isCustomersSection && <CustomersSubmenu />}
       {isVendorsSection && <VendorsSubmenu />}
       {isMarketingSection && <MarketingSubmenu />}
-      {isFinanceSection && <FinanceSubmenu />}
+      {isFinanceSection && <FinanceSubmenu permissions={permissions} />}
       {isDriverEngagementSection && <DriverEngagementSubmenu permissions={permissions} />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
     </div>
