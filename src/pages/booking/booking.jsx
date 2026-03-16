@@ -2911,7 +2911,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                         )}
                                     </GoogleMap>
                                 )} */}
-                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && values.packageSelected && (
+                                                {values.serviceType === 'RENTAL_HOURLY_PACKAGE' && quoteDetails && (
                                                     <div className="mb-5 space-y-4 shadow-md shadow-gray-700 bg-white rounded-xl p-4">
                                                         <Typography className="font-roboto-medium text-lg text-gray-900">
                                                             Things to Know Before You Confirm:
