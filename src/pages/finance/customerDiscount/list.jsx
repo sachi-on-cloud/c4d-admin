@@ -40,7 +40,7 @@ const CustomerDiscountList = () => {
         <Button
           size="sm"
           className={`rounded-xl p-4 ${ColorStyles.continueButtonColor}`}
-          onClick={() => navigate("/dashboard/users/custom-discount/add")}
+          onClick={() => navigate("/dashboard/finance/custom-discount/add")}
         >
           Add Custom Discount
         </Button>

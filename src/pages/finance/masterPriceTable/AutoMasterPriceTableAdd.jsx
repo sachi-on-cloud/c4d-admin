@@ -121,7 +121,7 @@ const AutoMasterPriceTableAdd = () => {
             );
 
             if (data?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             }
         } catch (error) {
             console.error('Error saving auto package:', error);
@@ -413,7 +413,7 @@ const AutoMasterPriceTableAdd = () => {
                             <Button
                                 fullWidth
                                 onClick={() =>
-                                    navigate('/dashboard/users/master-price')
+                                    navigate('/dashboard/finance/master-price')
                                 }
                                 className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl"
                             >

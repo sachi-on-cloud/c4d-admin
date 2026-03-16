@@ -1,9 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Button, Typography } from "@material-tailwind/react";
 import { NAV_UI } from "@/utils/constants";
 
-function FinanceSubmenu() {
+function FinanceSubmenu({ permissions = [] }) {
+  const location = useLocation();
+  const pathname = location.pathname.toLowerCase();
+
   const getItemClasses = (isActive) =>
     `${NAV_UI.topnav.buttonBase} ${NAV_UI.spacing.topnavButton} ${NAV_UI.typography.topnavLabel} ${
       isActive
@@ -16,17 +19,49 @@ function FinanceSubmenu() {
     { label: "Booking Receipt", path: "/dashboard/finance/receipt" },
     { label: "Master Subscription Table", path: "/dashboard/finance/master-subscription" },
     { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList" },
+    { label: "Master Price Table", path: "/dashboard/finance/master-price", requiredPermission: "Users" },
+    { label: "Instant Reward", path: "/dashboard/finance/instant-reward", requiredPermission: "Users" },
+    { label: "Discount Module", path: "/dashboard/finance/discountModuleList", requiredPermission: "Users" },
+    { label: "Custom Discount", path: "/dashboard/finance/custom-discount/list", requiredPermission: "Users" },
+    { label: "TAX", path: "/dashboard/finance/GSTList", requiredPermission: "Users" },
+    { label: "Cash Back", path: "/dashboard/finance/cash-back/list", requiredPermission: "Users" },
   ];
+  const filteredItems = items.filter(({ requiredPermission }) => {
+    if (!requiredPermission) return true;
+    return permissions.includes(requiredPermission);
+  });
+  const firstRowItems = filteredItems.slice(0, 5);
+  const secondRowItems = filteredItems.slice(5);
+  const isMainItemActive = (label, path, navActive) => {
+    if (navActive) return true;
 
-  return (
-    <ul className={NAV_UI.topnav.list}>
-      {items.map(({ label, path }) => (
+    if (label === "Booking Invoice") {
+      return pathname.startsWith("/dashboard/finance/bookinginvoice");
+    }
+    if (label === "Cash Back") {
+      return pathname.startsWith("/dashboard/finance/cash-back");
+    }
+    if (label === "Discount Module") {
+      return pathname.startsWith("/dashboard/finance/discountmodule");
+    }
+    if (label === "Custom Discount") {
+      return pathname.startsWith("/dashboard/finance/custom-discount");
+    }
+    if (label === "TAX") {
+      return pathname.startsWith("/dashboard/finance/gst");
+    }
+
+    return pathname.startsWith(path.toLowerCase());
+  };
+
+  const renderItems = (menuItems) =>
+    menuItems.map(({ label, path }) => (
         <li key={label}>
           <NavLink to={path} end={false}>
             {({ isActive }) => (
               <Button
                 variant="text"
-                className={getItemClasses(isActive)}
+                className={getItemClasses(isMainItemActive(label, path, isActive))}
               >
                 <Typography
                   color="inherit"
@@ -38,8 +73,15 @@ function FinanceSubmenu() {
             )}
           </NavLink>
         </li>
-      ))}
-    </ul>
+    ));
+
+  return (
+    <div>
+      <ul className={NAV_UI.topnav.list}>{renderItems(firstRowItems)}</ul>
+      {secondRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(secondRowItems)}</ul>
+      ) : null}
+    </div>
   );
 }
 

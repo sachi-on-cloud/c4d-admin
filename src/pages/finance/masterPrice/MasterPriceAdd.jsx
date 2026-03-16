@@ -85,7 +85,7 @@ export function MasterPriceAdd() {
                 data = await ApiRequestUtils.post(API_ROUTES.ACTING_DRIVER_ADD_OUTSTAION_PACKAGE, masterpriceList);
             }
             if (data?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             }
         } catch (err) {
             console.log('ERROR IN SUBMIT :', err)
@@ -309,7 +309,7 @@ export function MasterPriceAdd() {
                         <div className="flex flex-row mt-10">
                             <Button
                                 fullWidth
-                                onClick={() => navigate('/dashboard/users/master-price')}
+                                onClick={() => navigate('/dashboard/finance/master-price')}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

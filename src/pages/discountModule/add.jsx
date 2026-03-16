@@ -186,11 +186,11 @@ if (values.removeDashboardOfferImg) {
       }
       const newDiscountId = res?.data?.discountId || res?.data?.id || res?.discountId || res?.id || null;
       if (values.offerType === 'CUSTOM') {
-        navigate('/dashboard/users/custom-discount/add', {
+        navigate('/dashboard/finance/custom-discount/add', {
           state: { discountId: newDiscountId },
         });
       } else {
-      navigate('/dashboard/user/discountModuleList');
+      navigate('/dashboard/finance/discountModuleList');
       }
     } catch (err) {
       console.error('API Error:', err.response?.data || err.message);
@@ -510,7 +510,7 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 fullWidth
                 type="button"
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}
-                onClick={() => navigate('/dashboard/user/discountModuleList')}
+                onClick={() => navigate('/dashboard/finance/discountModuleList')}
               >
                 Back
               </Button>

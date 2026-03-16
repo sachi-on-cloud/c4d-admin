@@ -251,7 +251,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
             }
 
             if (response?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             } else {
                 console.warn('Error', response?.message || 'Update failed', 'error');
             }
@@ -554,7 +554,7 @@ export default function ParcelPricingTableEdit({ onUpdated }) {
             </Dialog>
 
             <div className="flex">
-                <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                     Back
                 </Button>
             </div>

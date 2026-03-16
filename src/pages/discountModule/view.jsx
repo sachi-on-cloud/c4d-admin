@@ -93,7 +93,7 @@ const DiscountView = () => {
     <div className="mb-8 flex flex-col gap-12">
       <div className="flex items-center justify-end">
         <button
-          onClick={() => navigate('/dashboard/user/discountModule/add')}
+          onClick={() => navigate('/dashboard/finance/discountModule/add')}
           className="ml-4 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-700"
         >
           Add new
@@ -240,7 +240,7 @@ const DiscountView = () => {
                       <td className="py-3 px-5">
                         <Button
                           onClick={() =>
-                            navigate(`/dashboard/user/discountModule/edit/${item.id}`, {
+                            navigate(`/dashboard/finance/discountModule/edit/${item.id}`, {
                               state: { discount: item },
                             })
                           }

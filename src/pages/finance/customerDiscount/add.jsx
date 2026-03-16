@@ -80,7 +80,7 @@ const CustomerDiscountAdd = () => {
       const res = await ApiRequestUtils.post(API_ROUTES.POST_CUSTOM_DISCOUNT_TARGETS, payload);
 
       if (res?.success) {
-        navigate("/dashboard/users/custom-discount/list");
+        navigate("/dashboard/finance/custom-discount/list");
         return;
       } else {
         formikHelpers.setFieldError(
@@ -157,7 +157,7 @@ const CustomerDiscountAdd = () => {
                   <Button
                     type="button"
                     className={`px-6 ${ColorStyles.backButton} rounded-xl`}
-                    onClick={() => navigate("/dashboard/users/custom-discount/list")}
+                    onClick={() => navigate("/dashboard/finance/custom-discount/list")}
                   >
                     Back
                   </Button>

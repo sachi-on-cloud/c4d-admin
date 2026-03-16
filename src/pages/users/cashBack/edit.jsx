@@ -66,7 +66,7 @@ const CashBackEdit = () => {
         setRecordId(normalized.id || id);
       } catch (error) {
         console.error("Failed to load cash back record:", error);
-        navigate("/dashboard/users/cash-back/list");
+        navigate("/dashboard/finance/cash-back/list");
       } finally {
         setLoading(false);
       }
@@ -104,7 +104,7 @@ const CashBackEdit = () => {
       const response = await ApiRequestUtils.update(updateRoute, payload);
 
       if (response?.success) {
-        navigate("/dashboard/users/cash-back/list");
+        navigate("/dashboard/finance/cash-back/list");
       } else {
         console.error("Unable to update Cash Back:", response?.message);
       }

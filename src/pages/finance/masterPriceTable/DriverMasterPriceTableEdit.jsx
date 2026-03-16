@@ -135,7 +135,7 @@ const DriverMasterPriceTableEdit = () => {
             }
 
             if (response?.success) {
-                navigate(`/dashboard/users/master-price/`);
+                navigate(`/dashboard/finance/master-price/`);
             }
         } catch (error) {
             console.error("Error updating price details:", error);
@@ -299,7 +299,7 @@ const DriverMasterPriceTableEdit = () => {
 
                         {/* Buttons */}
                             <div className="flex flex-row">
-                                <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                                <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                     Back
                                 </Button>
                                 <Button fullWidth color="blue" onClick={handleSubmit} disabled={!dirty || !isValid} className="my-6 mx-2">

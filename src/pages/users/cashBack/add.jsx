@@ -33,7 +33,7 @@ const CashBackAdd = () => {
 
       const response = await ApiRequestUtils.post(API_ROUTES.ADD_CASH_BACK, payload);
       if (response?.success) {
-        navigate("/dashboard/users/cash-back/list");
+        navigate("/dashboard/finance/cash-back/list");
       } else {
         console.error("Unable to add Cash Back:", response?.message);
       }
