@@ -5,6 +5,7 @@ import {
   formatLabelCase,
   formatMetricLabel,
   formatPeriodLabel,
+  formatConditionServiceTypeLabel,
   formatServiceTypeLabel,
   safeText,
 } from "./listFormatters";
@@ -75,7 +76,7 @@ function TierExpandedDetails({ row }) {
                               <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(rule?.amount)}</td>
                               <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatMetricLabel(condition?.metric)}</td>
                               <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatPeriodLabel(condition?.period)}</td>
-                              <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatServiceTypeLabel(condition?.serviceType)}</td>
+                              <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatConditionServiceTypeLabel(condition)}</td>
                               <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.op)}</td>
                               <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.value)}</td>
                             </tr>
@@ -129,7 +130,7 @@ function TierExpandedDetails({ row }) {
                             <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{conditionIndex + 1}</td>
                             <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatMetricLabel(condition?.metric)}</td>
                             <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatPeriodLabel(condition?.period)}</td>
-                            <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatServiceTypeLabel(condition?.serviceType)}</td>
+                            <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatConditionServiceTypeLabel(condition)}</td>
                             <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.op)}</td>
                             <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.value)}</td>
                           </tr>
@@ -265,7 +266,7 @@ function TierExpandedDetails({ row }) {
                                   </td>
                                   <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatMetricLabel(condition?.metric)}</td>
                                   <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatPeriodLabel(condition?.period)}</td>
-                                  <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatServiceTypeLabel(condition?.serviceType)}</td>
+                                  <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatConditionServiceTypeLabel(condition)}</td>
                                   <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.op)}</td>
                                   <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{safeText(condition?.value)}</td>
                                   <td className="border-b border-blue-gray-100 px-3 py-2 text-xs text-blue-gray-800">{formatBoolLabel(condition?.isMandatory)}</td>

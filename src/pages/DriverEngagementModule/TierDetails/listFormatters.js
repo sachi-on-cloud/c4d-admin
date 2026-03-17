@@ -73,6 +73,20 @@ export const formatServiceTypeLabel = (value) => {
   return safeText(value, "-");
 };
 
+export const formatConditionServiceTypeLabel = (condition = {}) => {
+  const serviceType = safeText(condition?.serviceType, "").toUpperCase();
+  const packageType = safeText(condition?.packageType, "").toUpperCase();
+  const bookingType = safeText(condition?.bookingType, "").toUpperCase();
+
+  if (serviceType === "RENTAL") {
+    if (packageType === "LOCAL") return "Hourly Package";
+    if (packageType === "OUTSTATION" && bookingType === "DROP_ONLY") return "Drop Taxi";
+    if (packageType === "OUTSTATION" && bookingType === "ROUND_TRIP") return "Round Trip";
+  }
+
+  return formatServiceTypeLabel(serviceType);
+};
+
 export const formatBoolLabel = (value) => {
   if (typeof value === "boolean") return value ? "Yes" : "No";
   return safeText(value, "-");
