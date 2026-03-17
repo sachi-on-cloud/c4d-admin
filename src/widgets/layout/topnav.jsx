@@ -2,37 +2,33 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import CustomersSubmenu from "./CustomersSubmenu";
 import VendorsSubmenu from "./VendorsSubmenu";
-import DocumentVerificationSubmenu from "./DocumentVerificationSubmenu";
 import MarketingSubmenu from "./MarketingSubmenu";
 import AdminSubmenu from "./AdminSubmenu";
 import AllRecordsSubmenu from "./AllRecordsSubmenu";
 import SupportSubmenu from "./SupportSubmenu";
-import { Feature, NAV_UI } from "@/utils/constants";
+import FinanceSubmenu from "./FinanceSubmenu";
+import DriverEngagementSubmenu from "./DriverEngagementSubmenu";
+import { NAV_UI } from "@/utils/constants";
 export function Topnav({ permissions = [] }) {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
+  const isCashBackRoute = path.startsWith("/dashboard/finance/cash-back");
+  const isMasterPriceRoute = path.startsWith("/dashboard/finance/master-price");
+  const isInstantRewardRoute = path.startsWith("/dashboard/finance/instant-reward");
+  const isDiscountModuleRoute = path.startsWith("/dashboard/finance/discountmodule");
+  const isCustomDiscountRoute = path.startsWith("/dashboard/finance/custom-discount");
+  const isTaxRoute = path.startsWith("/dashboard/finance/gst");
 
-  const AllRecordsSection =
+  const isAllRecordsSection =
     path.startsWith("/dashboard/booking/list") ||
-    path.startsWith("/dashboard/booking/list/actingdriver") ||
-    path.startsWith("/dashboard/booking/list/rides") ||
-    path.startsWith("/dashboard/booking/list/rentals") ||
-    (Feature.parcel && path.startsWith("/dashboard/booking/list/parcel"));
+    path.startsWith("/dashboard/auto");
 
   const isCustomersSection =
     path.startsWith("/dashboard/customers");
 
   const isSupportSection =
     path.startsWith("/dashboard/rental-rate-card") ||
-    path.startsWith("/dashboard/leads") ||
-    path.startsWith("/dashboard/doc-verification") ||
-    // Vendors operations (but NOT marketing notification routes)
-    path.startsWith("/dashboard/vendors/account") ||
-    path.startsWith("/dashboard/vendors/vehiclelist") ||
-    path.startsWith("/dashboard/vendors/onlinevehicleslist") ||
-    path.startsWith("/dashboard/vendors/account/allvehicles") ||
-    path.startsWith("/dashboard/vendors/account/autoview") ||
-    path.startsWith("/dashboard/vendors/account/autolist");
+    path.startsWith("/dashboard/leads");
 
   const isVendorsSection =
     path.startsWith("/dashboard/vendors/account") ||
@@ -41,43 +37,53 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/vendors/onlinevehicleslist") ||
     path.startsWith("/dashboard/vendors/account/allvehicles") ||
     path.startsWith("/dashboard/vendors/account/autoview") ||
-    path.startsWith("/dashboard/vendors/account/autolist");
-
-  const isDocVerifiction = 
+    path.startsWith("/dashboard/vendors/account/autolist") ||
     path.startsWith("/dashboard/doc-verification") ||
     path.startsWith("/dashboard/doc-verification/pending");
   
   const isMarketingSection = 
+    path.startsWith("/dashboard/vendors/driver-incentive") ||
     path.startsWith("/dashboard/vendors/notificationlist") ||
     path.startsWith("/dashboard/vendors/customernotificationlist") ||
     path.startsWith("/dashboard/vendors/drivernotificationlist") ||
     path.startsWith("/dashboard/user/bannerimgview") ||
-    path.startsWith("/dashboard/user/bannerimg/add") ||
-    path.startsWith("/dashboard/user/testimonialview") ||
-    path.startsWith("/dashboard/user/testimonial/add");
+    path.startsWith("/dashboard/user/bannerimg/add")
+    // path.startsWith("/dashboard/user/testimonialview") ||
+    // path.startsWith("/dashboard/user/testimonial/add");
 
+  const isFinanceSection =
+    path.startsWith("/dashboard/finance") ||
+    isCashBackRoute ||
+    isMasterPriceRoute ||
+    isInstantRewardRoute ||
+    isDiscountModuleRoute ||
+    isCustomDiscountRoute ||
+    isTaxRoute;
+  const isDriverEngagementSection =
+    path.startsWith("/dashboard/driverengagement");
   const isAdminSection =
-    path.startsWith("/dashboard/users") ||
+    (path.startsWith("/dashboard/users") &&
+      !isCashBackRoute &&
+      !isMasterPriceRoute &&
+      !isInstantRewardRoute &&
+      !isCustomDiscountRoute) ||
     path.startsWith("/dashboard/admin/geo-markings") ||
     path.startsWith("/dashboard/user/versioncontrol") ||
-    path.startsWith("/dashboard/user/discountmodule") ||
-    path.startsWith("/dashboard/user/gst") ||
-    path.startsWith("/dashboard/driver-ops") ||
-    path.startsWith("/dashboard/finance") ||
+    // path.startsWith("/dashboard/driverengagement") ||
     // Also show admin top bar on Trip Master and Calls
-    path.startsWith("/dashboard/tripdetails") ||
-    path.startsWith("/dashboard/reports/tripmasterreport") ||
-    path.startsWith("/dashboard/exotel-calls");
+    path.startsWith("/dashboard/tripdetails");
 
 
   // If we are not in any section that has a top nav, render nothing
   if (
-    !AllRecordsSection &&
+    !isAllRecordsSection &&
     !isSupportSection &&
     !isCustomersSection &&
     !isVendorsSection &&
-    !isDocVerifiction &&
+    // !isDocVerifiction &&
     !isMarketingSection &&
+    !isFinanceSection &&
+    !isDriverEngagementSection &&
     !isAdminSection
   ) {
     return null;
@@ -98,11 +104,12 @@ return (
 
     {/* Main row: other section-specific submenus */}
     <div className="overflow-x-auto whitespace-nowrap">
-      {AllRecordsSection && <AllRecordsSubmenu />}
+      {isAllRecordsSection && <AllRecordsSubmenu />}
       {isCustomersSection && <CustomersSubmenu />}
       {isVendorsSection && <VendorsSubmenu />}
-      {isDocVerifiction && <DocumentVerificationSubmenu />}
       {isMarketingSection && <MarketingSubmenu />}
+      {isFinanceSection && <FinanceSubmenu permissions={permissions} />}
+      {isDriverEngagementSection && <DriverEngagementSubmenu permissions={permissions} />}
       {isAdminSection && <AdminSubmenu permissions={permissions} />}
     </div>
     </div>

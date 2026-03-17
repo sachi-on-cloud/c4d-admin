@@ -27,6 +27,7 @@ const RentalsPriceMasterDetails = () => {
                     zone: data?.data?.zone || '',
                     type: data?.data?.type,
                     period: data?.data?.period,
+                    baseKm: data?.data?.baseKm,
                     baseFare: data?.data?.baseFare,
                     kilometer: data?.data?.kilometer,
                     kilometerPrice: data?.data?.kilometerPrice,
@@ -121,6 +122,10 @@ const RentalsPriceMasterDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Package Type</label>
                                 <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
+                            </div>
+                             <div>
+                                <label className="text-sm font-medium text-gray-700">Base KM</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                             </div>
                             {initialValues?.type !== 'Outstation' && <div> 
                                 <label className="text-sm font-medium text-gray-700">KM</label>
@@ -623,11 +628,11 @@ const RentalsPriceMasterDetails = () => {
 
 
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back
                             </Button>
                             <Button fullWidth className={`my-6 mx-2 border-2 border-gray-400 rounded-xl ${ColorStyles.editButton
-                                }`} onClick={() => navigate(`/dashboard/users/master-price/rentals-edit/${id}`)}>
+                                }`} onClick={() => navigate(`/dashboard/finance/master-price/rentals-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>

@@ -38,6 +38,7 @@ const PriceDetails = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data?.data?.baseFare,
+                    baseKm: data?.data?.baseKm,
                     baseFareSuv: data?.data?.baseFareSuv,
                     baseFareSedan: data?.data?.baseFareSedan,
                     baseFareMVP: data?.data?.baseFareMVP,
@@ -96,6 +97,10 @@ const PriceDetails = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base KM</label>
+                                <Field type="number" name="baseKm" disabled className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Free Extra Minutes</label>
@@ -205,12 +210,12 @@ const PriceDetails = () => {
                         <RidesPeakHourTableDetails priceData={peakHours}/>
                         <PremiumPriceDetails premiumData={premiumConfig}/>
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className={`my-6 mx-2 ${ColorStyles.backButton}`}>
                                 Back
                             </Button>
                             <Button fullWidth className={`my-6 mx-2  border-2 border-gray-400 rounded-xl ${
                                 ColorStyles.editButton
-                            }`} onClick={()=>navigate(`/dashboard/users/master-price/rides-edit/${id}`)}>
+                            }`} onClick={()=>navigate(`/dashboard/finance/master-price/rides-edit/${id}`)}>
                                 Edit
                             </Button>
                         </div>

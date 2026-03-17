@@ -21,6 +21,7 @@ const PRICE_SCHEMA = Yup.object().shape({
     zone: Yup.string().required('Zone is required'),
     type: Yup.string().required('Trip Type is required'),
     period: Yup.string().required('Package Type is required'),
+    baseKm: Yup.number().required('Base KM is required'),
     baseFare: Yup.number().required('Base Fare is required'),
     kilometer: Yup.number().required('Kilometer is required'),
     kilometerPrice: Yup.number().required('Kilometer Rate is required'),
@@ -47,11 +48,13 @@ const RentalsMasterPriceEdit = () => {
         try {
             const data = await ApiRequestUtils.get(`${API_ROUTES.RIDES_PRICE_DETAILS}/${packageId}`);
             if (data?.success) {
+                const isLocalType = data?.data?.type === 'Local';
                 setInitialValues({
                     // carType: data?.data?.carType || '',
                     zone: data?.data?.zone || '',
                     type: data?.data?.type || '',
                     period: data?.data?.period || '',
+                    baseKm: data?.data?.baseKm || 0,
                     baseFare: data?.data?.baseFare || 0,
                     kilometer: data?.data?.kilometer || 0,
                     kilometerPrice: data?.data?.kilometerPrice || 0,
@@ -96,10 +99,10 @@ const RentalsMasterPriceEdit = () => {
                     extraKilometerRoundPriceSedan: data?.data?.extraKilometerRoundPriceSedan || 0,
 
 
-                    acKilometerPrice: data?.data?.acKilometerPrice || 0,
-                    acKilometerPriceMVP: data?.data?.acKilometerPriceMVP || 0,
-                    acKilometerPriceSuv: data?.data?.acKilometerPriceSuv || 0,
-                    acKilometerPriceSedan: data?.data?.acKilometerPriceSedan || 0,
+                    acKilometerPrice: isLocalType ? (data?.data?.kilometerPrice || 0) : (data?.data?.acKilometerPrice || 0),
+                    acKilometerPriceMVP: isLocalType ? (data?.data?.kilometerPriceMVP || 0) : (data?.data?.acKilometerPriceMVP || 0),
+                    acKilometerPriceSuv: isLocalType ? (data?.data?.kilometerPriceSuv || 0) : (data?.data?.acKilometerPriceSuv || 0),
+                    acKilometerPriceSedan: isLocalType ? (data?.data?.kilometerPriceSedan || 0) : (data?.data?.acKilometerPriceSedan || 0),
 
                     acKilometerRoundPrice: data?.data?.acKilometerRoundPrice || 0,
                     acKilometerRoundPriceMVP: data?.data?.acKilometerRoundPriceMVP || 0,
@@ -142,6 +145,7 @@ const RentalsMasterPriceEdit = () => {
                 period: Number(values.period),
                 kilometer: Number(values.kilometer),
                 serviceType: 'RENTAL',
+                baseKm: Number(values.baseKm),
                 baseFare: Number(values.baseFare),
                 kilometerPrice: Number(values.kilometerPrice),
                 additionalMinCharge: Number(values.additionalMinCharge),
@@ -184,10 +188,10 @@ const RentalsMasterPriceEdit = () => {
                 extraKilometerRoundPriceSuv: Number(values.extraKilometerRoundPriceSuv),
                 extraKilometerRoundPriceSedan: Number(values.extraKilometerRoundPriceSedan),
 
-                acKilometerPrice: Number(values.acKilometerPrice),
-                acKilometerPriceMVP: Number(values.acKilometerPriceMVP),
-                acKilometerPriceSuv: Number(values.acKilometerPriceSuv),
-                acKilometerPriceSedan: Number(values.acKilometerPriceSedan),
+                acKilometerPrice: values.type === 'Local' ? Number(values.kilometerPrice) : Number(values.acKilometerPrice),
+                acKilometerPriceMVP: values.type === 'Local' ? Number(values.kilometerPriceMVP) : Number(values.acKilometerPriceMVP),
+                acKilometerPriceSuv: values.type === 'Local' ? Number(values.kilometerPriceSuv) : Number(values.acKilometerPriceSuv),
+                acKilometerPriceSedan: values.type === 'Local' ? Number(values.kilometerPriceSedan) : Number(values.acKilometerPriceSedan),
 
                 acKilometerRoundPrice: Number(values.acKilometerRoundPrice),
                 acKilometerRoundPriceMVP: Number(values.acKilometerRoundPriceMVP),
@@ -209,7 +213,7 @@ const RentalsMasterPriceEdit = () => {
             const response = await ApiRequestUtils.post(API_ROUTES.RENDAL_PRICE_EDIT, reqBody);
 
             if (response?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             } else {
                 console.error('Error updating data');
             }
@@ -239,6 +243,11 @@ const RentalsMasterPriceEdit = () => {
                                 <label className="text-sm font-medium text-gray-700">Package Type</label>
                                 <Field type="string" name="period" className="p-2 w-full rounded-md border-gray-300 shadow-sm" disabled />
                                 <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Km</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm"  />
+                                <ErrorMessage name="baseKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             {values?.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">KM</label>
@@ -926,7 +935,7 @@ const RentalsMasterPriceEdit = () => {
                 <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data) => setPremiumConfig(data)} />
               }
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
                             <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasPremiumConfig()) || !isValid} className="my-6 mx-2">

@@ -35,18 +35,28 @@ function VendorsSubmenu({ miniSidenav }) {
         );
       case "Online Vehicles List":
         return pathname.startsWith("/dashboard/vendors/onlinevehicleslist");
+      case "Auto Owner":
+        return pathname.startsWith("/dashboard/vendors/account/autoview");
+      case "Auto List" :
+        return pathname.startsWith("/dashboard/vendors/account/autolist");
+      case "All Document Verification":
+        return pathname.startsWith("/dashboard/doc-verification");
+      case "All Pending Documents":
+        return pathname.startsWith("/dashboard/doc-verification/pending");
       default:
         return pathname.startsWith(target);
     }
   };
 
   const items = [
-    { label: "Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
-    { label: "Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
-    { label: "Vehicles", path: "/dashboard/Vendors/vehicleList", icon: "/img/vehicles.png" },
-    { label: "Online Vehicles List", path: "/dashboard/Vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
-    { label: "Auto Owner", path: "/dashboard/Vendors/account/autoview", icon: "/img/parcel_list.png" },
-    { label: "Auto List", path: "/dashboard/Vendors/account/autoList", icon: "/img/auto.png" },
+    { label: "All Cab Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
+    { label: "All Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
+    { label: "All Auto Owner", path: "/dashboard/vendors/account/autoview", icon: "/img/parcel_list.png" },
+    { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
+    { label: "Online Vehicles List", path: "/dashboard/vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
+    { label: "All Auto List", path: "/dashboard/vendors/account/autoList", icon: "/img/auto.png" },
+    { label: "All Document Verification", path: "/dashboard/doc-verification", icon: "/img/all.png" },
+    { label: "All Pending Documents", path: "/dashboard/doc-verification/pending", icon: "/img/pending_doc.png" },
     ...(Feature.parcel
       ? [
           {
@@ -61,10 +71,12 @@ function VendorsSubmenu({ miniSidenav }) {
         ]
       : []),
   ];
+  const firstRowItems = items.slice(0, 4);
+  const secondRowItems = items.slice(4, 8);
+  const thirdRowItems = items.slice(8);
 
-  return (
-    <ul className={NAV_UI.topnav.list}>
-      {items.map(({ label, path, isSubMenu, subItems, icon }) => (
+  const renderItems = (menuItems) =>
+    menuItems.map(({ label, path, isSubMenu, subItems, icon }) => (
         <li key={label}>
           {isSubMenu ? (
             <>
@@ -86,7 +98,7 @@ function VendorsSubmenu({ miniSidenav }) {
               </Button>
               {(label === "Bike" ? openBikeSubMenu === label : openAutoSubMenu === label) && (
                 <ul className={NAV_UI.topnav.nestedList}>
-                  {subItems.map(({ label: subLabel, path: subPath, icon: subIcon }) => (
+                  {subItems.map(({ label: subLabel, path: subPath }) => (
                     <li key={subLabel}>
                       <NavLink to={subPath} end={false}>
                         {({ isActive }) => (
@@ -124,8 +136,18 @@ function VendorsSubmenu({ miniSidenav }) {
             </NavLink>
           )}
         </li>
-      ))}
-    </ul>
+    ));
+
+  return (
+    <div>
+      <ul className={NAV_UI.topnav.list}>{renderItems(firstRowItems)}</ul>
+      {secondRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(secondRowItems)}</ul>
+      ) : null}
+      {thirdRowItems.length > 0 ? (
+        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(thirdRowItems)}</ul>
+      ) : null}
+    </div>
   );
 }
 

@@ -1,8 +1,14 @@
 import axios from 'axios';
 import { ASYNC_STORAGE_KEYS, getBaseUrl, KYC_PROCESS } from "./constants";
 
+const showDefaultFailureAlert = (message) => {
+    if (typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert(message || "Failure");
+    }
+};
+
 export const ApiRequestUtils = {
-    post: async (apiRoute, body, custID = 0) => {
+    post: async (apiRoute, body, custID = 0, options = {}) => {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json',
@@ -13,15 +19,12 @@ export const ApiRequestUtils = {
         if (custID != 0) {
             headers['custID'] = custID;
         }
-        const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
+const { data } = await axios.post(getBaseUrl() + apiRoute, body, {
             headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
-            alert('Failure', data.message, [{
-                style: 'default', onPress: () => {
-                    // navigation.navigate('Welcome');
-                }
-            }]);
+            if (options?.suppressAlert) return data;
+            showDefaultFailureAlert(data?.message);
             return;
         } else {
             return data;
@@ -76,7 +79,7 @@ export const ApiRequestUtils = {
         }
     },
 
-    update: async (apiRoute, body, custID = 0) => {
+    update: async (apiRoute, body, custID = 0, options = {}) => {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json',
@@ -90,6 +93,28 @@ export const ApiRequestUtils = {
             headers
         });
         if (!data.success && (data.code === 400 || data.code === 415)) { // Unauthorized request
+            if (options?.suppressAlert) return data;
+            showDefaultFailureAlert(data?.message);
+            return;
+        } else {
+            return data;
+        }
+    },
+
+    patch: async (apiRoute, body, custID = 0) => {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'token': token,
+            // 'ngrok-skip-browser-warning': '69420',
+        }
+        if (custID != 0) {
+            headers['custID'] = custID;
+        }
+        const { data } = await axios.patch(getBaseUrl() + apiRoute, body, {
+            headers
+        });
+        if (!data.success && (data.code === 400 || data.code === 415)) {
             alert('Failure', data.message, [{
                 style: 'default', onPress: () => {
                     // navigation.navigate('Welcome');

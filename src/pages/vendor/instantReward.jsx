@@ -33,6 +33,8 @@ const InstantReward = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 10;
   // const [pagination, setPagination] = useState({
   // //   currentPage: 1,
   // //   totalPages: 1,
@@ -47,7 +49,13 @@ const InstantReward = () => {
     customerId: [],
     selectedType: '',
   };
+const totalPages = Math.ceil(rewardsData.length / itemsPerPage);
 
+const paginatedRewards = useMemo(() => {
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return rewardsData.slice(start, end);
+}, [rewardsData, currentPage]);
   const getCustomers = async () => {
     try {
       setIsLoading(true);
@@ -64,7 +72,11 @@ const InstantReward = () => {
       setIsLoading(false);
     }
   };
-
+const handlePageChange = (page) => {
+  if (page >= 1 && page <= totalPages) {
+    setCurrentPage(page);
+  }
+};
   const fetchRewards = async (selectedType = initialValues.selectedType) => {
     setIsLoading(true);
     setError(null);
@@ -108,6 +120,7 @@ const InstantReward = () => {
           });
 
         setRewardsData(filteredRewards);
+        setCurrentPage(1);
         // setPagination({
         //   currentPage: rewardsData.pagination?.currentPage || 1,
         //   totalPages: rewardsData.pagination?.totalPages || 1,
@@ -149,7 +162,7 @@ const InstantReward = () => {
         fetchRewards(values.selectedType);
         setTimeout(() => {
           setModalData(null);
-          navigate('/dashboard/users/instant-reward');
+          navigate('/dashboard/finance/instant-reward');
         }, 2000);
       }
     } catch (error) {
@@ -167,33 +180,33 @@ const InstantReward = () => {
   //   }
   // };
 
-  // const generatePageButtons = () => {
-  //   const buttons = [];
-  //   const maxVisible = 5;
-  //   let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
-  //   let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+  const generatePageButtons = () => {
+  const buttons = [];
+  const maxVisible = 5;
 
-  //   if (endPage - startPage < maxVisible - 1) {
-  //     startPage = Math.max(1, endPage - maxVisible + 1);
-  //   }
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
-  //   for (let i = startPage; i <= endPage; i++) {
-  //     buttons.push(
-  //       <Button
-  //         key={`page-${i}`}
-  //         size="sm"
-  //         variant={i === pagination.currentPage ? 'filled' : 'outlined'}
-  //         className={`mx-1 ${ColorStyles.bgColor} text-white`}
-  //         onClick={() => handlePageChange(i)}
-  //         disabled={isLoading}
-  //         aria-label={`Page ${i}`}
-  //       >
-  //         {i}
-  //       </Button>
-  //     );
-  //   }
-  //   return buttons;
-  // };
+  if (endPage - startPage < maxVisible - 1) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    buttons.push(
+      <Button
+        key={i}
+        size="sm"
+        variant={i === currentPage ? "filled" : "outlined"}
+        className={`mx-1 ${ColorStyles.bgColor} text-white`}
+        onClick={() => handlePageChange(i)}
+      >
+        {i}
+      </Button>
+    );
+  }
+
+  return buttons;
+};
 
   const customerOptions = useMemo(
     () =>
@@ -383,7 +396,7 @@ const InstantReward = () => {
                             </td>
                           </tr>
                         ) : (
-                          rewardsData.map((reward) => (
+                          paginatedRewards.map((reward) => (
                             <tr key={reward.id} className="border-t">
                               <td className="p-2 border">{reward.name}</td>
                               <td className="p-2 border">{reward.phoneNumber}</td>
@@ -397,29 +410,27 @@ const InstantReward = () => {
                         )}
                       </tbody>
                     </table>
-                    {/* <div className="flex items-center justify-center mt-4">
+                  <div className="flex items-center justify-center mt-4">
                       <Button
                         size="sm"
                         variant="text"
-                        disabled={pagination.currentPage === 1 || isLoading}
-                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
                         className="mx-1"
-                        aria-label="Previous Page"
                       >
-                        {'<'}
+                        {"<"}
                       </Button>
                       {generatePageButtons()}
                       <Button
                         size="sm"
                         variant="text"
-                        disabled={pagination.currentPage === pagination.totalPages || isLoading}
-                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        onClick={() => handlePageChange(currentPage + 1)}
                         className="mx-1"
-                        aria-label="Next Page"
                       >
-                        {'>'}
+                        {">"}
                       </Button>
-                    </div> */}
+                    </div>
                   </>
                 )}
               </div>

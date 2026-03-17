@@ -19,6 +19,7 @@ const PRICE_SCHEMA = Yup.object().shape({
     // serviceType: Yup.string().required('Service Type is required'),
     type: Yup.string().required('Trip Type is required'),
     period: Yup.string().required('Package Type is required'),
+    baseKm: Yup.number().required('Base Km is required'),
     baseFare: Yup.number().required('Base Fare is required'),
     kilometer: Yup.number().required('Kilometer is required'),
     kilometerPrice: Yup.number().required('Kilometer Rate is required'),
@@ -69,6 +70,7 @@ useEffect(() => {
         serviceType: '',
         type: '',
         period: '',
+        baseKm: '',
         kilometer: '',
         tollCharge: '',
         driverCharge: '',
@@ -153,6 +155,7 @@ useEffect(() => {
                 'serviceType': 'RENTAL',
                 'type': String(values.type),
                 'period': String(values.period),
+                'baseKm': Number(values.baseKm),
                 'baseFare': Number(values.baseFare),
                 'kilometer': Number(values.kilometer),
                 'kilometerPrice': Number(values.kilometerPrice),
@@ -224,7 +227,7 @@ useEffect(() => {
             };
             const data = await ApiRequestUtils.post(API_ROUTES.ADD_RENTALS_PRICE_TABLE, reqBody);
             if (data?.success) {
-                navigate('/dashboard/users/master-price');
+                navigate('/dashboard/finance/master-price');
             }
         } catch (error) {
             console.error('Error saving price details:', error);
@@ -279,6 +282,11 @@ useEffect(() => {
                                     {values.type !== 'Outstation' && <option value="12">12</option>}
                                 </Field>
                                 <ErrorMessage name="period" component="div" className="text-red-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Base Km</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                <ErrorMessage name="baseKm" component="div" className="text-red-500 text-sm" />
                             </div>
                             {values.type !== 'Outstation' && <div>
                                 <label className="text-sm font-medium text-gray-700">KM</label>
@@ -970,7 +978,7 @@ useEffect(() => {
 
 
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
                             <Button fullWidth  onClick={handleSubmit} disabled={!dirty || !isValid} 

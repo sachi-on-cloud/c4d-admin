@@ -38,7 +38,7 @@ const GstAdd = () => {
 
       await ApiRequestUtils.post(API_ROUTES.POST_GST, payload);
 
-      navigate('/dashboard/user/gstList', {
+      navigate('/dashboard/finance/GSTList', {
         state: { updatedGst: payload },
       });
     } catch (error) {
@@ -118,7 +118,7 @@ const GstAdd = () => {
               <Button
                 fullWidth
                 type="button"
-                onClick={() => navigate('/dashboard/user/gstList')}
+                onClick={() => navigate('/dashboard/finance/GSTList')}
                 className={`my-6 mx-2 border-2 rounded-xl ${ColorStyles.backButton}`}
               >
                 Cancel

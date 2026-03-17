@@ -26,6 +26,7 @@ const STATUS_OPTIONS = [
 
 const PRICE_SCHEMA = Yup.object().shape({
     baseFare: Yup.number().required('Base Fare Mini is required'),
+    baseKm: Yup.number().required('Base Km is required'),
     baseFareMVP: Yup.number().required('Base Fare MUV is required'),
     baseFareSedan: Yup.number().required('Base Fare Sedan is required'),
     baseFareSuv: Yup.number().required('Base Fare Suv is required'),
@@ -65,6 +66,7 @@ const PriceEdit = () => {
             if (data?.success) {
                 setInitialValues({
                     baseFare: data.data.baseFare,
+                    baseKm: data.data.baseKm,
                     baseFareMVP: data.data.baseFareMVP,
                     baseFareSedan: data.data.baseFareSedan,
                     baseFareSuv: data.data.baseFareSuv,
@@ -111,6 +113,7 @@ const PriceEdit = () => {
         try {
             const reqBody = {
                 packageId:Number(id),
+                baseKm: Number(values.baseKm),
                 baseFare: Number(values.baseFare),
                 baseFareMVP: Number(values.baseFareMVP),
                 baseFareSuv: Number(values.baseFareSuv),
@@ -137,7 +140,7 @@ const PriceEdit = () => {
             };
             const response = await ApiRequestUtils.update(API_ROUTES.RIDES_PRICE_EDIT, reqBody);
             if (response?.success) {
-                navigate('/dashboard/users/master-price', { state: { priceUpdated: true } });
+                navigate('/dashboard/finance/master-price', { state: { priceUpdated: true } });
             }
         } catch (error) {
             console.error("Error updating price details:", error);
@@ -228,6 +231,10 @@ const PriceEdit = () => {
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                                 <Field type="number" name="surchargePercentage" className="p-2 w-full rounded-md border-gray-300" />
+                            </div>
+                             <div>
+                                <label className="text-sm font-medium text-gray-700">Base Km</label>
+                                <Field type="number" name="baseKm" className="p-2 w-full rounded-md border-gray-300" />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">freeExtraMinutes</label>
@@ -376,7 +383,7 @@ const PriceEdit = () => {
                         <RidesPeakHourTableEdit initialPriceData={peakHours} onUpdate={(data)=> setPeakHours(data)}/>
                         <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data)=> setPremiumConfig(data) } />
                         <div className="flex flex-row">
-                            <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+                            <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                                 Cancel
                             </Button>
                             <Button fullWidth color="blue" onClick={handleSubmit} disabled={!(dirty || hasPeakHoursChanged() || hasPremiumConfig()) || !isValid} className="my-6 mx-2">

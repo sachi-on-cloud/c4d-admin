@@ -52,6 +52,9 @@ import ReassignDriver from "./components/ReassignDriver";
 import PayableView from "./pages/finance/payable/view";
 import PayableDetails from "./pages/finance/payable/details";
 import UserEdit from "./pages/users/edit";
+import CashBackList from "./pages/users/cashBack/list";
+import CashBackAdd from "./pages/users/cashBack/add";
+import CashBackEdit from "./pages/users/cashBack/edit";
 import { MasterSubscriptionView } from "./pages/finance/masterSubscription/MasterSubscriptionView";
 import MasterSubscriptionAdd from "./pages/finance/masterSubscription/MasterSubscriptionAdd";
 import MasterSubscriptionDetails from "./pages/finance/masterSubscription/MasterSubscriptionDetails";
@@ -73,6 +76,9 @@ import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMast
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
+import DriverIncentiveList from "./pages/marketing/DriverIncentive/list";
+import DriverIncentiveEdit from "./pages/marketing/DriverIncentive/edit";
+import DriverIncentiveAdd from "./pages/marketing/DriverIncentive/add";
 import InstantReward from "./pages/vendor/instantReward";
 import { VehiclesList } from "./pages/vendor/vehiclesList";
 import DriverNotificationList from "./pages/vendor/driverNotificationList";
@@ -127,6 +133,13 @@ import DriverOfferAssign from "./pages/finance/driverOffer/DriverOfferAssign";
 import DriverOpsView from "./pages/DriverOps/view";
 import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
 import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
+import AutoMasterPriceTableAdd from "./pages/finance/masterPriceTable/AutoMasterPriceTableAdd";
+import TierDetailsList from "./pages/DriverEngagementModule/TierDetails/list";
+import TierDetailsAdd from "./pages/DriverEngagementModule/TierDetails/add";
+import TierDetailsEdit from "./pages/DriverEngagementModule/TierDetails/edit";
+import DriverMonitoringList from "./pages/DriverEngagementModule/DriverMonitoring/list";
+import IncentivePayoutList from "./pages/DriverEngagementModule/IncentivePayout/list";
+import DriverEngagementAuditLogs from "./pages/DriverEngagementModule/AuditLogs/list";
 const icon = {
   className: "w-5 h-5 text-inherit",
 };
@@ -206,6 +219,30 @@ export const routes = [
         element: <DriverView />,
         display: true,
         permission: "Vendors",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive",
+        path: "/vendors/driver-incentive",
+        element: <DriverIncentiveList />,
+        display: true,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive add",
+        path: "/vendors/driver-incentive/add",
+        element: <DriverIncentiveAdd />,
+        display: false,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "driver incentive edit",
+        path: "/vendors/driver-incentive/edit/:id",
+        element: <DriverIncentiveEdit />,
+        display: false,
+        permission: "Marketing",
       },
       {
         icon: <UserIcon {...icon} />,
@@ -421,7 +458,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST List",
-        path: "/user/GSTList",
+        path: "/finance/GSTList",
         element: <GstView />,
         display: true,
         permission: "Users",
@@ -429,7 +466,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST add",
-        path: "/user/GST/add",
+        path: "/finance/GST/add",
         element: <GstAdd />,
         display: true,
         permission: "Users",
@@ -437,7 +474,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "GST edit",
-        path: "/user/GST/edit/:id",
+        path: "/finance/GST/edit/:id",
         element: <GstEdit />,
         display: true,
         permission: "Users",
@@ -596,7 +633,7 @@ export const routes = [
         icon: <UserIcon {...icon} />,
         name: "All bookings List",
         path: "/booking/list",
-        element: <AllBookingsLists type={''} />,
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.ALL_CABS} />,
         display: false,
         permission: "All bookings",
       },
@@ -725,7 +762,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Rides Price Table Add",
-        path: "/users/master-price/rides-add",
+        path: "/finance/master-price/rides-add",
         element: <MasterPriceTableAdd />,
         display: false,
         permission: "Users",
@@ -733,7 +770,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price View",
-        path: "/users/master-price",
+        path: "/finance/master-price",
         element: <MasterPriceView />,
         display: false,
         permission: "Users",
@@ -741,15 +778,39 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "instant reward",
-        path: "/users/instant-reward",
+        path: "/finance/instant-reward",
         element: <InstantReward />,
         display: true,
         permission: "Users",
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Cash Back List",
+        path: "/finance/cash-back/list",
+        element: <CashBackList />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cash Back Add",
+        path: "/finance/cash-back/add",
+        element: <CashBackAdd />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Cash Back Edit",
+        path: "/finance/cash-back/edit/:id",
+        element: <CashBackEdit />,
+        display: false,
+        permission: "Users",
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Master Price Add",
-        path: "/users/master-price/driver-add",
+        path: "/finance/master-price/driver-add",
         element: <MasterPriceAdd />,
         display: false,
         permission: "Users",
@@ -757,7 +818,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Price Details & Edit",
-        path: "/users/master-price/details/:id",
+        path: "/finance/master-price/details/:id",
         element: <MasterPriceDetailsAndEdit />,
         display: false,
         permission: "Users",
@@ -765,7 +826,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Driver Price Table Edit",
-        path: "/users/master-price/driver-edit/:id",
+        path: "/finance/master-price/driver-edit/:id",
         element: <DriverMasterPriceTableEdit />,
         display: false,
         permission: "Users",
@@ -773,7 +834,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Add",
-        path: "/users/master-price/rentals-add",
+        path: "/finance/master-price/rentals-add",
         element: <RentalsPriceMasterAdd />,
         display: false,
         permission: "Users",
@@ -781,7 +842,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Details",
-        path: "/users/master-price/rentals-details/:id",
+        path: "/finance/master-price/rentals-details/:id",
         element: <RentalsPriceMasterDetails />,
         display: false,
         permission: "Users",
@@ -789,7 +850,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Rentals Master Price Edit",
-        path: "/users/master-price/rentals-edit/:id",
+        path: "/finance/master-price/rentals-edit/:id",
         element: <RentalsMasterPriceEdit />,
         display: false,
         permission: "Users",
@@ -797,8 +858,16 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Auto Master Price Edit",
-        path: "/users/master-price/auto-edit/:id",
+        path: "/finance/master-price/auto-edit/:id",
         element: <AutoMasterPriceEdit />,
+        display: true,
+        permission: "Users"
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Auto Master Price Add",
+        path: "/finance/master-price/auto-add",
+        element: <AutoMasterPriceTableAdd />,
         display: true,
         permission: "Users"
       },
@@ -861,7 +930,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Details",
-        path: "/users/master-price/rides-details/:id",
+        path: "/finance/master-price/rides-details/:id",
         element: <MasterPriceTableDetails />,
         display: false,
         permission: "Users",
@@ -869,7 +938,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Master Table Rides Edit",
-        path: "/users/master-price/rides-edit/:id",
+        path: "/finance/master-price/rides-edit/:id",
         element: <MasterPriceTableEdit />,
         display: false,
         permission: "Users",
@@ -901,7 +970,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module list",
-        path: "/user/discountModuleList",
+        path: "/finance/discountModuleList",
         element: <DiscountView />,
         display: true,
         permission: "Users",
@@ -909,7 +978,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module edit",
-        path: "/user/discountModule/edit/:id",
+        path: "/finance/discountModule/edit/:id",
         element: <DiscountEdit />,
         display: true,
         permission: "Users",
@@ -917,27 +986,27 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "discount module add",
-        path: "/user/discountModule/add",
+        path: "/finance/discountModule/add",
         element: <DiscountAdd />,
         display: true,
         permission: "Users",
       },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "testimoinal view",
-        path: "/user/testimonialView",
-        element: <TestimoinalView />,
-        display: true,
-        permission: "Marketing",
-      },
-      {
-        icon: <UserIcon {...icon} />,
-        name: "testimoinal add",
-        path: "/user/testimonial/add",
-        element: <TestimoinalAdd />,
-        display: true,
-        permission: "Marketing",
-      },
+      // {
+      //   icon: <UserIcon {...icon} />,
+      //   name: "testimoinal view",
+      //   path: "/user/testimonialView",
+      //   element: <TestimoinalView />,
+      //   display: true,
+      //   permission: "Marketing",
+      // },
+      // {
+      //   icon: <UserIcon {...icon} />,
+      //   name: "testimoinal add",
+      //   path: "/user/testimonial/add",
+      //   element: <TestimoinalAdd />,
+      //   display: true,
+      //   permission: "Marketing",
+      // },
       {
         icon: <UserIcon {...icon} />,
         name: "tripdetails list",
@@ -982,7 +1051,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Custom Discount",
-        path: "/users/custom-discount/add",
+        path: "/finance/custom-discount/add",
         element: <CustomerDiscountAdd />,
         display: false,
         permission: "Users",
@@ -990,7 +1059,7 @@ export const routes = [
       {
         icon: <UserIcon {...icon} />,
         name: "Custom Discount List",
-        path: "/users/custom-discount/list",
+        path: "/finance/custom-discount/list",
         element: <CustomerDiscountList />,
         display: false,
         permission: "Users",
@@ -1088,7 +1157,7 @@ export const routes = [
         {
           icon: <UserIcon {...icon} />,
           name: "Parcel Master Price Edit",
-          path: "/users/master-price/parcel-edit/:id",
+          path: "/finance/master-price/parcel-edit/:id",
           element: <ParcelMasterPriceEdit />,
           display: true,
           permission: "Users"
@@ -1126,6 +1195,54 @@ export const routes = [
         element: <DriverOpsView />,
         display: false,
         permission: "Driver Ops",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Tier Details",
+        path: "/driverengagement",
+        element: <TierDetailsList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Add Tier",
+        path: "/driverengagement/tier/add",
+        element: <TierDetailsAdd />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Edit Tier",
+        path: "/driverengagement/tier/edit/:id",
+        element: <TierDetailsEdit />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Driver Monitoring",
+        path: "/driverengagement/driver-monitoring",
+        element: <DriverMonitoringList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Incentive Payout",
+        path: "/driverengagement/incentive-payout",
+        element: <IncentivePayoutList />,
+        display: false,
+        permission: "Driver Engagement",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Driver Engagement Audit Logs",
+        path: "/driverengagement/audit-logs",
+        element: <DriverEngagementAuditLogs />,
+        display: false,
+        permission: "Driver Engagement",
       },
        {
         icon: <UserIcon {...icon} />,

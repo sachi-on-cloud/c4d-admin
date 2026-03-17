@@ -14,8 +14,7 @@ function SupportSubmenu({ permissions = [] }) {
   const items = [
     { label: "Rate Card", path: "/dashboard/rental-rate-card", requiredPermission: "Support" },
     { label: "Leads", path: "/dashboard/leads", requiredPermission: "Support" },
-    { label: "Vendors", path: "/dashboard/vendors/account", requiredPermission: "Vendors" },
-    { label: "Document Verification", path: "/dashboard/doc-verification", requiredPermission: "Document verification" },
+    // { label: "Vendors", path: "/dashboard/vendors/account", requiredPermission: "Vendors" },
   ];
   const filteredItems = items.filter(({ requiredPermission }) => permissions.includes(requiredPermission));
 

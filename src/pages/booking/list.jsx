@@ -151,6 +151,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [showDriverHours, setShowDriverHours] = useState(false);
     const [isCustomDatePopoverOpen, setIsCustomDatePopoverOpen] = useState(false);
     const [followupLoading, setFollowupLoading] = useState({});
+    const [allUsers, setAllUsers] = useState([]); 
 
 useEffect(() => {
   const storedUser = getItemSafe('loggedInUser');
@@ -174,6 +175,22 @@ useEffect(() => {
     setSelectedDriver({ count: 0 });
   }
 }, [onlineDrivers, selectedHour]);
+
+useEffect(() => {
+    const fetchAllUsers = async () => {
+        try {
+            const response = await ApiRequestUtils.get(API_ROUTES.GET_ALL_USERS);
+            if (response?.success) {
+                setAllUsers(response?.data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+    
+    fetchAllUsers();
+}, []);
+
     useEffect(() => {
         loadBookingFilters({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded,
         });
@@ -319,7 +336,7 @@ const handleTabChange = (value) => {
                     <FaFilter className="text-white text-xs" />
                 </div>
             </PopoverHandler>
-            <PopoverContent className="p-2 z-10">
+            <PopoverContent className="p-2 z-10 max-h-[540px] overflow-y-auto">
                 {customContent ? (
                     customContent
                 ) : (
@@ -354,15 +371,18 @@ const handleTabChange = (value) => {
         if ((activeTab === 'CUSTOM_DATE' || dateFilter === 'Custom date') && (!customDateFrom || !customDateTo)) {return;}
         setLoading(true);
     try {
-        const filterType = {
-            type: activeTab,
-            status: statusFilter,
-            source: sourceFilter,
-            tripCoordinator: tripCoordinatorFilter,
-            tripStatus: statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined,
-            zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
-        };
-        
+      const filterType = {
+    type: activeTab,
+    source: sourceFilter,
+    tripCoordinator: tripCoordinatorFilter,
+    zone: zoneFilter.includes('All') ? ['All'] : zoneFilter,
+};
+
+// Only add status-related fields if NOT "All"
+if (!statusFilter.includes('All')) {
+    filterType.status = statusFilter;
+    filterType.tripStatus = statusFilter.includes('COMPLETED') ? true : statusFilter.includes('ENDED') ? false : undefined;
+}
         // Calculate startDate and endDate based on dateFilter
         let startDate = '';
         let endDate = '';
@@ -598,13 +618,10 @@ const handleTabChange = (value) => {
     };
     const tripCoordinatorOptions = [
         { value: 'All', label: 'All' },
-        ...[...new Set(
-            bookingsList
-                .filter(booking => booking.User?.id && booking.User?.name)
-                .map(booking => JSON.stringify({ id: booking.User.id, name: booking.User.name })) // Stringify to ensure uniqueness
-        )]
-            .map(str => JSON.parse(str))
-            .map(user => ({ value: user.id, label: user.name })),
+        ...allUsers
+            .filter(user => user?.id && user?.name)
+            .map(user => ({ value: user.id, label: user.name }))
+            .sort((a, b) => a.label.localeCompare(b.label))
     ];
 
     const allTabLabel =
@@ -665,12 +682,20 @@ const handleTabChange = (value) => {
         try {
             const filterType = {
                 type: activeTab,
-                status: statusFilterParam,
                 source: sourceFilterParam,
                 tripCoordinator: tripCoordinatorFilterParam,
-                tripStatus: statusFilterParam.includes('COMPLETED') ? true : statusFilterParam.includes('ENDED') ? false : undefined,
                 zone: zoneFilterParam.includes('All') ? ["All"] : zoneFilterParam,
             };
+
+            // Match getBookingsList behavior: never send sentinel "All" for enum status filter.
+            if (!statusFilterParam.includes('All')) {
+                filterType.status = statusFilterParam;
+                filterType.tripStatus = statusFilterParam.includes('COMPLETED')
+                    ? true
+                    : statusFilterParam.includes('ENDED')
+                        ? false
+                        : undefined;
+            }
             
             const queryParams = {
                 "customerId": customerId,
@@ -1395,7 +1420,7 @@ const handleTabChange = (value) => {
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {([ 'CONFIRMED', 'QUOTED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                            {(['CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}

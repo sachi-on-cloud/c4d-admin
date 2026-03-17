@@ -1,6 +1,6 @@
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import {
   Card,
@@ -22,6 +22,36 @@ import { FaFilter } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import moment from "moment";
 
+const DOC_VERIFICATION_ALL_FILTERS_KEY = "docVerificationAllFilters";
+const isBrowser = () => typeof window !== "undefined";
+
+const getItemSafe = (key) => {
+  if (!isBrowser()) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    console.error(`Error reading localStorage key "${key}":`, err);
+    return null;
+  }
+};
+
+const setItemSafe = (key, value) => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.error(`Error writing localStorage key "${key}":`, err);
+  }
+};
+
+const removeItemSafe = (key) => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    console.error(`Error removing localStorage key "${key}":`, err);
+  }
+};
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -33,31 +63,129 @@ const debounce = (func, delay) => {
 
 export function DocumentVerificationView() {
   const [accounts, setAccounts] = useState([]);
-  const [allAccounts, setAllAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState(["All"]);
   const [typeFilter, setTypeFilter] = useState(["All"])
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const stored = getItemSafe(DOC_VERIFICATION_ALL_FILTERS_KEY);
+    if (!stored) return "";
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed.searchQuery || parsed.search || "";
+    } catch {
+      return "";
+    }
+  });
   const [loading, setLoading] = useState(false); 
-  const [pagination, setPagination] = useState({
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: 0,
-            itemsPerPage: 15,
-            search:'',
-          }); 
+  const [pagination, setPagination] = useState(() => {
+    const stored = getItemSafe(DOC_VERIFICATION_ALL_FILTERS_KEY);
+    if (!stored) {
+      return {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: "",
+      };
+    }
+    try {
+      const parsed = JSON.parse(stored);
+      return {
+        currentPage: parsed.currentPage || 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: parsed.search || "",
+      };
+    } catch {
+      return {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 15,
+        search: "",
+      };
+    }
+  });
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
   const navigate = useNavigate();
+  const latestRequestIdRef = useRef(0);
+  const resolveAccountType = (record = {}) => {
+    const serviceType = record["Account.serviceType"];
+    if (record["Register.id"] || record["Driver.id"] || serviceType == null || serviceType === "") return "Driver";
+    if (serviceType === "Company") return "Account";
+    if (serviceType === "Individual") return "Cab";
+    if (serviceType === "Auto") return "Auto";
+    // if (serviceType === null) return "Driver"
+    return "";
+  };
+
+  useEffect(() => {
+    const stored = getItemSafe(DOC_VERIFICATION_ALL_FILTERS_KEY);
+    if (!stored) {
+      setFiltersLoaded(true);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed.statusFilter)) setStatusFilter(parsed.statusFilter);
+      if (Array.isArray(parsed.typeFilter)) setTypeFilter(parsed.typeFilter);
+      if (parsed.currentPage !== undefined || parsed.search !== undefined) {
+        setPagination((prev) => ({
+          ...prev,
+          currentPage: parsed.currentPage || 1,
+          search: parsed.search || "",
+        }));
+      }
+      if (parsed.searchQuery !== undefined) {
+        setSearchQuery(parsed.searchQuery || "");
+      }
+    } catch (err) {
+      console.error("Failed to load document verification filters", err);
+    } finally {
+      setFiltersLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    const data = {
+      statusFilter,
+      typeFilter,
+      currentPage: pagination.currentPage,
+      search: pagination.search,
+      searchQuery,
+    };
+    setItemSafe(DOC_VERIFICATION_ALL_FILTERS_KEY, JSON.stringify(data));
+  }, [filtersLoaded, statusFilter, typeFilter, pagination.currentPage, pagination.search, searchQuery]);
 
   const fetchDoc = async (page = 1, searchQuery = '', showLoader = true) => {
+    const requestId = ++latestRequestIdRef.current;
     if(showLoader) setLoading(true); 
     try {
+      const normalizedTypeFilter = Array.from(
+        new Set(
+          (Array.isArray(typeFilter) ? typeFilter : []).map((value) => {
+            if (value === "All") return "";
+            if (value === "Account") return "Company";
+            if (value === "Cab") return "Individual";
+            if (value === "Driver") return "";
+            return value;
+          })
+        )
+      );
+      const normalizedStatusFilter = Array.from(
+        new Set((Array.isArray(statusFilter) ? statusFilter : []).map((value) => (value === "All" ? "" : value)))
+      );
       const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS_LIST + '/' + 'All' , {
         page: page,
         limit: pagination.itemsPerPage,
         search:searchQuery.trim(),
+        status: JSON.stringify(normalizedStatusFilter),
+        serviceType: JSON.stringify(normalizedTypeFilter),
       });
+      if (requestId !== latestRequestIdRef.current) return;
       if (data?.success) {
         setAccounts(data?.data);
-        setAllAccounts(data?.data);
         setPagination({
           currentPage: page,
           totalPages: data?.pagination?.totalPages || 1,
@@ -69,7 +197,9 @@ export function DocumentVerificationView() {
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
-      setLoading(false); 
+      if (requestId === latestRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -80,19 +210,18 @@ const getDetails = useCallback(
         currentPage:1,
         search:searchQuery,
       }))
-      fetchDoc(1,searchQuery,true);
     },1000),
-    [pagination.itemsPerPage]
+    []
   )
 
   useEffect(() => {
-    fetchDoc(pagination.currentPage,pagination.search,true);
-  }, [pagination.currentPage, pagination.itemsPerPage]);
+    if (!filtersLoaded) return;
+    fetchDoc(pagination.currentPage, pagination.search, true);
+  }, [filtersLoaded, pagination.currentPage, pagination.itemsPerPage, pagination.search, statusFilter, typeFilter]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
-      fetchDoc(page,pagination.search, true)
     }
   };
   const generatePageButtons = () => {
@@ -122,8 +251,9 @@ const getDetails = useCallback(
   };
 
   useEffect(() => {
+    if (searchQuery.trim() === pagination.search) return;
     getDetails(searchQuery.trim());
-  }, [searchQuery]);
+  }, [searchQuery, pagination.search]);
 
   // const getDetails = async (searchQuery) => {
   //   if (searchQuery && searchQuery.trim() !== "") {
@@ -150,6 +280,20 @@ const getDetails = useCallback(
   //     setAccounts(allAccounts);
   //   }
   // };
+
+    const handleRefresh = () => {
+    setSearchQuery('');
+    setStatusFilter(['All']);
+    setTypeFilter(['All']);
+    setPagination({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 15,
+      search: '',
+    });
+    removeItemSafe(DOC_VERIFICATION_ALL_FILTERS_KEY);
+  };
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === "status") {
@@ -206,6 +350,18 @@ const getDetails = useCallback(
       </PopoverContent>
     </Popover>
   );
+  const getStatusColor = (status) => {
+  const statusColors = {
+  VERIFIED: 'bg-green-100 text-green-500',
+  DECLINE: 'bg-red-100 text-red-500',
+  NOT_INTERESTED: 'bg-yellow-100 text-yellow-700',
+  NO_RESPONSE: 'bg-gray-300 text-gray-700',
+  PENDING: 'bg-blue-100 text-blue-500',
+  INVALID: 'bg-orange-100 text-orange-700',
+};
+  
+  return statusColors[status] || 'bg-primary-100 text-primary-500'; // default fallback
+};
 
   return (
     <div className="mb-8 flex flex-col gap-12">
@@ -216,9 +372,8 @@ const getDetails = useCallback(
               type="text"
               className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="Search Document"
-              onChange={(e) => {setSearchQuery(e.target.value)
-                                getDetails(e.target.value)
-              }}
+              value={searchQuery}
+              onChange={(e) => {setSearchQuery(e.target.value)}}
             />
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
@@ -227,7 +382,7 @@ const getDetails = useCallback(
           <div className="ml-4">
             <button
               className="bg-primary-400 text-white px-4 py-2 rounded-2xl flex items-center gap-2 hover:bg-primary-500"
-              onClick={() => fetchDoc()}
+              onClick={() => handleRefresh()}
               disabled={loading}
             >
               {loading ? (
@@ -241,16 +396,22 @@ const getDetails = useCallback(
         </div>
       </div>
       <Card>
-        {accounts.length > 0 ? (
+        {(loading || accounts.length > 0) ? (
           <>
             <CardHeader
               variant="gradient"
               // color="gray"
               className={`mb-8 p-6 flex-1 justify-between items-center ${ColorStyles.bgColor}`}
             >
+              <div className="flex justify-between">
               <Typography variant="h6" color="white">
-                Documents List
+                All Documents List
               </Typography>
+               <Typography variant="h6" color="white">
+                {pagination.totalItems}
+              </Typography>
+              
+              </div>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
               <table className="w-full min-w-[640px] table-auto">
@@ -275,6 +436,9 @@ const getDetails = useCallback(
                               { value: "All", label: "All" },
                               { value: "PENDING", label: "Pending" },
                               { value: "APPROVED", label: "Approved" },
+                              { value: "NOT_INTERESTED", label: "Not Interested" },
+                              { value: "NO_RESPONSE", label: "No Response" },
+                              { value: "INVALID", label: "Invalid" },
                             ]}
                             selectedFilters={statusFilter}
                             onFilterChange={(value) => handleFilterChange("status", value)}
@@ -284,9 +448,9 @@ const getDetails = useCallback(
                             title={el}
                             options={[
                               { value: "All", label: "All" },
-                              { value: "Driver", label: "Driver" },
-                              { value: "Account", label: "Account" },
-                              { value: "Cab", label: "Cab" },
+                              // { value: null, label: "Driver" },
+                              { value: "Company", label: "Account" },
+                              { value: "Individual", label: "Cab" },
                                { value: "Auto", label: "Auto" },
                             ]}
                             selectedFilters={typeFilter} 
@@ -315,28 +479,15 @@ const getDetails = useCallback(
                     </tr>
                   ) : (
 
-                  accounts.filter((account) => {
-                        const status = account.isComplete ? "APPROVED" : "PENDING";
-                        const type =   (account["Register.id"] || account["Driver.id"]) ? "Driver" :
-                                        account["Account.serviceType"] === "Company" ? "Account":
-                                         account["Account.serviceType"] === "Individual" ? "Cab" :
-                                        account["Account.serviceType"] === "Auto" ? "Auto" :"";
-                        return (
-                          (statusFilter.includes("All") || statusFilter.includes(status)) && 
-                          (typeFilter.includes("All") || typeFilter.includes(type))
-                        );
-                      })
-                      .map((data, key) => {
+                  accounts.map((data, key) => {
                         const className = `py-3 px-3 ${
                           key === accounts.length - 1 ? "" : "border-b border-blue-gray-50"
                         }`;
 
-                        const status = data.isComplete ? "APPROVED" : "PENDING";
+                        const status = data.kycStatus;
                         const name  = data['Register.firstName'] || data['Driver.firstName'] || data['Account.name'] || data['Cab.name'] || "";
-                       const nameType = (data["Register.id"] || data["Driver.id"]) ? "Driver" :
-                                        data["Account.serviceType"] === "Company" ? "Account":
-                                        data["Account.serviceType"] === "Individual" ? "Cab" :
-                                        data["Account.serviceType"] === "Auto" ? "Auto" :"";
+                        const displayType = resolveAccountType(data);
+                        const nameType = displayType === "Cab" ? "Account" : displayType;
                         const number = (() => {
                           const rawNumber = data["Register.phoneNumber"] || data["Driver.phoneNumber"] || data["Account.phoneNumber"] || data["Cab.phoneNumber"] || "";
                           return rawNumber ? rawNumber.startsWith("+91") ? rawNumber : `+91${rawNumber}`: "";
@@ -344,8 +495,7 @@ const getDetails = useCallback(
                         const source = data["Driver.source"] || data["Account.source"];
                         const id = data["Cab.id"] ? data["Cab.id"] : data["Driver.id"] ?  data["Driver.id"] : data["Account.id"] ? data["Account.id"] : data["Register.id"] ? data["Register.id"] : data.id;
                         return (
-                          <>
-                            <tr key={data?.id}>
+                            <tr key={data?.id || key}>
                               <td className={className}>
                                 <div className="flex items-center gap-4">
                                   <div onClick={() => onClickName(id, nameType)}>
@@ -365,7 +515,7 @@ const getDetails = useCallback(
                               </td>
                               <td className={className}>
                                 <Typography className="text-xs font-semibold text-blue-gray-900">
-                                  {nameType}
+                                  {displayType}
                                 </Typography>
                               </td>
                               <td className={className}>
@@ -381,13 +531,12 @@ const getDetails = useCallback(
                               <td className={className}>
                                 <Typography
                                   variant="ghost"
-                                  className={`px-2 rounded-xl text-xs font-semibold w-fit ${data.isComplete ? "bg-green-100 text-green-500" : " bg-primary-100 text-primary-500"}`}
-                                >
+                                   className={`px-2 rounded-xl text-xs font-semibold w-fit ${getStatusColor(status)}`}
+  >
                                   {status}
                                 </Typography>
                               </td>
                             </tr>
-                          </>
                         );
                       }
                     ))}

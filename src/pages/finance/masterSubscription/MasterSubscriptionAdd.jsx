@@ -65,9 +65,9 @@ const MasterSubscriptionAdd = () => {
           validityDays:
             values.type === 'PAID' ? null : Number(values.validityDays || 0),
           type: values.type,
-          // earningStrategy only when not FREE
+          // For FREE plans, backend expects CREDIT as earningStrategy
           earningStrategy:
-            values.type === 'FREE' ? null : (values.earningStrategy || null),
+            values.type === 'FREE' ? 'CREDIT' : (values.earningStrategy || null),
           earningWindowDays:
             values.type !== 'FREE' && values.earningStrategy === 'UNLIMITED'
               ? Number(values.earningWindowDays || 0)
@@ -98,7 +98,7 @@ const MasterSubscriptionAdd = () => {
                 plan.type === 'PAID' ? null : Number(plan.validityDays || 0),
               type: plan.type || '',
               earningStrategy:
-                plan.type === 'FREE' ? null : (plan.earningStrategy || null),
+                plan.type === 'FREE' ? 'CREDIT' : (plan.earningStrategy || null),
               earningWindowDays:
                 plan.type !== 'FREE' && plan.earningStrategy === 'UNLIMITED'
                   ? Number(plan.earningWindowDays || 0)

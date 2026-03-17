@@ -182,7 +182,7 @@ const DiscountEdit = () => {
       } catch (err) {
         console.error('Failed to load discount:', err);
         alert('Discount not found');
-        navigate('/dashboard/user/discountModuleList');
+        navigate('/dashboard/finance/discountModuleList');
       } finally {
         setLoading(false);
       }
@@ -268,7 +268,7 @@ const DiscountEdit = () => {
 
       if (response?.success) {
         
-        navigate('/dashboard/user/discountModuleList', {
+        navigate('/dashboard/finance/discountModuleList', {
           state: { updatedDiscount: response.data },
         });
       } else {
@@ -626,7 +626,7 @@ const DiscountEdit = () => {
                 fullWidth
                 type="button"
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}
-                onClick={() => navigate('/dashboard/user/discountModuleList')}
+                onClick={() => navigate('/dashboard/finance/discountModuleList')}
               >
                 Back
               </Button>

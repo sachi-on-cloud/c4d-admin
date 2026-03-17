@@ -19,6 +19,7 @@ const STATUS_OPTIONS = [
 
 const PRICE_SCHEMA = Yup.object().shape({
   zone: Yup.string().trim().nullable(),
+  baseKm: Yup.number().min(0, 'Must be positive').required('Base KM is required'),
   baseFare: Yup.number().min(0, 'Must be positive').required('Base Fare is required'),
   ratePerKm: Yup.number().min(0, 'Must be positive').required('Rate per KM is required'),
   ratePerMin: Yup.number().min(0, 'Must be positive').required('Rate per minute is required'),
@@ -53,6 +54,7 @@ const AutoMasterPriceEdit = () => {
 
         setInitialValues({
           zone: priceData.zone || '',
+          baseKm: priceData.baseKm || 0,
           baseFare: priceData.baseFare || 0,
           ratePerKm: priceData.kilometerPrice || 0,
           ratePerMin: priceData.minCharge || 0,
@@ -90,6 +92,7 @@ const AutoMasterPriceEdit = () => {
       const reqBody = {
         packageId: Number(id),
         zone: values.zone.trim() || '',
+        baseKm: Number(values.baseKm),
         baseFare: Number(values.baseFare),
         kilometerPrice: Number(values.ratePerKm),
         minCharge: Number(values.ratePerMin),
@@ -109,7 +112,7 @@ const AutoMasterPriceEdit = () => {
       const response = await ApiRequestUtils.post(API_ROUTES.AUTO_PRICE_EDIT, reqBody);
 
       if (response?.success) {
-        navigate('/dashboard/users/master-price');
+        navigate('/dashboard/finance/master-price');
       } else {
         console.error('Error updating data');
       }
@@ -145,6 +148,11 @@ const AutoMasterPriceEdit = () => {
                 <div>
                     <label className="text-sm font-medium text-gray-700">Surcharge Percentage</label>
                     <Field type="number" name="surchargePercentage"  className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
+                    
+                </div>
+                 <div>
+                    <label className="text-sm font-medium text-gray-700">Base Km</label>
+                    <Field type="number" name="baseKm"  className="mt-1 p-3 w-full rounded-md border-gray-300 bg-gray-100" />
                     
                 </div>
                  <div>
@@ -208,7 +216,7 @@ const AutoMasterPriceEdit = () => {
                                       </div>
             <PremiumPriceDetailsEdit initialPremiumData={premiumConfig} onUpdate={(data)=> setPremiumConfig(data) } />
             <div className="flex flex-row">
-              <Button fullWidth onClick={() => navigate('/dashboard/users/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
+              <Button fullWidth onClick={() => navigate('/dashboard/finance/master-price')} className="my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl">
                 Cancel
               </Button>
               <Button fullWidth color="blue" type="submit" disabled={!(dirty || hasPremiumConfig()) || !isValid} className="my-6 mx-2">

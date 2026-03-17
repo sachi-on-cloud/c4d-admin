@@ -14,12 +14,14 @@ import {
   HomeIcon,
   UserCircleIcon,
   DocumentTextIcon,
+  ClipboardDocumentListIcon,
   BuildingStorefrontIcon,
   ChartBarIcon,
   DocumentCheckIcon,
   UserGroupIcon,
   MegaphoneIcon,
-  UsersIcon
+  UsersIcon,
+  UserIcon
 } from '@heroicons/react/24/solid';
 import { API_ROUTES, NAV_UI } from "@/utils/constants";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
@@ -36,22 +38,23 @@ const menuItems = [
       { permission: "Support", path: "/dashboard/rental-rate-card" },
     ],
   },
-  { type: "item", name: "All Records", path: "/dashboard/booking/list", permission: "All bookings" },
-  { type: "item", name: "Auto Records", path: "/dashboard/Auto", permission: "Autos" },
+  { type: "item", name: "Calls", path: "/dashboard/exotel-calls/list", permission: "Calls" },
+  { type: "item", name: "All Inquiries", path: "/dashboard/booking/list", permission: "All bookings" },
+  { type: "item", name: "Vendors", path: "/dashboard/vendors/account", permission: "Vendors" },
   { type: "item", name: "Customers", path: "/dashboard/customers", permission: "Customers" },
+  { type: "item", name: "Finance", path: "/dashboard/finance/invoice", permission: "Finance"},
+  { type: "item", name: "Driver Engagement", path: "/dashboard/driverengagement", permission: "Driver Engagement" },
   { type: "item", name: "Marketing", path: "/dashboard/vendors/notificationList", permission: "Marketing" },
+  { type: "item", name: "Reports", path: "/dashboard/driver-ops", permission: "Driver Ops" },
   {
     type: "item",
     name: "Admin",
     path: "/dashboard/users",
     permission: "Users",
-    permissionsAny: ["Users", "Driver Ops", "Trip Master", "Calls", "Finance"],
+    permissionsAny: ["Users", "Trip Master"],
     landingRoutes: [
       { permission: "Users", path: "/dashboard/users" },
-      { permission: "Finance", path: "/dashboard/finance/invoice" },
-      { permission: "Driver Ops", path: "/dashboard/driver-ops" },
       { permission: "Trip Master", path: "/dashboard/tripDetails" },
-      { permission: "Calls", path: "/dashboard/exotel-calls/list" },
     ],
   },
 ];
@@ -116,39 +119,44 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
       case "Support":
         return (
           currentPath.startsWith("/dashboard/rental-rate-card") ||
-          currentPath.startsWith("/dashboard/leads") ||
-          currentPath.startsWith("/dashboard/doc-verification") ||
+          currentPath.startsWith("/dashboard/leads")
+          // currentPath.startsWith("/dashboard/doc-verification") ||         
+        );
+      case "All Inquiries":
+        return currentPath.startsWith("/dashboard/booking/list");
+      case "Vendors":
+        return (
           currentPath.startsWith("/dashboard/vendors/account") ||
           currentPath.startsWith("/dashboard/vendors/vehiclelist") ||
-          currentPath.startsWith("/dashboard/vendors/onlinevehicleslist")
+          currentPath.startsWith("/dashboard/vendors/onlinevehicleslist") ||
+          currentPath.startsWith("/dashboard/doc-verification")
         );
-      case "All Records":
-        return currentPath.startsWith("/dashboard/booking/list");
-      case "Auto Records":
-        return currentPath.startsWith("/dashboard/auto");
       case "Customers":
         return currentPath.startsWith("/dashboard/customers");
+      case "Calls":
+        return currentPath.startsWith("/dashboard/exotel-calls");
       case "Finance":
         return currentPath.startsWith("/dashboard/finance");
       case "Marketing":
         return (
+          currentPath.startsWith("/dashboard/vendors/driver-incentive") ||
           currentPath.startsWith("/dashboard/vendors/notificationlist") ||
           currentPath.startsWith("/dashboard/vendors/customernotificationlist") ||
           currentPath.startsWith("/dashboard/vendors/drivernotificationlist") ||
-          currentPath.startsWith("/dashboard/user/bannerimg") ||
-          currentPath.startsWith("/dashboard/user/testimonial")
+          currentPath.startsWith("/dashboard/user/bannerimg")
+          // currentPath.startsWith("/dashboard/user/testimonial")
         );
+      case "Reports":
+        return currentPath.startsWith("/dashboard/driver-ops");
+      case "Driver Engagement":
+        return currentPath.startsWith("/dashboard/driverengagement");
       case "Admin":
         return (
           currentPath.startsWith("/dashboard/users") ||
           currentPath.startsWith("/dashboard/admin/geo-markings") ||
           currentPath.startsWith("/dashboard/user/versioncontrol") ||
-          currentPath.startsWith("/dashboard/user/discountmodule") ||
-          currentPath.startsWith("/dashboard/user/gst") ||
-          currentPath.startsWith("/dashboard/driver-ops") ||
           currentPath.startsWith("/dashboard/reports/tripmasterreport") ||
-          currentPath.startsWith("/dashboard/tripdetails") ||
-          currentPath.startsWith("/dashboard/exotel-calls")
+          currentPath.startsWith("/dashboard/tripdetails")
         );
       default:
         return false;
@@ -245,8 +253,8 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                           />
                         ) : null}
 
-                        {name === "Driver Ops" ? (
-                          <ChartBarIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
+                        {name === "Reports" ? (
+                          <ClipboardDocumentListIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
                         ) : null}
                         {name === "Leads" ? (
                           <UsersIcon className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`} />
@@ -257,13 +265,10 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                         {name === "Calls" ? (
                           <img src="/img/calls.png" alt="Calls" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
-                        {name === "All Records" ? (
+                        {name === "All Inquiries" ? (
                           <DocumentTextIcon
                             className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
-                        ) : null}
-                        {name === "Auto Records" ? (
-                          <img src="/img/auto.png" alt="Autos" className={`${NAV_UI.iconSizes.sidebar} rounded-full`} />
                         ) : null}
                         {name === "Customers" ? (
                           <UserGroupIcon
@@ -297,6 +302,11 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                         ) : null}
                         {name === "Admin" ? (
                           <UserCircleIcon
+                            className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
+                          />
+                        ) : null}
+                        {name === "Driver Engagement" ? (
+                          <UserIcon
                             className={`${NAV_UI.iconSizes.sidebar} ${menuTextColor}`}
                           />
                         ) : null}
