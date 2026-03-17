@@ -18,6 +18,15 @@ const isAutoPartnerType = (partnerType = "") =>
 const toApiComponentCode = (code) =>
   code === "ONLINE_HOURS_RULES" ? "ONLINE_HOURS_BONUS" : "SERVICE_TRIP_BONUS";
 
+const toUtcIsoStringOrNull = (dateTimeLocalValue) => {
+  if (!dateTimeLocalValue) {
+    return null;
+  }
+
+  const parsed = new Date(dateTimeLocalValue);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+};
+
 function DriverIncentiveAdd() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -116,8 +125,8 @@ function DriverIncentiveAdd() {
         code: componentCode,
         enabled: Boolean(form.enabled),
         payoutFrequency: form.payoutFrequency || "WEEKLY",
-        validFrom: form.validFrom || null,
-        validTo: form.validTo || null,
+        validFrom: toUtcIsoStringOrNull(form.validFrom),
+        validTo: toUtcIsoStringOrNull(form.validTo),
         rules: componentRules.map((rule) => ({
             amount: Number(rule.amount || 0),
             condition: {

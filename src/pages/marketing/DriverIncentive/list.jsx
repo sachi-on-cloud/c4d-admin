@@ -8,10 +8,21 @@ import { fetchDriverIncentiveList } from "./driverIncentiveApi";
 import { mapDriverIncentiveRows } from "./driverIncentiveMapper";
 import { fetchZoneOptions } from "./zoneOptions";
 
+const toBooleanOrNull = (value) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+  return null;
+};
+
 function DriverIncentiveList() {
   const navigate = useNavigate();
   const [code, setCode] = useState("ONLINE_HOURS_RULES");
   const [partnerType, setPartnerType] = useState("CAB");
+  const [status, setStatus] = useState("ALL");
   const [zone, setZone] = useState("");
   const [zoneOptions, setZoneOptions] = useState([{ label: "ALL", value: "" }]);
   const [rows, setRows] = useState([]);
@@ -37,6 +48,7 @@ function DriverIncentiveList() {
           code,
           partnerType,
           zone,
+          isActive: status === "ALL" ? undefined : status === "ACTIVE",
           vehicleType: String(partnerType || "").toUpperCase() === "AUTO" ? "AUTO" : "ALL",
         });
         const rawRows = Array.isArray(response?.rows)
@@ -44,9 +56,16 @@ function DriverIncentiveList() {
           : Array.isArray(response?.data)
             ? response.data
             : response?.data && typeof response.data === "object"
-              ? [response.data]
-              : [];
-        setRows(mapDriverIncentiveRows(rawRows));
+            ? [response.data]
+            : [];
+        const filteredRows =
+          status === "ALL"
+            ? rawRows
+            : rawRows.filter((item) => {
+                const activeValue = toBooleanOrNull(item?.isActive);
+                return status === "ACTIVE" ? activeValue === true : activeValue === false;
+              });
+        setRows(mapDriverIncentiveRows(filteredRows));
       } catch (apiError) {
         console.error("Failed to fetch driver incentive list:", apiError);
         setRows([]);
@@ -57,7 +76,7 @@ function DriverIncentiveList() {
     };
 
     loadList();
-  }, [code, partnerType, zone]);
+  }, [code, partnerType, zone, status]);
 
   return (
     <div className="mb-10 mt-5 space-y-4 bg-white p-2 px-4 shadow-sm">
@@ -83,9 +102,11 @@ function DriverIncentiveList() {
       </div>
       <DriverIncentiveFilters
         partnerType={partnerType}
+        status={status}
         zone={zone}
         zoneOptions={zoneOptions}
         onPartnerTypeChange={setPartnerType}
+        onStatusChange={setStatus}
         onZoneChange={setZone}
       />
       <DriverIncentiveTabs value={code} onChange={setCode} />

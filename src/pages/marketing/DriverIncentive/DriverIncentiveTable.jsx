@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from "react";
-import { Card, CardBody, Typography } from "@material-tailwind/react";
+import { Card, CardBody, Typography, Chip } from "@material-tailwind/react";
 import moment from "moment";
 
 const EXPAND_ICON_PATH = "/img/expand.png";
@@ -66,6 +66,16 @@ const formatLabelCase = (value) => {
   if (text === "-") return text;
   const normalized = String(text).trim().toLowerCase();
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
+const toBooleanOrNull = (value) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+  return null;
 };
 
 const formatDateTime = (value) => {
@@ -151,6 +161,7 @@ function DriverIncentiveTable({ rows, loading, error, onEdit }) {
                 const isExpanded = Boolean(expandedRowIds[row.id]);
                 const component = getComponent(row);
                 const rules = Array.isArray(component?.rules) ? component.rules : [];
+                const isActiveBool = toBooleanOrNull(row?.raw?.isActive ?? row?.isActive);
                 const cellClass =
                   index === rows.length - 1
                     ? "px-4 py-3"
@@ -184,9 +195,17 @@ function DriverIncentiveTable({ rows, loading, error, onEdit }) {
                         </Typography>
                       </td>
                       <td className={cellClass}>
-                        <Typography variant="small" className="text-blue-gray-700">
-                          {(row.isActive == 'true' ? "Active" : "In Active")}
-                        </Typography>
+                        <Chip
+                          variant="ghost"
+                          value={isActiveBool === true ? "Active" : isActiveBool === false ? "Inactive" : "-"}
+                          className={`w-fit px-2 py-0.5 text-[11px] font-medium ${
+                            isActiveBool === true
+                              ? "bg-green-50 text-green-700"
+                              : isActiveBool === false
+                                ? "bg-red-50 text-red-600"
+                                : "bg-blue-gray-50 text-blue-gray-600"
+                          }`}
+                        />
                       </td>
                       <td className={cellClass}>
                         <Typography variant="small" className="text-blue-gray-700">
