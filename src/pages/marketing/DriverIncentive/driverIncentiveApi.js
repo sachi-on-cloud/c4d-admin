@@ -18,6 +18,7 @@ export const fetchDriverIncentiveList = async ({
   partnerType = "CAB",
   zone = "",
   vehicleType = "ALL",
+  isActive,
   settingId,
 } = {}) => {
   const params = {
@@ -29,6 +30,9 @@ export const fetchDriverIncentiveList = async ({
 
   if (settingId !== undefined && settingId !== null && settingId !== "") {
     params.settingId = settingId;
+  }
+  if (typeof isActive === "boolean") {
+    params.isActive = isActive;
   }
 
   const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.DRIVER_INCENTIVE, params);
