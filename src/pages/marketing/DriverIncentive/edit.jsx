@@ -20,6 +20,33 @@ const toTypeCode = (code = "") =>
 const isAutoPartnerType = (partnerType = "") =>
   String(partnerType || "").trim().toUpperCase() === "AUTO";
 
+const toUtcIsoStringOrNull = (dateTimeLocalValue) => {
+  if (!dateTimeLocalValue) {
+    return null;
+  }
+
+  const parsed = new Date(dateTimeLocalValue);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+};
+
+const toDateTimeLocalValue = (rawValue) => {
+  if (!rawValue) {
+    return "";
+  }
+
+  const parsed = new Date(rawValue);
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getDate()).padStart(2, "0");
+  const hours = String(parsed.getHours()).padStart(2, "0");
+  const minutes = String(parsed.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 function DriverIncentiveEdit() {
   const { id } = useParams();
   const location = useLocation();
@@ -119,8 +146,8 @@ function DriverIncentiveEdit() {
           code: component?.code || selectedCode || "",
           enabled: typeof component?.enabled === "boolean" ? component.enabled : true,
           payoutFrequency: resolvedPayoutFrequency,
-          validFrom: component?.validFrom || "",
-          validTo: component?.validTo || "",
+          validFrom: toDateTimeLocalValue(component?.validFrom),
+          validTo: toDateTimeLocalValue(component?.validTo),
         });
         setComponentRules(
           Array.isArray(component?.rules) && component.rules.length > 0
@@ -169,8 +196,8 @@ function DriverIncentiveEdit() {
     const nextComponent = {
       ...existingComponent,
       enabled: Boolean(form.enabled),
-      validFrom: form.validFrom || null,
-      validTo: form.validTo || null,
+      validFrom: toUtcIsoStringOrNull(form.validFrom),
+      validTo: toUtcIsoStringOrNull(form.validTo),
     };
     delete nextComponent.applyMode;
 
