@@ -2399,7 +2399,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
         // Calculate totalKm
         const startKm = bookingDetails?.startKM ? parseFloat(bookingDetails.startKM) : 0;
         const endKm = bookingDetails?.endKM ? parseFloat(bookingDetails.endKM) : 0;
-        const totalKm = (endKm - startKm).toFixed(2);
+        const rawTotalDistance = Number(bookingDetails?.totalDistanceKilometer);
+        const totalKm = Number.isFinite(rawTotalDistance) ? rawTotalDistance.toFixed(2) : Math.max(endKm - startKm, 0).toFixed(2);
 
         // Construct tripDetails payload
         const tripDetails = {

@@ -44,20 +44,54 @@ const TripDetails = () => {
 
   const [availableVehicles, setAvailableVehicles] = useState([]);
 
+  const getNextDateString = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    const utcDate = new Date(Date.UTC(year, month - 1, day));
+    utcDate.setUTCDate(utcDate.getUTCDate() + 1);
+    return utcDate.toISOString().slice(0, 10);
+  };
+
+  const normalizeDateString = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+  };
+
   const fetchTrips = async (page = 1, showLoader = false) => {
     if (showLoader) setLoading(true);
     try {
-      const queryParams = {
-        page: page,
+      const baseQueryParams = {
+        page,
         limit: pagination.itemsPerPage,
       };
-      if (fromDate) queryParams.fromDate = fromDate;
-      if (toDate) queryParams.toDate = toDate;
-      if (tripTypeFilter && tripTypeFilter !== 'All') queryParams.tripType = tripTypeFilter;
-      if (vehicleNumberFilter) queryParams.carNumber = vehicleNumberFilter;
+      if (fromDate) baseQueryParams.fromDate = fromDate;
+      if (toDate) baseQueryParams.toDate = toDate;
+      if (tripTypeFilter && tripTypeFilter !== 'All') baseQueryParams.tripType = tripTypeFilter;
+      if (vehicleNumberFilter) baseQueryParams.carNumber = vehicleNumberFilter;
 
-      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_TRIP_DETAILS, queryParams);
-      const tripData = response?.data || [];
+      let response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_TRIP_DETAILS, baseQueryParams);
+      let tripData = Array.isArray(response?.data) ? response.data : [];
+
+      // Narrow fallback for APIs that treat toDate as end-exclusive.
+      if (fromDate && toDate && tripData.length === 0) {
+        const fallbackParams = {
+          ...baseQueryParams,
+          toDate: getNextDateString(toDate),
+        };
+        const fallbackResponse = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DRIVER_TRIP_DETAILS, fallbackParams);
+        const fallbackTrips = Array.isArray(fallbackResponse?.data) ? fallbackResponse.data : [];
+
+        if (fallbackTrips.length > 0) {
+          response = fallbackResponse;
+          tripData = fallbackTrips.filter((trip) => {
+            const tripDate = normalizeDateString(trip?.tripDate);
+            if (!tripDate) return true;
+            return (!fromDate || tripDate >= fromDate) && (!toDate || tripDate <= toDate);
+          });
+        }
+      }
 
       if (!Array.isArray(tripData)) {
         setError('Unexpected data format from server.');
@@ -422,17 +456,23 @@ const TripDetails = () => {
                       <td className="p-2 whitespace-nowrap">{trip.tripDate || '-'}</td>
                       <td
                         onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
-                        className="p-2 text-blue-500 font-semibold underline cursor-pointer"
+                        className="p-2 text-sm text-blue-500 font-semibold underline cursor-pointer"
                       >
-                        {trip.BookingId || '-'}
+                        {trip.bookingId || trip.BookingId || trip.Booking?.bookingNumber || '-'}
                       </td>
-                      <td className="p-2">{trip.tripType || '-'}</td>
-                      <td className="p-2">{trip.Cab?.carNumber || '-'}</td>
-                      <td className="p-2">{trip.Driver?.firstName || '-'}</td>
-                      <td className="p-2">{trip.startAddress?.address || trip.startAddress || '-'}</td>
-                      <td className="p-2">{trip.endAddress?.address || trip.endAddress || '-'}</td>
-                      <td className="p-2">{((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || '-'}</td>
-                      <td className="p-2">₹{parseFloat(trip.tripFare) || '-'}</td>
+                      <td className="p-2 text-sm">{trip.tripType || '-'}</td>
+                      <td className="p-2 text-sm">{trip.Cab?.carNumber || '-'}</td>
+                      <td className="p-2 text-sm">{trip.Driver?.firstName || '-'}</td>
+                      <td className="p-2 text-sm">{trip.startAddress?.address || trip.startAddress || '-'}</td>
+                      <td className="p-2 text-sm">{trip.endAddress?.address || trip.endAddress || '-'}</td>
+                      <td className="p-2 text-sm">
+                        {(
+                          Number.isFinite(Number(trip.totalKm))
+                            ? Number(trip.totalKm)
+                            : (parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)
+                        ).toFixed(1)}
+                      </td>
+                      <td className="p-2 text-sm">₹{parseFloat(trip.tripFare) || '-'}</td>
                     </tr>
                   ))
                 )}
