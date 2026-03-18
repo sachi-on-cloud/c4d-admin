@@ -114,7 +114,7 @@ function DriverIncentiveComponentEditor({
           {componentRules.map((rule, index) => (
             <div
               key={`${form.code}-rule-${index}`}
-              className="grid grid-cols-1 gap-3 rounded-md border border-blue-gray-100 p-3 md:grid-cols-6"
+              className="grid grid-cols-1 gap-3 rounded-md border border-blue-gray-100 p-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(130px,1.1fr)_minmax(96px,0.8fr)_minmax(140px,1.1fr)_minmax(84px,0.6fr)_minmax(110px,0.8fr)_minmax(130px,0.9fr)_auto]"
             >
               <div>
                 <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">
@@ -221,8 +221,7 @@ function DriverIncentiveComponentEditor({
                   className="w-full rounded-md border border-blue-gray-200 px-2 py-2 text-xs"
                 />
               </div>
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
+              <div className="min-w-[120px]">
                   <Typography variant="small" color="blue-gray" className="mb-1 text-xs font-semibold">
                     Amount
                   </Typography>
@@ -239,11 +238,13 @@ function DriverIncentiveComponentEditor({
                     className="w-full rounded-md border border-blue-gray-200 px-2 py-2 text-xs"
                   />
                 </div>
+              <div className="flex items-end justify-start xl:justify-end xl:min-w-[88px]">
                 <Button
                   type="button"
                   size="sm"
                   variant="text"
                   color="red"
+                  className="whitespace-nowrap px-8"
                   onClick={() => setComponentRules((prev) => prev.filter((_, idx) => idx !== index))}
                   disabled={componentRules.length <= 1}
                 >
