@@ -6,8 +6,7 @@ import {
     Button
 } from "@material-tailwind/react";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 const SubscriptionLog = ({ subscriptionlog }) => {
     const [subscriptionLog, setSubscriptionLog] = useState([]);
     const [pagination, setPagination] = useState({
@@ -16,7 +15,7 @@ const SubscriptionLog = ({ subscriptionlog }) => {
         totalItems: 0,
         itemsPerPage: 10,
     });
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     useEffect(() => {
         if (subscriptionlog) {
             const itemsPerPage = 10;
@@ -114,11 +113,12 @@ const SubscriptionLog = ({ subscriptionlog }) => {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <Typography className="text-xs font-semibold text-primary-600 cursor-pointer underline"
-                                                onClick={() => navigate(`/dashboard/finance/receipt/details/${Receipt?.receiptNumber}`)} 
+                                                <Link
+                                                    to={`/dashboard/finance/receipt/details/${Receipt?.receiptNumber}`}
+                                                    className="text-xs font-semibold text-primary-600 cursor-pointer underline"
                                                 >
                                                     {Receipt?.receiptNumber}
-                                                </Typography>
+                                                </Link>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">

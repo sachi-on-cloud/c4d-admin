@@ -20,7 +20,7 @@ import {
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
@@ -573,10 +573,11 @@ if (!statusFilter.includes('All')) {
         setIsOpen(true)
     };
 
-    const handleBookingSelect = (data) => {
+    const handleBookingSelect = (data, event) => {
         setSelectedBookingId(data.id);
         if (onSelectBooking) {
-        onSelectBooking(data);
+            event?.preventDefault?.();
+            onSelectBooking(data);
         }
     }
 
@@ -1221,10 +1222,16 @@ if (!statusFilter.includes('All')) {
                                                     <tr key={data?.id} className={className}>
                                                         <td className={className}>
                                                             <div className="flex items-center">
-                                                                <div onClick={() => {
-                                                                    handleBookingSelect(data);
-                                                                    // setIsOpen(true);
-                                                                }}>
+                                                                <Link
+                                                                    to={`/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                                                                            data?.id
+                                                                        )}&customerId=${encodeURIComponent(
+                                                                            data?.customerId || data?.Customer?.id || customerId || 0
+                                                                        )}&fromPath=${encodeURIComponent(
+                                                                            location.pathname
+                                                                        )}`}
+                                                                    onClick={(event) => handleBookingSelect(data, event)}
+                                                                >
                                                                     <Typography
                                                                         variant="small"
                                                                         color="blue"
@@ -1232,7 +1239,7 @@ if (!statusFilter.includes('All')) {
                                                                     >
                                                                         {data?.bookingNumber}
                                                                     </Typography> 
-                                                                </div>
+                                                                </Link>
                                                             </div>
                                                         </td>
                                                         <td className={className}>

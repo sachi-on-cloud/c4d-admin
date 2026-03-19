@@ -4,7 +4,7 @@ import {
     Typography,
     Button
 } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { ColorStyles } from "@/utils/constants";
 
@@ -83,12 +83,12 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                             </Typography>
                                                         </td>
                                                         <td className={className}>
-                                                            <Typography 
+                                                            <Link
+                                                                to={`/dashboard/vendors/account/allVehicles/details/${id}`}
                                                                 className="font-semibold underline cursor-pointer text-primary-900"
-                                                                onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}
                                                             >
                                                                 {name}
-                                                            </Typography>
+                                                            </Link>
                                                         </td>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -115,8 +115,8 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                                 (type === 'Company') || (type === 'Individual' && cabsList?.length < 1)
                                                             ) && (
                                                                     <Button
-                                                                        as="a"
-                                                                        onClick={() => navigate(`/dashboard/vendors/account/allVehicles/assignDriver/${id}`)}
+                                                                        as={Link}
+                                                                        to={`/dashboard/vendors/account/allVehicles/assignDriver/${id}`}
                                                                         className="text-xs font-semibold text-white bg-primary"
                                                                     >
                                                                         RE ASSIGN

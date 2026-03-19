@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CabSearch from '@/components/CabSearch';
 
 export function AllVehicles() {
@@ -133,7 +133,7 @@ export function AllVehicles() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/vendors/account/allVehicles/details/${id}`)}>
+                              <Link to={`/dashboard/vendors/account/allVehicles/details/${id}`}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -144,7 +144,7 @@ export function AllVehicles() {
                                 {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
                                 </Typography> */}
-                              </div>
+                              </Link>
                             </div>
                           </td>
                           <td className={className}>
@@ -158,11 +158,11 @@ export function AllVehicles() {
                             </Typography>
                           </td>
                           <td className={className}>
-                            <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${Drivers[0]?.id}`)}>
+                            <Link to={`/dashboard/vendors/account/drivers/details/${Drivers[0]?.id}`}>
                               <Typography className="text-xs font-semibold underline" color='blue'>
                                 {Drivers ? Drivers[0]?.firstName : ""}
                               </Typography>
-                            </div>
+                            </Link>
                           </td>
                           <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-600 ">

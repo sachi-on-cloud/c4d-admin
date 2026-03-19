@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo  } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
 import Select from 'react-select';
 
@@ -225,7 +225,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/details/${id}`)}>
+                                                    <Link to={`/dashboard/finance/master-price/details/${id}`}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -233,7 +233,7 @@ export function MasterPriceView() {
                                                         >
                                                             {period}
                                                         </Typography>
-                                                    </div>
+                                                    </Link>
                                                 </div>
                                             </td>
                                             <td className={className}>
@@ -366,11 +366,11 @@ export function MasterPriceView() {
                                             </div>
                                         </td>
                                         <td className={className}>
-                                            <div onClick={() => navigate(`/dashboard/finance/master-price/details/${id}`)}>
-                                            <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
-                                                { (period === '1' && extraCabType === '0') ? 'Custom Date' : period}
-                                            </Typography>
-                                            </div>
+                                            <Link to={`/dashboard/finance/master-price/details/${id}`}>
+                                                <Typography variant="small" color="blue" className="font-semibold underline cursor-pointer" >
+                                                    {(period === '1' && extraCabType === '0') ? 'Custom Date' : period}
+                                                </Typography>
+                                            </Link>
                                         </td>
                                         <td className={className}>
                                             <div >
@@ -490,7 +490,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rides-details/${id}`)}>
+                                                    <Link to={`/dashboard/finance/master-price/rides-details/${id}`}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -498,7 +498,7 @@ export function MasterPriceView() {
                                                         >
                                                             {rateParameter}
                                                         </Typography>
-                                                    </div>
+                                                    </Link>
                                                 </div>
                                             </td>
                                              <td className={className}>
@@ -635,7 +635,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rentals-details/${id}`)}>
+                                                    <Link to={`/dashboard/finance/master-price/rentals-details/${id}`}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -643,7 +643,7 @@ export function MasterPriceView() {
                                                         >
                                                             {period}
                                                         </Typography>
-                                                    </div>
+                                                    </Link>
                                                 </div>
                                             </td>
                                             <td className={className}>
@@ -799,7 +799,7 @@ export function MasterPriceView() {
                                             </td>
                                             <td className='border-b border-blue-gray-50 py-3 px-5'>
                                                 <div className="flex items-center gap-4">
-                                                    <div onClick={() => navigate(`/dashboard/finance/master-price/rentals-details/${id}`)}>
+                                                    <Link to={`/dashboard/finance/master-price/rentals-details/${id}`}>
                                                         <Typography
                                                             variant="small"
                                                             color="blue"
@@ -807,7 +807,7 @@ export function MasterPriceView() {
                                                         >
                                                             {period}
                                                         </Typography>
-                                                    </div>
+                                                    </Link>
                                                 </div>
                                             </td>
                                              <td className={className}>
@@ -976,9 +976,9 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <button onClick={() => navigate(`/dashboard/finance/master-price/parcel-edit/${pkgId}`)} className={`px-3 py-1 rounded-lg text-xs font-semibold  ${ColorStyles.editButton}`} >
+                                                <Link to={`/dashboard/finance/master-price/parcel-edit/${pkgId}`} className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block ${ColorStyles.editButton}`}>
                                                     View / Edit
-                                                </button>
+                                                </Link>
                                             </td>
                                         </tr>
                                     );
@@ -1040,9 +1040,9 @@ export function MasterPriceView() {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    <span onClick={() => navigate(`/dashboard/finance/master-price/auto-edit/${id}`)} className="cursor-pointer underline text-blue-600">
+                                                    <Link to={`/dashboard/finance/master-price/auto-edit/${id}`} className="cursor-pointer underline text-blue-600">
                                                         {type.toUpperCase()}
-                                                    </span>
+                                                    </Link>
                                                 </Typography>
                                             </td>
                                             
@@ -1067,9 +1067,9 @@ export function MasterPriceView() {
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <button onClick={() => navigate(`/dashboard/finance/master-price/auto-edit/${id}`)} className={`px-3 py-1 rounded-lg ${ColorStyles.editButton}`}>
+                                                <Link to={`/dashboard/finance/master-price/auto-edit/${id}`} className={`px-3 py-1 rounded-lg inline-block ${ColorStyles.editButton}`}>
                                                     Edit
-                                                </button>
+                                                </Link>
                                             </td>
                                         </tr>
                                         

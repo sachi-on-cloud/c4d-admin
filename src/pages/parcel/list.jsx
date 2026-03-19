@@ -14,7 +14,7 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from "react-icons/fa";
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
@@ -349,12 +349,12 @@ export function ParcelDetailsList({ id = 0 }) {
                             </Typography>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
-                            <div
+                            <Link
+                              to={`/dashboard/vendors/account/parcel/details/${id}`}
                               className="underline cursor-pointer text-blue-600"
-                              onClick={() => navigate(`/dashboard/vendors/account/parcel/details/${id}`)}
                             >
                               <Typography className="text-xs font-semibold text-blue-600">{name}</Typography>
-                            </div>
+                            </Link>
                           </td>
                           <td className="py-3 px-5 border-b border-blue-gray-50">
                             <Typography className="text-xs font-semibold text-blue-gray-600">

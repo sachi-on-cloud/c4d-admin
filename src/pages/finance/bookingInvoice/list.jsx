@@ -14,7 +14,7 @@ import {
     Button,
     Spinner,
 } from "@material-tailwind/react";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { FaFilter } from 'react-icons/fa';
 
@@ -192,15 +192,13 @@ export function BookingInvoiceList() {
                                     {invoicesList.map((booking, id) => (
                                         <tr key={booking.id} className="hover:bg-gray-50 text-sm">
                                             <td className=" py-3 px-5">
-                                                <Typography
-                                                    variant="small"
+                                                <Link
+                                                    to={`/dashboard/finance/bookingInvoice/details/${booking.id}?customerId=${encodeURIComponent(booking.customerId || 0)}`}
+                                                    state={{ customerId: booking.customerId }}
                                                     className="text-primary-600 font-semibold underline cursor-pointer"
-                                                    onClick={() => navigate(`/dashboard/finance/bookingInvoice/details/${booking.id}`, {
-  state: { customerId: booking.customerId }})
-                                                    }    
                                                 >
                                                     {booking.bookingNumber}
-                                                </Typography>
+                                                </Link>
                                             </td>
 
                                            

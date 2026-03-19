@@ -8,7 +8,7 @@ import {
     CardHeader,
     Typography,
 } from "@material-tailwind/react";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function MasterSubscriptionView() {
     const navigate = useNavigate();
@@ -165,16 +165,14 @@ export function MasterSubscriptionView() {
                                     {masterSubscriptionList.map((group, index) => (
                                         <>
                                             <tr key={group.id || index} className="text-sm">
-                                                <td className="border-b border-blue-gray-50 py-3 px-5 text-blue-600 underline cursor-pointer"
-                                                    onClick={() =>
-                                                        navigate(`/dashboard/finance/master-subscription/details/${group.id}`)
-                                                    }
-                                                >
+                                                <td className="border-b border-blue-gray-50 py-3 px-5 text-blue-600 underline cursor-pointer">
+                                                    <Link to={`/dashboard/finance/master-subscription/details/${group.id}`}>
                                                     {group.serviceType === 'RIDES_RENTAL_CABS'
                                                         ? <div>Rides/Rental Cabs</div>
                                                         : group.serviceType === "AUTO"
                                                             ? <div>Autos</div>
                                                             : "Acting_Driver"}
+                                                    </Link>
                                                 </td>
                                                 <td className="border-b border-blue-gray-50 py-3 px-5 text-black">
                                                     {group.name || '-'}
@@ -238,14 +236,12 @@ export function MasterSubscriptionView() {
                                                                             <td className="border-b border-blue-gray-50 py-2 px-3 text-black">
                                                                                 {plan.name || '-'}
                                                                             </td>
-                                                                            <td className="border-b border-blue-gray-50 py-2 px-3 text-blue-600 underline cursor-pointer"
-                                                                                onClick={() =>
-                                                                                    navigate(`/dashboard/finance/master-subscription/details/${group.id}`)
-                                                                                }
-                                                                            >
+                                                                            <td className="border-b border-blue-gray-50 py-2 px-3 text-blue-600 underline cursor-pointer">
+                                                                                <Link to={`/dashboard/finance/master-subscription/details/${group.id}`}>
                                                                                 {Number(plan.packagePrice || 0) === 0
                                                                                     ? 'Free'
                                                                                     : plan.packagePrice}
+                                                                                </Link>
                                                                             </td>
                                                                             <td className="border-b border-blue-gray-50 py-2 px-3 text-black">
                                                                                 {Number(plan.price || 0) === 0 ? 'Free' : plan.price}

@@ -11,7 +11,7 @@ const PayableDetails = () => {
     const { id } = useParams();
     const [modalData, setModalData] = useState(null);
     const location = useLocation();
-    const {state} = location;
+    const state = location.state || {};
 
     useEffect(() => {
         if (id) {
@@ -74,28 +74,28 @@ const PayableDetails = () => {
                         </div>
                     </div>
 
-                    {state.reviewer?.name && <div>
+                    {state?.reviewer?.name && <div>
                         <label className="text-sm font-medium text-gray-700">Reviewer</label>
                         <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
                         {state?.reviewer?.name}
                         </div>
                     </div>}
 
-                    {state.reviewedTime && <div>
+                    {state?.reviewedTime && <div>
                         <label className="text-sm font-medium text-gray-700">Reviewed Time</label>
                         <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
                         {moment(state?.reviewedTime).format("DD-MM-YYYY")}
                         </div>
                     </div>}
 
-                    {state.approver?.name && <div>
+                    {state?.approver?.name && <div>
                         <label className="text-sm font-medium text-gray-700">Approver</label>
                         <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
                         {state?.approver?.name}
                         </div>
                     </div>}
 
-                    {state.approvedTime && <div>
+                    {state?.approvedTime && <div>
                         <label className="text-sm font-medium text-gray-700">Approved Time</label>
                         <div className="p-2 mt-1 rounded-md border bg-gray-100 text-gray-800 font-semibold">
                         {moment(state?.approvedTime).format("DD-MM-YYYY")}
