@@ -9,7 +9,7 @@ import {
 } from '@material-tailwind/react';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 // Debounce utility function
@@ -197,16 +197,12 @@ export function ParcelView({ type, ownerName, id }) {
                         <tr key={id}>
                           <td className={className}>
                             
-                              <Typography
-                                variant="small"
-                                color="blue"
-                                className="font-semibold underline cursor-pointer"
-                                onClick={() =>
-                                  navigate(`/dashboard/vendors/account/parcel/allVehicles/details/${id}`)
-                                }
+                              <Link
+                                to={`/dashboard/vendors/account/parcel/allVehicles/details/${id}`}
+                                className="font-semibold underline cursor-pointer text-blue-600"
                               >
                                 {name}
-                              </Typography>
+                              </Link>
                             
                           </td>
                           <td className={className}>
