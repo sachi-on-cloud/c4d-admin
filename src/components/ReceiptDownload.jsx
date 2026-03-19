@@ -190,14 +190,17 @@ const ReceiptPDFLayout = ({
             <span className="font-bold">Rs. {bookingDetails?.finalFareBreakdown?.extraKm?.charge || 0}</span>
           </div>
         )}
-
+        {bookingDetails?.paymentDetails?.details?.gstAmount > 0 && (
         <div className="flex justify-between mb-2">
           <div>
-            <p className="font-bold">Taxes (5% GST)</p>
+            <p className="font-bold">
+              Taxes {bookingDetails?.paymentDetails?.details?.gstPercentage ? `(${bookingDetails?.paymentDetails?.details?.gstPercentage}% GST)` : "(GST)"}
+            </p>
             <span>Government Taxes</span>
           </div>
           <span className="font-bold">Rs. {(payment.gstAmount || 0).toFixed(2)}</span>
         </div>
+        )}
 
         <hr className="my-4" />
 
