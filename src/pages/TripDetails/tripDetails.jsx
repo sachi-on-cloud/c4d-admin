@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Button, Spinner, Popover, PopoverHandler, PopoverContent, Checkbox, Typography, Input } from '@material-tailwind/react';
@@ -270,12 +270,12 @@ const TripDetails = () => {
           <div>
         <h3 className="text-lg">Recent Trips</h3></div>
          <div>
-          <button
-            onClick={() => navigate('/dashboard/tripDetails/add')}
-            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer"
+          <Link
+            to={'/dashboard/tripDetails/add'}
+            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer inline-block"
           >
             + Add New Trip
-          </button>
+          </Link>
         </div>
         </div>
         {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -455,10 +455,11 @@ const TripDetails = () => {
                     <tr key={index}>
                       <td className="p-2 whitespace-nowrap">{trip.tripDate || '-'}</td>
                       <td
-                        onClick={() => navigate(`/dashboard/tripDetails/details/${trip.id}`)}
                         className="p-2 text-sm text-blue-500 font-semibold underline cursor-pointer"
                       >
+                        <Link to={`/dashboard/tripDetails/details/${trip.id}`}>
                         {trip.bookingId || trip.BookingId || trip.Booking?.bookingNumber || '-'}
+                        </Link>
                       </td>
                       <td className="p-2 text-sm">{trip.tripType || '-'}</td>
                       <td className="p-2 text-sm">{trip.Cab?.carNumber || '-'}</td>
