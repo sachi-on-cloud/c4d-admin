@@ -17,7 +17,7 @@ import { FaFilter } from 'react-icons/fa';
 import moment from "moment";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DriverSearch from '@/components/DriverSearch';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import { KYC_STATUS_OPTIONS } from "@/pages/common/kycStatusOptions";
@@ -654,7 +654,7 @@ const fetchZones = async () => {
                             </td>
                             <td className={className}>
                               <div className="flex items-center gap-4">
-                                <div onClick={() => navigate(`/dashboard/vendors/account/drivers/details/${id}`)}>
+                                <Link to={`/dashboard/vendors/account/drivers/details/${id}`}>
                                   <Typography
                                     variant="small"
                                     color="blue"
@@ -665,7 +665,7 @@ const fetchZones = async () => {
                                   {/* <Typography className="text-xs font-normal text-blue-gray-500">
                                   {email}
                                 </Typography> */}
-                                </div>
+                                </Link>
                               </div>
                             </td>
                             <td className={className}>
