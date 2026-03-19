@@ -152,7 +152,15 @@ const Booking = (props) => {
         }
         if (data?.success) {
             if (params?.bookingDetails) {
-                navigate('/dashboard/confirm-booking', { state: { bookingId: params?.bookingDetails?.id, fromPath: location.pathname }});
+                const targetBookingId = data?.data?.id || params?.bookingDetails?.id;
+                const targetCustomerId = values?.customerId?.id || params?.bookingDetails?.customerId || 0;
+                navigate(
+                    `/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                        targetBookingId || 0
+                    )}&customerId=${encodeURIComponent(
+                        targetCustomerId
+                    )}&fromPath=${encodeURIComponent(location.pathname)}`
+                );
             } else {
                 setBookingStage(1);
                 setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })

@@ -10,7 +10,7 @@ import {
     Input,
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
 import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS, Feature  } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
@@ -71,7 +71,17 @@ const ConfirmBooking = (props) => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const paramsPassed = location.state;
+    const [searchParams] = useSearchParams();
+    const stateParams = location.state || {};
+    const queryBookingId = searchParams.get("bookingId");
+    const queryCustomerId = searchParams.get("customerId");
+    const queryFromPath = searchParams.get("fromPath");
+    const paramsPassed = {
+        ...stateParams,
+        bookingId: queryBookingId ?? stateParams?.bookingId,
+        customerId: queryCustomerId ?? stateParams?.customerId,
+        fromPath: queryFromPath ?? stateParams?.fromPath,
+    };
 
     const [loading, setLoading] = useState(true);
     const audioUrl = bookingDetails?.deliveryDetails?.deliveryInstructionsAudioUrl;

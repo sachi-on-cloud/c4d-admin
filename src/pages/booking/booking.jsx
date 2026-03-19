@@ -909,7 +909,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setIsOpen(false);
         await sendQuotationLogs(data?.data?.result?.id, loggedInUserId);
             if (params?.bookingDetails) {
-                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id, fromPath: location.pathname}});
+                const targetBookingId = data?.data?.result?.id || params?.bookingDetails?.id;
+                const targetCustomerId = values?.customerId?.id || params?.bookingDetails?.customerId || 0;
+                navigate(
+                    `/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                        targetBookingId || 0
+                    )}&customerId=${encodeURIComponent(
+                        targetCustomerId
+                    )}&fromPath=${encodeURIComponent(location.pathname)}`
+                );
             } else {
                 setBookingStage(1);
                 setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
@@ -949,13 +957,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
 
     const onSelectBooking = (data) => {
-        navigate("/dashboard/confirm-booking", {
-            state: {
-                bookingId: data?.id,
-                customerId: data?.customerId || data?.Customer?.id || 0,
-                fromPath: location.pathname,
-            },
-        });
+        const targetBookingId = data?.id;
+        const targetCustomerId = data?.customerId || data?.Customer?.id || 0;
+        navigate(
+            `/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                targetBookingId || 0
+            )}&customerId=${encodeURIComponent(targetCustomerId)}&fromPath=${encodeURIComponent(
+                location.pathname
+            )}`
+        );
                 // console.log('selecting booking', data);
         // setBookingStage(4);
         // setBookingData(data);
