@@ -71,7 +71,8 @@ export function Topnav({ permissions = [] }) {
     path.startsWith("/dashboard/user/versioncontrol") ||
     // path.startsWith("/dashboard/driverengagement") ||
     // Also show admin top bar on Trip Master and Calls
-    path.startsWith("/dashboard/tripdetails");
+    path.startsWith("/dashboard/tripdetails") ||
+    path.startsWith("/dashboard/reports/tripmasterreport");
 
 
   // If we are not in any section that has a top nav, render nothing
