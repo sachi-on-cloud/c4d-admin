@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import {
@@ -16,16 +16,19 @@ const BookingInvoiceDetails = () => {
   const { id } = useParams(); // bookingId
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const customerId = location.state?.customerId;
+  const customerIdFromState = location.state?.customerId;
+  const customerIdFromQuery = searchParams.get("customerId");
+  const customerId = customerIdFromState || customerIdFromQuery || 0;
 
   const [invoiceDetails, setInvoiceDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false); // Modal state
 
   useEffect(() => {
-    if (!id || !customerId) {
-      console.error("Missing bookingId or customerId");
+    if (!id) {
+      console.error("Missing bookingId");
       setLoading(false);
       return;
     }
@@ -42,7 +45,7 @@ const BookingInvoiceDetails = () => {
 
       const response = await ApiRequestUtils.get(
         `${API_ROUTES.GET_CONFIRMATION_BOOKING_BY_ID}/${id}`,
-        customerId
+        Number(customerId) || 0
       );
 
       if (response?.success) {
