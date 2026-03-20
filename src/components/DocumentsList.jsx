@@ -342,7 +342,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                     >
                                         Decline
                                     </Button>
-                                      {["PENDING"].includes(modalData.status) && (
+                                      {/* {["PENDING"].includes(modalData.status) && ( */}
                                     <>
                                         <Button
                                         onClick={() => handleStatusChange(modalData.id, "NOT_INTERESTED", "")}
@@ -365,7 +365,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                         Invalid
                                         </Button>
                                     </>
-                                    )}
+                                    {/* )} */}
                                   {["NOT_INTERESTED", "INVALID", "NO_RESPONSE"].includes(modalData.status) && (
                                     <Button
                                         onClick={() => handleStatusChange(modalData.id, "PENDING", "")}
