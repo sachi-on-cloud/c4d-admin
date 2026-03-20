@@ -1517,7 +1517,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 
                                 )}
-                             {!(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && (
+                             {!(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && shouldShowQuotePricing(bookingDetails) && (
                                     
                              <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Estimated Price{inclTaxLabel}:</span>
@@ -1525,14 +1525,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 
                                 )}
-                                 {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  bookingDetails?.status !== "END_OTP" && bookingDetails?.status !== "ENDED" &&(
+                                 {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' &&  bookingDetails?.status !== "END_OTP" && bookingDetails?.status !== "ENDED"  && shouldShowQuotePricing(bookingDetails)  &&(
                                     
                                         <div className="flex flex-col-2 gap-2">
                                             <span className="text-gray-500 font-semibold">Discount Applied:</span>
                                             <span className="text-gray-900 font-medium">{bookingDetails?.discount?.percentage} %</span>
                                         </div>
                                         )}
-                                         {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !=="DRIVER_ON_THE_WAY"&& bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" &&(
+                                         {bookingDetails?.discount?.percentage > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !=="DRIVER_ON_THE_WAY"&& bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" && shouldShowQuotePricing(bookingDetails) &&(
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">₹ {Number(
@@ -1541,13 +1541,13 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                 ).toFixed(2)}</span>
                                             </div>
                                         )}
-                                         {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" &&(
+                                         {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP"  && shouldShowQuotePricing(bookingDetails)  &&(
                                              <div  className="flex flex-col-2 gap-2">                                                                       
                                             <span className="text-gray-500 font-semibold">Discount Applied:</span>
                                             <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
                                             </div>
                                         )}
-                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP" &&(
+                                        {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType === 'AUTO' && bookingDetails?.status !== "ENDED" && bookingDetails?.status !== "END_OTP"&& shouldShowQuotePricing(bookingDetails) &&(
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                                 <span className="text-gray-900 font-medium">₹ {Number(
@@ -1692,7 +1692,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </>
                                 )}
                               
-                                {bookingDetails?.paymentDetails?.details?.discountAmount > 0 && bookingDetails?.status !=="ENDED" && bookingDetails?.status !== 'END_OTP' &&(
+                                {bookingDetails?.paymentDetails?.details?.discountAmount > 0 && bookingDetails?.status !=="ENDED" && bookingDetails?.status !== 'END_OTP' && shouldShowQuotePricing(bookingDetails) &&(
                                     <div className="flex flex-col-2 gap-2">
                                         <span className="text-gray-500 font-semibold">Discount Applied:</span>
                                         <span className="text-gray-900 font-medium">  ₹ {bookingDetails?.paymentDetails?.details?.discountAmount} </span>
@@ -1740,13 +1740,13 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     <span className="text-gray-900 font-semibold">₹ {Number(amount?.total || 0).toFixed(2)}</span>
                                 </div>
                         </>)}
-                         {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' && (
+                         {bookingDetails?.discount?.amount > 0 &&  bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' && shouldShowQuotePricing(bookingDetails) &&(
                                              <div  className="flex flex-col-2 gap-2">                                                                       
                                             <span className="text-gray-500 font-semibold">Discount Applied:</span>
                                             <span className="text-gray-900 font-medium">₹ {bookingDetails?.discount?.amount} </span>
                                             </div>
                                         )}
-                                        {bookingDetails?.discount?.amount > 0  && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' &&  bookingDetails?.serviceType !== 'AUTO' && !isHourlyShowingPrice(bookingDetails) && (
+                                        {bookingDetails?.discount?.amount > 0  && bookingDetails?.status !== 'ENDED' && bookingDetails?.status !== 'END_OTP' &&  bookingDetails?.serviceType !== 'AUTO' && !isHourlyShowingPrice(bookingDetails)&& shouldShowQuotePricing(bookingDetails) && (
                                           <div className="flex flex-col-2 gap-2">  
                                         <span className="text-gray-500 font-semibold">Total estimated Fare:</span>
                                         <span className="text-gray-900 font-medium">₹ {Number(

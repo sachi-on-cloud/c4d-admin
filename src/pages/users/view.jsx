@@ -193,13 +193,13 @@ export function UserView() {
                               </Button>
                             </td> */}
                             <td className={className}>
+                              <Link to={`/dashboard/users/edit/${id}`}>
                               <Button
-                                as={Link}
-                                to={`/dashboard/users/edit/${id}`}
                                 className="text-xs font-semibold text-white bg-primary"
                               >
                                 Edit
                               </Button>
+                              </Link>
                             </td>
                           </div>
                         </tr>
