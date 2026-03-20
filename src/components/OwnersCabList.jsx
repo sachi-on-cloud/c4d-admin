@@ -114,13 +114,13 @@ const OwnersCabList = ({cabsList, ownerName, type, id}) => {
                                                             {Drivers?.length > 0 && (
                                                                 (type === 'Company') || (type === 'Individual' && cabsList?.length < 1)
                                                             ) && (
+                                                                    <Link to={`/dashboard/vendors/account/allVehicles/assignDriver/${id}`}>
                                                                     <Button
-                                                                        as={Link}
-                                                                        to={`/dashboard/vendors/account/allVehicles/assignDriver/${id}`}
                                                                         className="text-xs font-semibold text-white bg-primary"
                                                                     >
                                                                         RE ASSIGN
                                                                     </Button>
+                                                                    </Link>
                                                                 )}
 
                                                         </td>

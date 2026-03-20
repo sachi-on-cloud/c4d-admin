@@ -184,13 +184,13 @@ export function CabView() {
                             </td> */}
 
                             <td className={className}>
+                              <Link to={`/dashboard/vendors/account/allVehicles/edit/${id}`}>
                               <Button
-                                as={Link}
-                                to={`/dashboard/vendors/account/allVehicles/edit/${id}`}
                                 className="text-xs font-semibold text-white"
                               >
                                 Edit
                               </Button>
+                              </Link>
                             </td>
                             <td className={className}>
                               <Button

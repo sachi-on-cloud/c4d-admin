@@ -299,13 +299,13 @@ export function CustomerView() {
                             >
                               View
                             </Button> */}
+                            <Link to={`/dashboard/customers/edit/${id}`}>
                             <Button
-                              as={Link}
-                              to={`/dashboard/customers/edit/${id}`}
                               className="text-xs font-semibold bg-[#1A73E8] text-white"
                             >
                               Edit
                             </Button>
+                            </Link>
                           </td>
                         </tr>
                       );
