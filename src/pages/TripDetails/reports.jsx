@@ -108,7 +108,7 @@ useEffect(() => {
       try {
         const params = {
           page: currentPage,
-          limit: 10,
+          limit: 15,
           fromDate,
           toDate,
           cabId: vehicleFilter === 'All Vehicles' ? '' : vehicleFilter,
@@ -128,9 +128,10 @@ useEffect(() => {
           const km = parseFloat(trip.totalKm) || 0;
           const endKm = parseFloat(trip.endKm) || 0;
           const startKm = parseFloat(trip.startKm) || 0;
-          const calculatedKm = km + (endKm - startKm);
+          const calculatedKm = km > 0 ? km : Math.max(endKm - startKm, 0);
           return {
             date: trip.tripDate,
+            createDate: trip.created_at || trip.createdAt || '',
             bookingId:trip.bookingId,
             tripType:trip.tripType,
             vehicle: trip.Cab?.carNumber || '-',
@@ -233,9 +234,8 @@ useEffect(() => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <Card className="bg-white p-6 rounded shadow">
-        <CardHeader variant="gradient" className={`mb-8 p-6 rounded-xl ${ColorStyles.bgColor}`}>
-          <div className="flex justify-between items-center">
-            <Typography variant="h6" color="white">
+          <div className="flex items-center justify-between w-full">
+            <Typography variant="h6" color="black">
               Trip Reports
             </Typography>
             {permsLoaded && userRole === 'SUPER_USER' && (
@@ -249,9 +249,8 @@ useEffect(() => {
             </Button>
             )}
           </div>
-        </CardHeader>
         <div className="border-b border-gray-200 mb-6">
-          <div className="px-6 py-4">
+          <div className="px-6 py-2">
             <div className="flex space-x-8">
               {tabs.map((tab) => (
                 <button
@@ -343,14 +342,27 @@ useEffect(() => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-3 xl:grid-cols-6">
-          <div className="p-2 border border-gray-200 text-center">Trips: {summary.totalTrips}</div>
-          <div className="p-2 border border-gray-200 text-center">Total KM: {summary.totalKm}</div>
-          {/* <div className="p-2 border border-gray-200 text-center">Fuel Used: {summary.fuelUsed}</div> */}
-          <div className="p-2 border border-gray-200 text-center">Fuel Cost: ₹ {summary.fuelCost}</div>
-          <div className="p-2 border border-gray-200 text-center">Toll Cost: ₹ {summary.tollCost}</div>
-          <div className="p-2 border border-gray-200 text-center">Permit Cost: ₹ {summary.permitCost}</div>
-          <div className="p-2 border border-gray-200 text-center">Total Fare: ₹ {summary.totalFare}</div>
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {[
+              { label: 'Trips', value: summary.totalTrips, prefix: '' },
+              { label: 'Total KM', value: Number(Number(summary?.totalKm ?? 0).toFixed(2)), prefix: '' },
+              { label: 'Fuel Cost', value: summary.fuelCost, prefix: '₹ ' },
+              { label: 'Toll Cost', value: summary.tollCost, prefix: '₹ ' },
+              { label: 'Permit Cost', value: summary.permitCost, prefix: '₹ ' },
+              { label: 'Total Fare', value: summary.totalFare, prefix: '₹ ' },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-blue-gray-100 bg-white px-4 py-3 shadow-sm"
+              >
+                <p className="text-xs font-medium uppercase tracking-wide text-blue-gray-500">
+                  {item.label}
+                </p>
+                <p className="mt-1 text-lg font-bold text-blue-gray-900">
+                  {item.prefix}{item.value ?? 0}
+                </p>
+              </div>
+            ))}
         </div>
         <div className="weekly-report">
           <h3 className="text-lg font-semibold mb-4 text-center bg-primary-900 text-white p-2 rounded" style={{ width: '100%' }}>
@@ -363,46 +375,62 @@ useEffect(() => {
             <div className="text-center text-red-500">{error}</div>
           ) : (
             <>
-            <div className="w-full overflow-x-auto">
-              <table className="min-w-[1200px] w-full border-collapse">
+            <div className="overflow-x-scroll px-0 pt-0 pb-2">
+              <table className="w-full table-auto min-w-[1300px]">
                 <thead>
-                  <tr className="bg-primary-900 text-white text-center">
-                    <th className="border border-gray-200 p-2">Date</th>
-                    <th className="border border-gray-200 p-2">BookingId</th>
-                    <th className="border border-gray-200 p-2">Trip Type</th>
-                    <th className="border border-gray-200 p-2">Vehicle Number</th>
-                    <th className="border border-gray-200 p-2">Driver</th>
-                    <th className="border border-gray-200 p-2">Start Point</th>
-                    <th className="border border-gray-200 p-2">End Point</th>
-                    <th className="border border-gray-200 p-2">KM</th>
-                    <th className="border border-gray-200 p-2">Toll</th>
-                    <th className="border border-gray-200 p-2">Permit</th>
-                    <th className="border border-gray-200 p-2">Cost</th>
-                    <th className="border border-gray-200 p-2">Fare</th>
+                  <tr className="bg-primary-900 text-white font-semibold">
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap lg:sticky lg:left-0 lg:z-20 bg-primary-900 min-w-[140px] lg:border-r lg:border-primary-900">Booking Date</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap lg:sticky lg:left-[140px] lg:z-20 bg-primary-900 min-w-[180px] lg:border-r lg:border-primary-900">Booking Id</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Trip Type</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Created Date</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Vehicle Number</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Driver</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Start Point</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">End Point</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">KM</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Toll</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Permit</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Cost</th>
+                    <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Fare</th>
                   </tr>
                 </thead>
                 <tbody>
                   {trips.length === 0 ? (
                     <tr>
-                      <td colSpan="12" className="border border-gray-200 p-2 text-center text-gray-500">
+                      <td colSpan="13" className="px-3 py-4 text-center text-gray-500">
                         No trips found for the selected criteria
                       </td>
                     </tr>
                   ) : (
                     trips.map((trip, index) => (
-                      <tr key={index}>
-                        <td className="border border-gray-200 p-2">{trip.date ? moment(trip.date).format('DD/MM/YYYY') : '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.bookingId || '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.tripType || '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.vehicle || '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.driver || '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.startPoint || '-'}</td>
-                        <td className="border border-gray-200 p-2">{trip.endPoint || '-'}</td>
-                        <td className="border border-gray-200 p-2">{isNaN(trip.totalKm) ? '0.0' : trip.totalKm.toFixed(1)}</td>
-                        <td className="border border-gray-200 p-2"> {isNaN(trip.toll) ? '0.00' : trip.toll.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-2">{isNaN(trip.permit) ? '0.00' : trip.permit.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-2">{isNaN(trip.cost) ? '0.00' : trip.cost.toFixed(2)}</td>
-                        <td className="border border-gray-200 p-2">{isNaN(trip.fare) ? '0.00' : trip.fare.toFixed(2)}</td>
+                      <tr key={index} className="border-b border-blue-gray-50">
+                        <td className="px-3 py-3 text-sm text-blue-gray-900 lg:sticky lg:left-0 lg:z-10 bg-white min-w-[140px]">{trip.date ? moment(trip.date).format('DD-MM-YYYY') : '-'}</td>
+                        <td className="px-3 py-3 text-sm text-black font-semibold lg:sticky lg:left-[140px] lg:z-10 bg-white min-w-[180px]">{trip.bookingId || '-'}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{trip.tripType || '-'}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{trip.createDate ? moment(trip.createDate).format('DD-MM-YYYY') : '-'}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{trip.vehicle || '-'}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{trip.driver || '-'}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">
+                          <textarea
+                            rows={3}
+                            readOnly
+                            value={trip.startPoint || '-'}
+                            className="w-56 min-w-[300px] resize-none rounded-md border border-blue-gray-100 bg-blue-gray-50/30 p-2 text-sm text-blue-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">
+                          <textarea
+                            rows={3}
+                            readOnly
+                            value={trip.endPoint || '-'}
+                            className="w-56 min-w-[300px] resize-none rounded-md border border-blue-gray-100 bg-blue-gray-50/30 p-2 text-sm text-blue-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{Number(trip?.totalKm ?? 0).toFixed(1)}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{Number(trip?.toll ?? 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{Number(trip?.permit ?? 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{Number(trip?.cost ?? 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-sm text-blue-gray-900">{Number(trip?.fare ?? 0).toFixed(2)}</td>
                       </tr>
                     ))
                   )}

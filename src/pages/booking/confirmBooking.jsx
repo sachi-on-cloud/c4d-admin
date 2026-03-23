@@ -2425,7 +2425,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             // cabId: bookingDetails?.Cab?.id || null,
             driverId: bookingDetails?.Driver?.id || null,
             customerId: bookingDetails?.Customer?.id || null,
-            tripDate: moment().format('YYYY-MM-DD'),
+            tripDate: bookingDetails?.fromDate ? moment(bookingDetails.fromDate).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
             vehicleNumber: bookingDetails?.Cab?.carNumber || null,
             driverName: bookingDetails?.Driver?.firstName || null,
             startAddress: bookingDetails?.pickupAddress?.name ? { address: bookingDetails.pickupAddress.name } : null,

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Button, Spinner, Popover, PopoverHandler, PopoverContent, Checkbox, Typography, Input } from '@material-tailwind/react';
 import { FaFilter, FaChevronDown } from 'react-icons/fa';
+import moment from 'moment';
 
 const TripDetails = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialFromDate = searchParams.get('fromDate') || '';
+  const initialToDate = searchParams.get('toDate') || '';
+  const initialTripType = searchParams.get('tripType') || '';
+  const initialCarNumber = searchParams.get('carNumber') || '';
+  const initialPage = Math.max(1, Number(searchParams.get('page')) || 1);
   const [trips, setTrips] = useState([]);
   const [allTrips, setAllTrips] = useState([]); // Store unfiltered trips
   const [summary, setSummary] = useState({
@@ -22,20 +27,20 @@ const TripDetails = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
-    currentPage: 1,
+    currentPage: initialPage,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 10,
+    itemsPerPage: 15,
   });
 
   
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [tripTypeFilter, setTripTypeFilter] = useState(''); 
+  const [fromDate, setFromDate] = useState(initialFromDate);
+  const [toDate, setToDate] = useState(initialToDate);
+  const [tripTypeFilter, setTripTypeFilter] = useState(initialTripType); 
 
  
-  const [vehicleNumberFilter, setVehicleNumberFilter] = useState('');
-  const [tempVehicleFilter, setTempVehicleFilter] = useState('');
+  const [vehicleNumberFilter, setVehicleNumberFilter] = useState(initialCarNumber);
+  const [tempVehicleFilter, setTempVehicleFilter] = useState(initialCarNumber);
 
   
   const [dateFilterOpen, setDateFilterOpen] = useState(false);
@@ -164,14 +169,18 @@ const TripDetails = () => {
   };
 
   useEffect(() => {
-    fetchTrips(1, true);
-  }, [fromDate, toDate, tripTypeFilter, vehicleNumberFilter, pagination.itemsPerPage]);
+    fetchTrips(pagination.currentPage, pagination.currentPage === 1);
+  }, [fromDate, toDate, tripTypeFilter, vehicleNumberFilter, pagination.itemsPerPage, pagination.currentPage]);
 
   useEffect(() => {
-    if (pagination.currentPage > 1) {
-      fetchTrips(pagination.currentPage, false);
-    }
-  }, [pagination.currentPage]);
+    const params = {};
+    if (fromDate) params.fromDate = fromDate;
+    if (toDate) params.toDate = toDate;
+    if (tripTypeFilter) params.tripType = tripTypeFilter;
+    if (vehicleNumberFilter) params.carNumber = vehicleNumberFilter;
+    if (pagination.currentPage > 1) params.page = String(pagination.currentPage);
+    setSearchParams(params, { replace: true });
+  }, [fromDate, toDate, tripTypeFilter, vehicleNumberFilter, pagination.currentPage, setSearchParams]);
 
   // Sync temp dates when popup opens
   useEffect(() => {
@@ -185,6 +194,7 @@ const TripDetails = () => {
     if (tempFromDate && tempToDate) {
       setFromDate(tempFromDate);
       setToDate(tempToDate);
+      setPagination((prev) => ({ ...prev, currentPage: 1 }));
       setDateFilterOpen(false);
     }
   };
@@ -194,7 +204,23 @@ const TripDetails = () => {
     setTempToDate('');
     setFromDate('');
     setToDate('');
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setSearchParams({}, { replace: true });
     setDateFilterOpen(false);
+  };
+
+  const clearAllFilters = () => {
+    setTempFromDate('');
+    setTempToDate('');
+    setFromDate('');
+    setToDate('');
+    setTripTypeFilter('');
+    setVehicleNumberFilter('');
+    setTempVehicleFilter('');
+    setDateFilterOpen(false);
+
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setSearchParams({}, { replace: true });
   };
 
   const handlePageChange = (page) => {
@@ -229,54 +255,35 @@ const TripDetails = () => {
     return buttons;
   };
 
-  return (
-    <div className="p-5 font-sans">
-      <h2 className="text-2xl font-bold text-black">Trip Master Details</h2>
-      {/* <div className="flex">
-        <div className="mt-5 flex flex-wrap gap-5">
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Today’s KM</div>
-            <div className="text-2xl font-bold">{summary.totalKm.toFixed(1)}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Fuel Cost</div>
-            <div className="text-2xl font-bold ">₹{summary.fuelCost.toFixed(2)}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Permit Cost</div>
-            <div className="text-2xl font-bold">₹{summary.permitCost.toFixed(2)}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Toll Cost</div>
-            <div className="text-2xl font-bold">₹{summary.tollCost.toFixed(2)}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-md w-48">
-            <div>Total Fare</div>
-            <div className="text-2xl font-bold">₹{summary.totalFare.toFixed(2)}</div>
-          </div>
-        </div>
-        <div className="mt-5 ml-auto">
-          <button
-            onClick={() => navigate('/dashboard/tripDetails/add')}
-            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer"
-          >
-            + Add New Trip
-          </button>
-        </div>
-      </div> */}
+  const hasActiveFilters = Boolean(fromDate || toDate || tripTypeFilter || vehicleNumberFilter);
+  const currentListPath = `/dashboard/tripDetails${
+    searchParams.toString() ? `?${searchParams.toString()}` : ''
+  }`;
 
-      <div className="mt-5 bg-white p-4 rounded-lg shadow-md">
-         <div className="flex justify-between items-center mb-4">
+  return (
+    <div className="p-2"> 
+    <h2 className="text-xl font-bold text-black">Trip Master Details</h2>
+      <div className="mt-3 bg-white p-2 rounded-lg shadow-md">
+        <div className='flex justify-between items-center'>
           <div>
-        <h3 className="text-lg">Recent Trips</h3></div>
-         <div>
+            {hasActiveFilters && (
+          <button
+                type="button"
+            onClick={clearAllFilters}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg cursor-pointer"
+          >
+          Clear Filters
+          </button>
+            )}
+        </div>
           <Link
             to={'/dashboard/tripDetails/add'}
-            className="bg-primary-400 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer inline-block"
+            className="bg-primary-500 hover:bg-primary-500 text-white px-4 py-2 rounded-lg cursor-pointer inline-block"
           >
             + Add New Trip
           </Link>
         </div>
+        <div className="flex justify-between items-center mb-4">
         </div>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {loading ? (
@@ -285,39 +292,38 @@ const TripDetails = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className='overflow-x-scroll px-0 pt-0 pb-2'>
+            <table className="w-full table-auto">
               <thead>
-                <tr className="bg-gray-100">
-                 
-                  <th className="p-2 text-left">
-                    Date
+                <tr className="bg-primary-600 text-white pb-2 font-semibold">
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap lg:sticky lg:left-0 lg:z-20 bg-primary-600 min-w-[140px] lg:border-r lg:border-primary-500">
+                    Booking Date
                     <Popover open={dateFilterOpen} handler={setDateFilterOpen} placement="bottom-start">
                       <PopoverHandler>
-                        <button 
+                        <button
                           onClick={() => setDateFilterOpen(prev => !prev)}
                           className="ml-2"
                         >
-                          <FaChevronDown 
-                            className={`text-black text-xs transition-transform duration-200 ${dateFilterOpen ? 'rotate-180' : ''}`} 
+                          <FaChevronDown
+                            className={`text-white text-sm transition-transform duration-200 ${dateFilterOpen ? 'rotate-180' : ''}`}
                           />
                         </button>
                       </PopoverHandler>
                       <PopoverContent className="p-5 w-60 z-50 shadow-2xl border border-gray-200 rounded-xl">
                         <div className="space-y-4">
                           <div className="flex items-center justify-center mt-2">
-                            <label className="text-sm font-medium text-gray-700 mr-2">From </label>
-                             <input
+                            <label className="text-sm font-semibold text-gray-700 mr-2">From </label>
+                            <input
                               type="date"
                               value={tempFromDate}
                               onChange={(e) => setTempFromDate(e.target.value)}
-                                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                              className="px-3 py-1 border border-gray-300 rounded-md text-sm"
                               onClick={(e) => e.currentTarget.showPicker?.()}
                             />
                           </div>
                           <div className="flex items-center justify-center mt-2">
-                            <label className="text-sm mr-5 font-medium text-gray-700">To </label>
-                             <input
+                            <label className="text-sm mr-5 font-semibold text-gray-700">To </label>
+                            <input
                               type="date"
                               value={tempToDate}
                               onChange={(e) => setTempToDate(e.target.value)}
@@ -350,14 +356,14 @@ const TripDetails = () => {
                       </PopoverContent>
                     </Popover>
                   </th>
-                  <th className="p-2 text-left">Booking Id</th>
-                 <th className="p-2 text-left">
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap lg:sticky lg:left-[140px] lg:z-20 bg-primary-600 min-w-[180px] lg:border-r lg:border-primary-500">Booking Id</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">
                     <div className="flex items-center gap-1">
                       <span>Trip Type</span>
                       <Popover placement="bottom-start">
                         <PopoverHandler>
-                          <button className="text-black">
-                            <FaFilter className="text-xs" />
+                          <button className="text-white">
+                            <FaFilter className="text-sm" />
                           </button>
                         </PopoverHandler>
                         <PopoverContent className="p-2 z-50">
@@ -366,7 +372,10 @@ const TripDetails = () => {
                               <Checkbox
                                 color="blue"
                                 checked={tripTypeFilter === '' ? type === 'All' : tripTypeFilter === type}
-                                onChange={() => setTripTypeFilter(type === 'All' ? '' : type)}
+                                onChange={() => {
+                                  setTripTypeFilter(type === 'All' ? '' : type);
+                                  setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                                }}
                               />
                               <Typography className="ml-2 text-base text-black">{type}</Typography>
                             </div>
@@ -375,16 +384,17 @@ const TripDetails = () => {
                       </Popover>
                     </div>
                   </th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Create Date</th>
 
                   {/* Vehicle Number Column with Perfect Filter Alignment */}
-<th className="p-2 text-left">
+<th className="px-3 py-3 text-left text-sm whitespace-nowrap">
   <div className="flex items-center ">
-    <span className="font-medium">Vehicle Number</span>
-    
+    <span className="font-semibold">Vehicle Number</span>
+
     <Popover placement="bottom-start">
       <PopoverHandler>
-        <button className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-200 transition-colors">
-          <FaFilter className="text-xs text-black" />
+        <button className="flex items-center justify-center w-6 h-6 rounded hover:bg-primary-600 transition-colors">
+          <FaFilter className="text-sm text-white" />
         </button>
       </PopoverHandler>
 
@@ -400,13 +410,17 @@ const TripDetails = () => {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   setVehicleNumberFilter(tempVehicleFilter.trim());
+                  setPagination((prev) => ({ ...prev, currentPage: 1 }));
                 }
               }}
               className="uppercase text-black p-2"
             />
             <Button
               size="sm"
-              onClick={() => setVehicleNumberFilter(tempVehicleFilter.trim())}
+              onClick={() => {
+                setVehicleNumberFilter(tempVehicleFilter.trim());
+                setPagination((prev) => ({ ...prev, currentPage: 1 }));
+              }}
               className="whitespace-nowrap"
             >
               Apply
@@ -419,6 +433,7 @@ const TripDetails = () => {
                 onClick={() => {
                   setVehicleNumberFilter('');
                   setTempVehicleFilter('');
+                  setPagination((prev) => ({ ...prev, currentPage: 1 }));
                 }}
               >
                 X
@@ -438,42 +453,62 @@ const TripDetails = () => {
   </div>
 </th>
 
-                  <th className="p-2 text-left">Driver Name</th>
-                  <th className="p-2 text-left">Start Point</th>
-                  <th className="p-2 text-left">End Point</th>
-                  <th className="p-2 text-left">KM</th>
-                  <th className="p-2 text-left">Fare</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Driver Name</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Start Point</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">End Point</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">KM</th>
+                  <th className="px-3 py-3 text-left text-sm whitespace-nowrap">Fare</th>
                 </tr>
               </thead>
               <tbody>
                 {trips.length === 0 && !error ? (
                   <tr>
-                    <td colSpan="9" className="p-2 text-center">No trips available</td>
+                    <td colSpan="10" className="px-3 py-4 text-center">No trips available</td>
                   </tr>
                 ) : (
                   trips.map((trip, index) => (
-                    <tr key={index}>
-                      <td className="p-2 whitespace-nowrap">{trip.tripDate || '-'}</td>
+                    <tr key={index}  className='border-b border-blue-gray-50'>
+                      <td className="px-3 py-3 text-sm text-blue-gray-900 lg:sticky lg:left-0 lg:z-10 bg-white min-w-[140px]">
+                        {trip?.tripDate ? moment(trip.tripDate).format("DD-MM-YYYY") : '-'}
+                      </td>
                       <td
-                        className="p-2 text-sm text-blue-500 font-semibold underline cursor-pointer"
+                        className="px-3 py-3 text-sm text-blue-500 font-semibold underline cursor-pointer lg:sticky lg:left-[140px] lg:z-10 bg-white min-w-[180px]"
                       >
-                        <Link to={`/dashboard/tripDetails/details/${trip.id}`}>
+                        <Link
+                          to={`/dashboard/tripDetails/details/${trip.id}`}
+                          state={{ fromPath: currentListPath }}
+                        >
                         {trip.bookingId || trip.BookingId || trip.Booking?.bookingNumber || '-'}
                         </Link>
                       </td>
-                      <td className="p-2 text-sm">{trip.tripType || '-'}</td>
-                      <td className="p-2 text-sm">{trip.Cab?.carNumber || '-'}</td>
-                      <td className="p-2 text-sm">{trip.Driver?.firstName || '-'}</td>
-                      <td className="p-2 text-sm">{trip.startAddress?.address || trip.startAddress || '-'}</td>
-                      <td className="p-2 text-sm">{trip.endAddress?.address || trip.endAddress || '-'}</td>
-                      <td className="p-2 text-sm">
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">{trip.tripType || '-'}</td>
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">{trip.created_at || trip.createdAt ? moment(trip.created_at || trip.createdAt).format("DD-MM-YYYY") : '-'}</td>
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">{trip.Cab?.carNumber || '-'}</td>
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">{trip.Driver?.firstName || '-'}</td>
+                      <td className="px-3 py-3 text-sm text-blue-gray-900">
+                        <textarea
+                          rows={4}
+                          readOnly
+                          value={trip.startAddress?.address || trip.startAddress || '-'}
+                          className="w-56 min-w-[300px] resize-none rounded-md border border-blue-gray-100 bg-blue-gray-50/30 p-2 text-sm text-blue-gray-900"
+                        />
+                      </td>
+                      <td className="px-3 py-3 text-sm text-blue-gray-900">
+                        <textarea
+                          rows={4}
+                          readOnly
+                          value={trip.endAddress?.address || trip.endAddress || '-'}
+                          className="w-56 min-w-[300px] resize-none rounded-md border border-blue-gray-100 bg-blue-gray-50/30 p-2 text-sm text-blue-gray-900"
+                        />
+                      </td>
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">
                         {(
                           Number.isFinite(Number(trip.totalKm))
                             ? Number(trip.totalKm)
                             : (parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)
                         ).toFixed(1)}
                       </td>
-                      <td className="p-2 text-sm">₹{parseFloat(trip.tripFare) || '-'}</td>
+                      <td className="px-3 py-3 text-sm  text-blue-gray-900">₹{parseFloat(trip.tripFare) || '-'}</td>
                     </tr>
                   ))
                 )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
   CardBody,
@@ -15,6 +15,8 @@ import { API_ROUTES } from '@/utils/constants';
 const DetailsTrip = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const backPath = location.state?.fromPath || '/dashboard/tripDetails';
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -58,7 +60,7 @@ const DetailsTrip = () => {
         <Button
           color="gray"
           variant="outlined"
-          onClick={() => navigate('/dashboard/tripDetails')}
+          onClick={() => navigate(backPath)}
         >
           Back to Trip List
         </Button>
@@ -270,7 +272,7 @@ const DetailsTrip = () => {
                 color="gray"
                 variant="outlined"
                 className="px-4 py-2"
-                onClick={() => navigate('/dashboard/tripDetails')}
+                onClick={() => navigate(backPath)}
               >
                 Back to Trip List
               </Button>

@@ -4,7 +4,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles, Feature } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
-import { Button } from '@material-tailwind/react';
+import { Button, Typography } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
@@ -91,6 +91,13 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700"> Status</label>
                                         <Field type="text" name="ownerStatus" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
+                                       {accountVal.ownerStatus === 'Blocked' && accountVal.blockedReason && (
+                                            <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                                                    <Typography variant="small" className="font-semibold">Block Reason:</Typography>
+                                                    <Typography variant="small">{accountVal.blockedReason}</Typography>
+                                                </div>
+
+                                        )}
                                     </div>
                                     <div>
                                         <label htmlFor="kycStatus" className="text-sm font-medium text-gray-700">KYC Status</label>
