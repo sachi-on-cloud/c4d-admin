@@ -546,7 +546,8 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         sourceType: '',
         isPremiumService : '',
         driverEndAddress: '',
-    driverEndLocation: null,
+        driverEndLocation: null,
+        isPickupSameAsDriverStart: false,
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -999,6 +1000,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
         setFieldValue('driverPickUpLocation', null);
         setFieldValue('driverEndAddress', '');
         setFieldValue('driverEndLocation', null);
+        setFieldValue('isPickupSameAsDriverStart', false);
 
         // Clear vehicle / service-related fields
         setFieldValue('carType', '');
@@ -2295,12 +2297,38 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 )}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
+                                                            <div className="flex items-center gap-3">
                                                             <label className="block text-sm font-medium text-black-700">
                                                             {values.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Point 
                                                             {(values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation") && (
                                                                 <span className="text-red-500">*</span>
                                                             )}
                                                             </label>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        id="samePickupAsStart"
+                                                                        checked={values.isPickupSameAsDriverStart}
+                                                                        onChange={(e) => {
+                                                                            setFieldValue("isPickupSameAsDriverStart", e.target.checked);
+                                                                            if (e.target.checked) {
+                                                                                setFieldValue("driverPickUpAddress", values.pickupAddress);
+                                                                                setFieldValue("driverPickUpLocation", values.pickupLocation);
+                                                                                setDriverPickUpLocation(values.pickupLocation || null);
+                                                                                setDriverSuggestions([]);
+                                                                            } else {
+                                                                                setFieldValue("driverPickUpAddress", "");
+                                                                                setFieldValue("driverPickUpLocation", null);
+                                                                                setDriverPickUpLocation(null);
+                                                                                setDriverSuggestions([]);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <label htmlFor="samePickupAsStart" className="text-sm text-gray-700 cursor-pointer">
+                                                                        Same as Pickup Address
+                                                                    </label>
+                                                                </div>
+                                                            </div>
                                                             <div className="relative">
                                                             <Field
                                                                 type="text"

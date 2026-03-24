@@ -1018,7 +1018,8 @@ export const API_ROUTES = {
     'UPDATE_CASH_BACK':'/cashback-rules/:settingId',
     'GET_CASH_BACK':'/cashback-rules',
     "GET_TRANSACTIONS_LIST":'/transactions',
-    "GET_TRANSACTIONS_CHART":'/transactions/chart'
+    "GET_TRANSACTIONS_CHART":'/transactions/chart',
+    "ASSIGN_AUTO":'/confirm-auto-booking'
 };
 
 export const KYC_PROCESS = {
