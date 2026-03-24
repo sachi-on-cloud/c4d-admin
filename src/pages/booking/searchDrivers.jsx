@@ -487,6 +487,24 @@ export function SearchDrivers(props) {
             if (data?.success) {
                 props?.onNext();
             }
+        } 
+        else if (service === "AUTO")
+        {
+            const reqBody = {
+                bookingId: props?.bookingData?.id,
+                status: 'BOOKING_ACCEPTED',
+                driverId: cabDriverId,
+                shiftId: fullData?.Shift?.id || fullData?.Shifts?.[0]?.id,
+                autoId: fullData?.id,
+                offerPrice: fullData?.offerPrice || 0,
+                estimatedDistance: fullData?.travelDistance,
+                estimatedMin: fullData?.travelDuration,
+                zone: fullData?.Booking?.zone || props?.bookingData?.zone,
+            };
+            const data = await ApiRequestUtils.update(API_ROUTES.ASSIGN_AUTO, reqBody);
+            if (data?.success) {
+                props?.onNext();
+            }           
         } else if (service != "RIDES") {
             const reqBody = {
                 bookingId: props?.bookingData?.id,
