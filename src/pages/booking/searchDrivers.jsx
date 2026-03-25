@@ -805,9 +805,9 @@ export function SearchDrivers(props) {
                                             <Typography color="gray" className="mb-6 max-w-sm">
                                                 No driver accepted the request in 15 seconds.
                                             </Typography>
-                                            <Button color="blue" onClick={() => props?.onNext()}>
+                                            {/* <Button color="blue" onClick={() => props?.onNext()}>
                                                 Assign Manually
-                                            </Button>
+                                            </Button> */}
                                         </div>
                                     )}
                                 </div>
