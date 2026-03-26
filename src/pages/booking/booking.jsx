@@ -3022,9 +3022,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <Typography className="text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
                                                             </Typography>
+                                                            {quoteDetails.amount?.gst_percentage > 0 && (
                                                             <Typography className="text-sm text-gray-700">
-                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| '0'}%</span> tax.
                                                             </Typography>
+                                                            )}
 
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
@@ -3095,9 +3097,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>.
                                                             </Typography>
                                                             )}
+                                                            {quoteDetails.amount?.gst_percentage > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| '0'}%</span> tax.
                                                             </Typography>
+                                                            )}
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
                                                                 • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}.
