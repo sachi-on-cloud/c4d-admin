@@ -247,7 +247,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
             </div>
             <DriverAccountBookingNotes accountId={accountVal?.id} />
             {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels}/>}
+            {accountVal && accountVal?.id && (<DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels} serviceType={accountVal?.type} />)}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&

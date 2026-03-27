@@ -139,7 +139,7 @@ const Booking = (props) => {
   useEffect(() => {
     if (selectedAreaId) {
       const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
-      const newServices = (selectedArea ? selectedArea.services : []).filter(services => Feature.parcel || services !== 'PARCEL');
+      const newServices = (selectedArea ? selectedArea.services : []).filter((service) => service !== 'PARCEL');
       setServices(newServices);
     //   console.log('Services for selected area:', newServices);
       setCurrentServiceType('');

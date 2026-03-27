@@ -2,6 +2,7 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import CabDetails from "../cab/details";
 import AccountDetails from "../account/details";
 import DriverDetails from "../driver/details";
+import ParcelDetails from "../parcel/deatils";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import { useState, useEffect } from "react";
@@ -101,6 +102,7 @@ const DocumentsDetails = () => {
         {type == 'Cab' && <CabDetails btnShow={true} noApprove={true} />}
         {type == 'Account' && <AccountDetails btnShow={true} noApprove={true} />}
         {type == 'Auto' && <AccountDetails btnShow={true} noApprove={true} />}
+        {type == 'Parcel' && <ParcelDetails btnShow={true} noApprove={true} />}
         {type == 'Register' && <>
           <div className="p-4">
 
