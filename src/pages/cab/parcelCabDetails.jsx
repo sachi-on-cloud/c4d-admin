@@ -31,6 +31,8 @@ const ParcelCabDetails = ({ btnShow = false, noApprove = false }) => {
         vehicleType: bike?.result?.vehicleType || "",
         seater: bike?.result?.seater || "",
         modelYear: bike?.result?.modelYear || "",
+        serviceArea: bike?.result?.serviceArea || bike?.result?.subZone?.parent?.name || "",
+        zone: bike?.result?.subZone?.name || bike?.result?.zoneDescription || bike?.result?.zone || "",
     };
     return (
         <>
@@ -91,6 +93,16 @@ const ParcelCabDetails = ({ btnShow = false, noApprove = false }) => {
                                     <label htmlFor="status" className="text-sm font-medium text-gray-700">Status</label>
                                     <Field type="text" name="status" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
                                     <ErrorMessage name="status" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">Service Area</label>
+                                    <Field type="text" name="serviceArea" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm my-1" />
+                                </div>
+                                <div>
+                                    <label htmlFor="zone" className="text-sm font-medium text-gray-700">Zone</label>
+                                    <Field type="text" name="zone" disabled className="p-2 w-full rounded-md border border-gray-300 shadow-sm bg-gray-200" />
+                                    <ErrorMessage name="zone" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
                             </div>
                         </div>

@@ -4,6 +4,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Button, Alert, Input, List, ListItem, Typography } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Select from 'react-select';
 
 const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -55,12 +56,18 @@ const ParcelCabEdit = () => {
     const [parcelCabVal, setParcelCabVal] = useState({});
     const [alert, setAlert] = useState(null);
     const [ownerAddressSuggestions, setOwnerAddressSuggestions] = useState([]);
+    const [serviceAreas, setServiceAreas] = useState([]);
+    const [zones, setZones] = useState([]);
+    const [serviceAreaFetchError, setServiceAreaFetchError] = useState('');
+    const [zoneFetchError, setZoneFetchError] = useState('');
     const { id } = useParams();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         fetchItem(id);
+        fetchServiceAreas();
+        fetchZones();
     }, [id]);
 
     const fetchItem = async (itemId) => {
@@ -78,6 +85,49 @@ const ParcelCabEdit = () => {
         }
     };
 
+    const fetchServiceAreas = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+                type: 'Service Area',
+            });
+            const allAreas = Array.isArray(response?.data) ? response.data : [];
+            const filteredAreas = allAreas.filter((area) => area.type === 'Service Area');
+            setServiceAreas(filteredAreas);
+            setServiceAreaFetchError('');
+        } catch (error) {
+            console.error('Error fetching service areas:', error);
+            setServiceAreaFetchError('Failed to fetch service areas. Please try again.');
+        }
+    };
+
+    const fetchZones = async () => {
+        try {
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+                type: 'Zone',
+            });
+            const allZones = Array.isArray(response?.data) ? response.data : [];
+            const filteredZones = allZones.filter((zone) => zone.type === 'Zone' && zone.description === 'Zone');
+            setZones(filteredZones);
+            setZoneFetchError('');
+        } catch (error) {
+            console.error('Error fetching zones:', error);
+            setZoneFetchError('Failed to fetch zones. Please try again.');
+        }
+    };
+
+    const SERVICE_AREA_OPTIONS = serviceAreas.map((area) => ({
+        value: area.name,
+        label: area.name,
+        id: area.id,
+    }));
+
+    const ZONE_OPTIONS = zones.map((zone) => ({
+        value: zone.name,
+        label: zone.name,
+        id: zone.id,
+        parentId: zone.parent_id,
+    }));
+
     const initialValues = {
         accountId: parcelCabVal?.result?.Account?.id || '',
         name: parcelCabVal?.result?.name || '',
@@ -88,6 +138,9 @@ const ParcelCabEdit = () => {
         autoType: parcelCabVal?.result?.vehicleType || '',
         seater: parcelCabVal?.result?.seater || '3',
         modelYear: parcelCabVal?.result?.modelYear || '',
+        serviceArea: parcelCabVal?.result?.serviceArea || parcelCabVal?.result?.subZone?.parent?.name || '',
+        subZoneId: parcelCabVal?.result?.subZoneId || parcelCabVal?.result?.subZone?.id || '',
+        zoneDescription: parcelCabVal?.result?.subZone?.name || parcelCabVal?.result?.zoneDescription || parcelCabVal?.result?.zone || '',
     };
 
     const searchLocations = async (query, type) => {
@@ -108,6 +161,19 @@ const ParcelCabEdit = () => {
         setIsSubmitting(true);
         
         try {
+            if (!values.serviceArea) {
+                setAlert({ message: 'Please select service area', color: 'red' });
+                setIsSubmitting(false);
+                setSubmitting(false);
+                return;
+            }
+            if (!values.zoneDescription) {
+                setAlert({ message: 'Please select zone', color: 'red' });
+                setIsSubmitting(false);
+                setSubmitting(false);
+                return;
+            }
+
             const payload = {
                 accountId: values.accountId,
                 name: values.name,
@@ -118,8 +184,8 @@ const ParcelCabEdit = () => {
                 vehicleType: values.autoType,
                 seater: values.seater,
                 modelYear: values.modelYear,
-                curLatitude: '',
-                curLongitude: '',
+                serviceArea: values.serviceArea,
+                subZoneId: values.subZoneId,
                 parcelId: parcelCabVal?.result?.id,
             };
             
@@ -162,7 +228,12 @@ const ParcelCabEdit = () => {
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
-                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => (
+                {({ handleSubmit, values, errors, dirty, isValid, handleChange, setFieldValue }) => {
+                    const selectedArea = serviceAreas.find((area) => area.name === values.serviceArea);
+                    const filteredZoneOptions = ZONE_OPTIONS.filter(
+                        (zone) => !selectedArea || !zone.parentId || zone.parentId === selectedArea.id
+                    );
+                    return (
                     <Form className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             {/* Vehicle Name */}
@@ -261,6 +332,53 @@ const ParcelCabEdit = () => {
                                 <Field name="modelYear" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                 <ErrorMessage name="modelYear" component="div" className="text-red-500 text-sm" />
                             </div>
+                            <div>
+                                <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">
+                                    Service Area
+                                </label>
+                                <Select
+                                    options={SERVICE_AREA_OPTIONS}
+                                    value={SERVICE_AREA_OPTIONS.find((opt) => opt.value === values.serviceArea) || null}
+                                    onChange={(opt) => {
+                                        const selected = opt?.value || '';
+                                        setFieldValue('serviceArea', selected);
+                                        setFieldValue('subZoneId', '');
+                                        setFieldValue('zoneDescription', '');
+                                    }}
+                                    placeholder="Select Service Area"
+                                    className="w-full"
+                                    name="serviceArea"
+                                />
+                                <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm" />
+                                {serviceAreaFetchError ? (
+                                    <Typography variant="small" className="text-red-500 mt-1">
+                                        {serviceAreaFetchError}
+                                    </Typography>
+                                ) : null}
+                            </div>
+                            <div>
+                                <label htmlFor="zoneDescription" className="text-sm font-medium text-gray-700">
+                                    Zone (Type: Zone / Description: Zone)
+                                </label>
+                                <Select
+                                    options={filteredZoneOptions}
+                                    value={filteredZoneOptions.find((opt) => opt.value === values.zoneDescription) || null}
+                                    onChange={(opt) => {
+                                        setFieldValue('zoneDescription', opt?.value || '');
+                                        setFieldValue('subZoneId', opt?.id || '');
+                                    }}
+                                    placeholder="Select Zone"
+                                    className="w-full"
+                                    name="zoneDescription"
+                                    isDisabled={!values.serviceArea}
+                                />
+                                <ErrorMessage name="zoneDescription" component="div" className="text-red-500 text-sm" />
+                                {zoneFetchError ? (
+                                    <Typography variant="small" className="text-red-500 mt-1">
+                                        {zoneFetchError}
+                                    </Typography>
+                                ) : null}
+                            </div>
                         </div>
                         <div className="flex flex-row">
                             <Button
@@ -280,7 +398,8 @@ const ParcelCabEdit = () => {
                             </Button>
                         </div>
                     </Form>
-                )}
+                    );
+                }}
             </Formik>
         </div>
     );

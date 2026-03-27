@@ -149,7 +149,6 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                                 : "border-b border-blue-gray-50"
                                                 }`;
                                             return (
-                                                <>
                                                     <tr key={id}>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -213,7 +212,6 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                                             </Typography>
                                                         </td>
                                                     </tr>
-                                                </>
                                             );
                                         }
                                     )}
