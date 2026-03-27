@@ -94,6 +94,13 @@ const ParcelAdd = (props) => {
     const onSubmit = async (values, { setSubmitting, setFieldError }) => {
         // console.log('Form submission started with values:', values);
         try {
+            const pincodeVal = String(values?.pincode || "").trim();
+            if (!/^\d+$/.test(pincodeVal)) {
+                setAlert({ message: "Please enter a valid pincode", color: "red" });
+                setSubmitting(false);
+                return;
+            }
+
             const reqBody = {
                 type: values?.type,
                 name: values?.name,
@@ -214,6 +221,22 @@ const ParcelAdd = (props) => {
     const filteredState = stateOptions.filter(state =>
         state.name.toLowerCase().includes(stateSearchText.toLowerCase())
     );
+
+    const normalizeText = (value = "") =>
+        String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const getMatchedOptionValue = (options, rawValue) => {
+        if (!rawValue) return "";
+        const target = normalizeText(rawValue);
+        const exact = options.find((opt) => normalizeText(opt.name) === target);
+        if (exact) return exact.id;
+        const partial = options.find(
+            (opt) =>
+                normalizeText(opt.name).includes(target) ||
+                target.includes(normalizeText(opt.name))
+        );
+        return partial ? partial.id : "";
+    };
 
     const searchLocations = async (query) => {
         if (query.length > 2) {
@@ -362,6 +385,8 @@ const ParcelAdd = (props) => {
                 message: "An error occurred while uploading the photo.",
                 color: "red",
             });
+        } finally {
+            setLoading(false);
             setTimeout(() => setAlert(null), 5000);
         }
     };
@@ -380,9 +405,9 @@ const ParcelAdd = (props) => {
 
         if (isSameAddress) {
             setFieldValue("street", parsedAddress.street);
-            setFieldValue("thaluk", parsedAddress.taluk);
-            setFieldValue("district", parsedAddress.district);
-            setFieldValue("state", parsedAddress.state);
+            setFieldValue("thaluk", getMatchedOptionValue(thalukOptions, parsedAddress.taluk));
+            setFieldValue("district", getMatchedOptionValue(districtOptions, parsedAddress.district));
+            setFieldValue("state", getMatchedOptionValue(stateOptions, parsedAddress.state));
             setFieldValue("pincode", parsedAddress.pincode);
         }
     };
@@ -496,9 +521,9 @@ const ParcelAdd = (props) => {
                                             if (e.target.checked) {
                                                 const currentAddress = parseAddress(values.address);
                                                 setFieldValue("street", currentAddress.street);
-                                                setFieldValue("thaluk", currentAddress.taluk);
-                                                setFieldValue("district", currentAddress.district);
-                                                setFieldValue("state", currentAddress.state);
+                                                setFieldValue("thaluk", getMatchedOptionValue(thalukOptions, currentAddress.taluk));
+                                                setFieldValue("district", getMatchedOptionValue(districtOptions, currentAddress.district));
+                                                setFieldValue("state", getMatchedOptionValue(stateOptions, currentAddress.state));
                                                 setFieldValue("pincode", currentAddress.pincode);
                                             } else {
                                                 setFieldValue("street", "");
@@ -618,7 +643,7 @@ const ParcelAdd = (props) => {
                                 fullWidth
                                 // color="blue-gray-50"
                                 onClick={handleSubmit}
-                                disabled={!dirty || !isValid}
+                                disabled={!dirty || !isValid || !/^\d+$/.test(String(values?.pincode || "").trim())}
                                 className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                             >
                                 Continue
