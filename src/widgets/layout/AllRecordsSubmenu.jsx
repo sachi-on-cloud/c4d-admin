@@ -21,7 +21,7 @@ function AllRecordsSubmenu({ miniSidenav }) {
         return pathname.startsWith("/dashboard/booking/list/rides");
       case "Rentals Records":
         return pathname.startsWith("/dashboard/booking/list/rentals");
-      case "Parcel":
+      case "Parcel Records":
         return pathname.startsWith("/dashboard/booking/list/parcel");
       default:
         return pathname.startsWith(target);
@@ -35,7 +35,7 @@ function AllRecordsSubmenu({ miniSidenav }) {
     { label: "Local Records", path: "/dashboard/booking/list/rides", icon: "/img/rides.png" },
     { label: "Rentals Records", path: "/dashboard/booking/list/rentals", icon: "/img/rental.png" },
     ...(Feature.parcel
-      ? [{ label: "Parcel", path: "/dashboard/booking/list/Parcel", icon: "/img/Parcel_driver.png" }]
+      ? [{ label: "Parcel Records", path: "/dashboard/booking/list/Parcel", icon: "/img/Parcel_driver.png" }]
       : []),
   ];
 

@@ -114,6 +114,7 @@ export function PendingDocList() {
     if (serviceType === "Company") return "Account";
     if (serviceType === "Individual") return "Cab";
     if (serviceType === "Auto") return "Auto";
+    if(serviceType === "Parcel") return "Parcel";
     return "";
   };
 
@@ -402,6 +403,7 @@ export function PendingDocList() {
                               { value: "Company", label: "Account" },
                               { value: "Individual", label: "Cab" },
                               { value: "Auto", label: "Auto" },
+                              { value: "Parcel", label: "Parcel" },
                             ]}
                           />
                         ) : (

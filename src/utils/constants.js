@@ -17,7 +17,7 @@ export const getBaseUrl = () => {
 }
 
 export const Feature = {
-    parcel:false
+    parcel:true
 }
 
 export const GENDER = {

@@ -57,7 +57,8 @@ export function ParcelDetailsList({ id = 0 }) {
         limit: pagination.itemsPerPage,
         search: searchQuery.trim(),
         filterType: JSON.stringify({
-          status: documentStatusFilter, // KYC status
+          status: statusFilter,
+          documentStatus: documentStatusFilter,
           source: sourceFilter,
            serviceType: [ 'Parcel'],// Ensure Parcel is included
         }),
