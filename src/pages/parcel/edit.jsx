@@ -175,6 +175,11 @@ const ParcelEdit = () => {
                 setLoading(false);
                 return;
             }
+            const accountIdNum = Number(accountVal?.id);
+            if (!Number.isInteger(accountIdNum) || accountIdNum <= 0) {
+                setAlert({ message: "Invalid account. Please refresh and try again.", color: "red" });
+                return;
+            }
 
             // Determine document type based on label
             let type;
@@ -206,7 +211,7 @@ const ParcelEdit = () => {
 
             const formData = new FormData();
             formData.append('type', type);
-            formData.append('accountId', accountVal?.id);
+            formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
             const isSingleFile = label === "livePhoto" || label === "bankStatementImage";
@@ -224,9 +229,10 @@ const ParcelEdit = () => {
             }
 
             let data;
-            if (docId) {
+            const documentIdNum = Number(docId);
+            if (Number.isInteger(documentIdNum) && documentIdNum > 0) {
                 // Update existing document
-                formData.append('documentId', docId);
+                formData.append('documentId', String(documentIdNum));
                 data = await ApiRequestUtils.updateDocs(API_ROUTES.UPDATE_PHOTO, formData);
             } else {
                 // Create new document
@@ -275,6 +281,18 @@ const ParcelEdit = () => {
 
     const onSubmit = async (values, { setSubmitting }) => {
         try {
+            const accountIdNum = Number(accountVal?.id);
+            if (!Number.isInteger(accountIdNum) || accountIdNum <= 0) {
+                setAlert({ message: "Invalid account. Please refresh and try again.", color: "red" });
+                setSubmitting(false);
+                return;
+            }
+            const pincodeVal = String(values?.pincode ?? "").trim();
+            if (!/^\d{6}$/.test(pincodeVal)) {
+                setAlert({ message: "Please enter a valid 6-digit pincode", color: "red" });
+                setSubmitting(false);
+                return;
+            }
             const formData = {
                 type: values.type,
                 name: values.name,
@@ -285,9 +303,9 @@ const ParcelEdit = () => {
                 thaluk: values.thaluk,
                 district: values.district,
                 state: values.state,
-                pincode: values.pincode,
+                pincode: Number(pincodeVal),
                 source: values.source,
-                accountId: accountVal?.id,
+                accountId: accountIdNum,
                 ownerStatus: values.ownerStatus,
                 blockedReason: values?.ownerStatus === 'Blocked' ? values?.blockedReason : '',
             }

@@ -91,7 +91,7 @@ const ParcelAdd = (props) => {
         pincode: "",
     };
 
-    const onSubmit = async (values, { setSubmitting, setFieldError }) => {
+    const onSubmit = async (values, { setSubmitting }) => {
         // console.log('Form submission started with values:', values);
         try {
             const pincodeVal = String(values?.pincode || "").trim();
@@ -111,7 +111,7 @@ const ParcelAdd = (props) => {
                 thaluk: values?.thaluk,
                 district: values?.district,
                 state: values?.state,
-                pincode: values?.pincode,
+                pincode: Number(pincodeVal),
                 source: values?.source,
             }
             let data;
@@ -119,8 +119,7 @@ const ParcelAdd = (props) => {
             if (!data?.success && data?.code === 203) {
                 setAlert({ message: 'Account already exists!', color: 'red' });
                 setTimeout(() => setAlert(null), 5000);
-                resetForm();
-            } else {
+            } else if (data?.success && Number.isInteger(Number(data?.data?.id)) && Number(data?.data?.id) > 0) {
                 // navigate('/dashboard/vendors/account', {
                 //     state: {
                 //         accountAdded:  true,
@@ -128,10 +127,13 @@ const ParcelAdd = (props) => {
                 //     }
                 // });
                 setOwnerAdded({
-                    ownerId: data?.data?.id,
+                    ownerId: Number(data?.data?.id),
                     value: true
                 });
                 setIsEditable(false);
+            } else {
+                setAlert({ message: data?.message || "Failed to create account", color: "red" });
+                setTimeout(() => setAlert(null), 5000);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -260,6 +262,11 @@ const ParcelAdd = (props) => {
                 setLoading(false);
                 return;
             }
+            const accountIdNum = Number(ownerAdded?.ownerId);
+            if (!Number.isInteger(accountIdNum) || accountIdNum <= 0) {
+                setAlert({ message: "Please create bike account first, then upload documents.", color: "red" });
+                return;
+            }
 
             // Determine document type based on label
             let type;
@@ -282,7 +289,7 @@ const ParcelAdd = (props) => {
 
             const formData = new FormData();
             formData.append('type', type);
-            formData.append('accountId', ownerAdded?.ownerId);
+            formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
             const isSingleFile = label === "livePhoto" || label === "bankStatement";
@@ -335,6 +342,11 @@ const ParcelAdd = (props) => {
                 setLoading(false);
                 return;
             }
+            const accountIdNum = Number(ownerAdded?.ownerId);
+            if (!Number.isInteger(accountIdNum) || accountIdNum <= 0) {
+                setAlert({ message: "Please create bike account first, then upload documents.", color: "red" });
+                return;
+            }
 
             // Determine document type based on label
             let type;
@@ -351,7 +363,7 @@ const ParcelAdd = (props) => {
 
             const formData = new FormData();
             formData.append('type', type);
-            formData.append('accountId', ownerAdded?.ownerId);
+            formData.append('accountId', String(accountIdNum));
             
             // Handle single file (live photo and bank statement are single files)
             if (files[0]) {
