@@ -114,7 +114,9 @@ import ParcelDetailsList from "./pages/parcel/list";
 import ParcelCabAdd from "./pages/cab/addParcelCab";
 import ParcelCabDetails from "./pages/cab/parcelCabDetails";
 import ParcelCabEdit from "./pages/cab/parcelCabEdit";
+import ParcelMasterPriceAdd from "./pages/finance/masterPriceTable/ParcelMasterPriceTableAdd";
 import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
+import ParcelMasterPriceDetails from "./pages/finance/masterPriceTable/ParcelMasterPriceTableDetails";
 import TripDetails from "./pages/TripDetails/tripDetails";
 import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
@@ -1153,6 +1155,22 @@ export const routes = [
           element: <ParcelEdit />,
           display: true,
           permission: "Vendors"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel Master Price Add",
+          path: "/finance/master-price/parcel-add",
+          element: <ParcelMasterPriceAdd />,
+          display: true,
+          permission: "Users"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel Master Price Details",
+          path: "/finance/master-price/parcel-details/:id",
+          element: <ParcelMasterPriceDetails />,
+          display: false,
+          permission: "Users"
         },
         {
           icon: <UserIcon {...icon} />,

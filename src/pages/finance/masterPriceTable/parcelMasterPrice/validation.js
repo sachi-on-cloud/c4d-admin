@@ -1,0 +1,20 @@
+import { toNum } from "./defaults";
+
+export const validateParcelForm = (form) => {
+  if (!form.zone) return "Zone is required";
+  if (!form.subZoneId) return "Sub Zone is required";
+  if (toNum(form.baseFare) <= 0) return "Base Fare must be greater than 0";
+  if (toNum(form.baseKm) < 0) return "Base Km cannot be negative";
+  if (toNum(form.kilometerPrice) <= 0) return "Kilometer Price must be greater than 0";
+
+  if (form.peakHourEnabled) {
+    const invalidPeak = form.peakHour.some(
+      (row) => !row.start || !row.end || toNum(row.kilometerPrice) <= 0 || row.start >= row.end
+    );
+    if (invalidPeak) {
+      return "Each peak row needs start, end, valid kilometerPrice, and start time before end time";
+    }
+  }
+
+  return "";
+};

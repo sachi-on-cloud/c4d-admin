@@ -5,6 +5,7 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
 import Select from 'react-select';
+import { ParcelExpandableRow } from "./ParcelExpandableRow";
 
 export function MasterPriceView() {
     const [localPackageList, setLocalPackageList] = useState([]);
@@ -17,12 +18,16 @@ export function MasterPriceView() {
     // const [rentalsData, setRentalsData] = useState([]);
     const [zone, setZone] = useState("");
     const [serviceAreas, setServiceAreas] = useState([]);
+    const [subZones, setSubZones] = useState([]);
 
     const fetchGeoData = async () => {
         try {
             const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
-            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            const allGeo = Array.isArray(response?.data) ? response.data : [];
+            const filteredAreas = allGeo.filter((area) => area.type === 'Service Area');
+            const filteredSubZones = allGeo.filter((area) => area.type === "Zone" && area.description === "Zone");
             setServiceAreas(filteredAreas);
+            setSubZones(filteredSubZones);
         } catch (error) {
             console.error('Error fetching GEO_MARKINGS_LIST:', error);           
         } 
@@ -69,13 +74,14 @@ export function MasterPriceView() {
             }
 
              else if(selectedServiceType === 'PARCEL') {
-                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST,{
-                    type : "Service area",
-                });
+                const query = {};
+                if (zone) query.zone = zone;
+                const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.PARCEL_PACKAGE_LIST, query);
                     if(data?.success) {
+                        const parcelRows = Array.isArray(data?.data) ? data.data : [];
                         const filteredData = zone
-                            ? data?.data.filter(item => item.zone === zone)
-                            : data?.data;
+                            ? parcelRows.filter(item => item.zone === zone)
+                            : parcelRows;
                         setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
                     }
                     // console.log("DADADADAD",data)
@@ -133,6 +139,17 @@ export function MasterPriceView() {
                         setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
                         setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
                     }
+                } else if (serviceType === "PARCEL") {
+                    const query = {};
+                    if (selectedZone) query.zone = selectedZone;
+                    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.PARCEL_PACKAGE_LIST, query);
+                    if (data?.success) {
+                        const parcelRows = Array.isArray(data?.data) ? data.data : [];
+                        const filteredData = selectedZone
+                            ? parcelRows.filter(item => item.zone === selectedZone)
+                            : parcelRows;
+                        setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
+                    }
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
@@ -150,21 +167,26 @@ export function MasterPriceView() {
         }
         else if (serviceType === 'AUTO') {
         navigate('/dashboard/finance/master-price/auto-add');     // ← add this block
+        } else if (serviceType === 'PARCEL') {
+            navigate('/dashboard/finance/master-price/parcel-add');
     }
     };
-    const tierList = useMemo(() => {
-    return parcelLocalPackageList.flatMap((pkg) =>
-      (pkg.parcelPricing || []).map((tier) => ({
+    const parcelPackageRows = useMemo(() => {
+    return (parcelLocalPackageList || []).map((pkg) => ({
         pkgId: pkg.id,
-        zone: pkg.zone,
-        parcelType: tier.parcelType?.toUpperCase() || "—",
-        baseFare: tier.baseFare || "—",
-        baseKm: tier.baseKm || "—",
-        pickupFreeKm: tier.pickupFreeKm || "—",
-        nightCharge: tier.nightCharge || "—",
-      }))
-    );
-  }, [parcelLocalPackageList]);
+            zone: pkg.zone || "—",
+            subZoneId: (pkg.subZoneId ?? pkg?.subZone?.id ?? "—"),
+            subZoneName:
+                pkg?.subZone?.name ||
+                subZones.find((item) => Number(item.id) === Number(pkg.subZoneId ?? pkg?.subZone?.id))?.name ||
+                "",
+            baseFare: pkg.baseFare ?? "—",
+            baseKm: pkg.baseKm ?? "—",
+            kilometerPrice: pkg.kilometerPrice ?? "—",
+            peakHour: pkg.peakHours || pkg.peakHour || [],
+            parcelPricing: pkg.parcelPricing || {},
+        }));
+}, [parcelLocalPackageList, subZones]);
 
     const renderLocalPriceTable = () => {
         return (
@@ -916,11 +938,10 @@ export function MasterPriceView() {
                                 <tr>
                                     {[
                                         "Zone",
-                                        "Parcel Type",
+                                        "Sub Zone",
                                         "Base Fare",
                                         "Base Km",
-                                        "Pickup Free Km",
-                                        "Night Charge", 
+                                        "Kilometer Price",
                                         "Actions"
                                     ].map((el, index) => (
                                         <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
@@ -935,52 +956,14 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {tierList.map(({ 
-                                    pkgId, 
-                                    zone, 
-                                    parcelType, 
-                                    baseKm, 
-                                    baseFare,
-                                    pickupFreeKm,
-                                    nightCharge }, 
-                                    idx) => {
-                                    const className = `py-3 px-5 ${idx === tierList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                {parcelPackageRows.map((row, idx) => {
+                                    const className = `py-3 px-5 ${idx === parcelPackageRows.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
-                                        <tr key={`${pkgId}-${parcelType}`}>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {zone}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">{parcelType}</Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {baseFare}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {baseKm}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {pickupFreeKm}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {nightCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Link to={`/dashboard/finance/master-price/parcel-edit/${pkgId}`} className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block ${ColorStyles.editButton}`}>
-                                                    View / Edit
-                                                </Link>
-                                            </td>
-                                        </tr>
+                                        <ParcelExpandableRow
+                                            key={row.pkgId}
+                                            row={row}
+                                            className={className}
+                                        />
                                     );
                                 })}
                             </tbody>
@@ -1121,7 +1104,7 @@ export function MasterPriceView() {
                             </div>
                         </div>
                     </div>
-                    {serviceType && serviceType !== 'PARCEL' && (
+                    {serviceType && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
