@@ -12,7 +12,7 @@ import {
 import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ApiRequestUtils } from "../../utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS, Feature  } from "../../utils/constants";
+import { API_ROUTES, BOOKING_STATUS, BOOKING_TERMS_AND_CONDITIONS } from "../../utils/constants";
 import { Utils } from '../../utils/utils';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
@@ -832,7 +832,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     {(
                         (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
                         (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
-                            (bookingDetails.serviceType === "AUTO" || (Feature.parcel && bookingDetails.serviceType === "PARCEL")))
+                            (bookingDetails.serviceType === "AUTO" || bookingDetails.serviceType === "PARCEL"))
                     ) && (
                     <Button
                         color="white"
@@ -1179,7 +1179,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         )}
                     </CardBody>
                 </Card>
-            {(Feature.parcel && bookingDetails?.serviceType === 'PARCEL') && (
+            {bookingDetails?.serviceType === 'PARCEL' && (
                 <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
                     <CardBody className="space-y-4">
                         <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
@@ -1312,7 +1312,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         <div className="grid sm:grid-cols-2 gap-4 text-sm">
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Service Type:</span>
-                                <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.bookingType == "DROP ONLY") ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : Feature.parcel && bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
+                                <span className="text-gray-900 font-medium">{bookingDetails.serviceType === 'DRIVER' ? 'ACTING DRIVER' : bookingDetails.serviceType == "RIDES" ? 'Local Rides' : bookingDetails?.packageType == "Local" ? 'Hourly Package' : (bookingDetails?.serviceType == "RENTAL" && bookingDetails?.bookingType == "DROP ONLY") ? 'Drop Taxi' : bookingDetails?.serviceType == 'AUTO' ? 'Auto' : bookingDetails?.serviceType == "PARCEL" ? 'Parcel' : 'Outstation'}</span>
                             </div>
                             {bookingDetails?.serviceType === 'DRIVER' && (
                                 <>
@@ -1329,7 +1329,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <span className="text-gray-900 font-medium">{(bookingDetails?.Package?.extraCabType === '0' && bookingDetails?.Package?.period === '1')  ? "Custom Date" : bookingDetails?.Package?.period + ' Hrs'}</span>
                                     </div>
                             )}
-                            {(Feature.parcel && bookingDetails?.serviceType == "PARCEL") &&
+                            {bookingDetails?.serviceType == "PARCEL" &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Delivery Type:</span>
                                 <span className="text-gray-900 font-medium">

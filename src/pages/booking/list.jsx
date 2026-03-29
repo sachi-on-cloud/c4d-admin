@@ -19,7 +19,7 @@ import {
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
@@ -1440,7 +1440,7 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                : data?.serviceType === "PARCEL"
                                                                                 ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
@@ -1459,7 +1459,7 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
+                                                                                : data?.serviceType === "PARCEL"
                                                                                 ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
@@ -1475,7 +1475,7 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL" ? "Bike"
+                                                                                : data?.serviceType === "PARCEL" ? "Bike"
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>

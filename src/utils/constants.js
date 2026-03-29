@@ -16,10 +16,6 @@ export const getBaseUrl = () => {
     return constants.url + '/api/customer/dev';
 }
 
-export const Feature = {
-    parcel:true
-}
-
 export const GENDER = {
     MALE: 'Male',
     FEMALE: 'Female',

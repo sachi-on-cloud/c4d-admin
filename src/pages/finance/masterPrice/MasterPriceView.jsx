@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo  } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
@@ -1096,9 +1096,7 @@ export function MasterPriceView() {
                                     <option value="RIDES">Rides</option>
                                     <option value="RENTAL">Rental</option>
                                     <option value="AUTO">Auto</option>
-                                {(Feature.parcel ? [
                                     <option value="PARCEL">Parcel</option>
-                                ] : [])}
                                 </select>
                                 {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
                             </div>

@@ -4,7 +4,6 @@ import {
   RectangleStackIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { Feature } from "@/utils/constants";
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
@@ -687,7 +686,6 @@ export const routes = [
         display: false,
         permission: "Autos",
       },
-      ...(Feature.parcel ? [
         {
           icon: <UserIcon {...icon} />,
           name: "Parcel Bookings",
@@ -696,7 +694,6 @@ export const routes = [
           display: false,
           permission: "All bookings",
         },
-      ] : []),
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -1090,7 +1087,6 @@ export const routes = [
         display: false,
         permission: "Users",
       },
-      ...(Feature.parcel ? [
         {
           icon: <UserIcon {...icon} />,
           name: "bike",
@@ -1180,7 +1176,6 @@ export const routes = [
           display: true,
           permission: "Users"
         },
-      ] : []),
 
       {
         icon: <UserIcon {...icon} />,
