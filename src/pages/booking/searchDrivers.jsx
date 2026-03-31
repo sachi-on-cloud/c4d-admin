@@ -364,6 +364,7 @@ export function SearchDrivers(props) {
                     data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_BIKE_PACKAGE, {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
+                        bookingId: props.bookingData.id,
                     });
                     // console.log("Bike Package Data:", data);
                 }
@@ -502,6 +503,19 @@ export function SearchDrivers(props) {
                 zone: fullData?.Booking?.zone || props?.bookingData?.zone,
             };
             const data = await ApiRequestUtils.update(API_ROUTES.ASSIGN_AUTO, reqBody);
+            if (data?.success) {
+                props?.onNext();
+            }           
+        } else if (service === "PARCEL") {
+            const reqBody = {
+                bookingId: props?.bookingData?.id,
+                driverId: cabDriverId || fullData?.DriverId || fullData?.driverId || fullData?.Driver?.id || fullData?.driver?.id,
+                status: 'BOOKING_ACCEPTED',
+                packageId: props?.bookingData?.packageId,
+                shiftId:  fullData?.ShiftId || fullData?.shiftId || fullData?.Shifts?.[0]?.id,
+                cabId: fullData?.parcelId || fullData?.Parcel?.id || fullData?.driver?.Parcel?.id || fullData?.Driver?.Parcel?.id || fullData?.id || driverId,
+                };
+                let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_PARCEL_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
             }           
@@ -844,10 +858,12 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : "Cab Name", "Driver Name", "Phone Number", "Current Address",
+                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : props.bookingData.serviceType === "PARCEL" ? 'Bike Name' : "Cab Name", "Driver Name", "Phone Number", "Current Address",
+                                            ...(props.bookingData?.serviceType === "PARCEL" ? ["sub Zone"] : []),
                                             ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Cab Type"] : []), 
                                             ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Local Count"] : []),
-                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Outstation Count"] : []), "Status", "Travel Distance", "Travel Duration", "Assign/Reassign"].map((el) => (
+                                            ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Outstation Count"] : []), "Status", 
+                                            ...(props.bookingData?.serviceType !== "PARCEL" ? ["Travel Distance", "Travel Duration"] : []), "Assign/Reassign"].map((el) => (
                                                     <th
                                                         key={el}
                                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -879,11 +895,14 @@ export function SearchDrivers(props) {
                                     </thead>
                                     <tbody>
                                         {drivers.filter(driver => cabTypeFilter.includes('All') || cabTypeFilter.includes(driver.carType)).map(
-                                            ({ id, name, status, carType, Shifts, priceOffered, curAddress, outstationCount, intercityCount, travelDistance, travelDuration, driverName, tripCount, firstName, phoneNumber, Drivers, fullData }, key) => {
+                                            ({ id, name, status, carType, Shifts, priceOffered, driver,curAddress, outstationCount, intercityCount, travelDistance, travelDuration, driverName, tripCount, subZoneName,firstName, phoneNumber, Drivers, fullData }, key) => {
                                                 const className = `py-3 px-5 ${key === drivers.length - 1
                                                     ? ""
                                                     : "border-b border-blue-gray-50"
                                                     }`;
+                                                const rowDriverId = props?.bookingData?.serviceType === "PARCEL"
+                                                    ? (Drivers?.[0]?.id || fullData?.driverId || fullData?.DriverId || fullData?.driver?.id || fullData?.Driver?.id)
+                                                    : Drivers?.[0]?.id;
 
                                                 return (
                                                     <tr key={id}>
@@ -895,7 +914,7 @@ export function SearchDrivers(props) {
                                                                         color="blue-gray"
                                                                         className="font-semibold"
                                                                     >
-                                                                        {name}
+                                                                        {name || driver?.Parcel?.name}
                                                                     </Typography>
                                                                 </div>
                                                             </div>
@@ -915,6 +934,13 @@ export function SearchDrivers(props) {
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
                                                         </td>
+                                                        {props.bookingData?.serviceType === "PARCEL" && (
+                                                            <td className={className}>
+                                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                                    {subZoneName}
+                                                                </Typography>
+                                                            </td>
+                                                        )}
                                                         {props.bookingData.serviceType !== "AUTO" && props.bookingData.serviceType !== "PARCEL" && (
                                                             <>
                                                             <td className={className}>
@@ -950,21 +976,27 @@ export function SearchDrivers(props) {
                                                                 className="py-0.5 px-2 text-[11px] font-medium w-fit"
                                                             />
                                                             {status === 'ACTIVE' &&  props.bookingData.requestType !== 'REQUEST_ALL' &&
-                                                                !statusCheckedDriverIds.includes(Drivers?.[0]?.id) && (
-                                                                    checkingStatusDriverIds.includes(Drivers?.[0]?.id) ? (
+                                                                !statusCheckedDriverIds.includes(rowDriverId) && (
+                                                                    checkingStatusDriverIds.includes(rowDriverId) ? (
                                                                         <div className='flex justify-center items-center'>
                                                                                 <Spinner className="h-4 w-4" />
                                                                         </div>
                                                                     ) : (
                                                                         <Typography
                                                                             className="text-xs font-semibold text-primary-900 underline cursor-pointer"
-                                                                            onClick={() => checkPresence(Drivers[0].id, id)}
+                                                                            onClick={() => {
+                                                                                if (rowDriverId) {
+                                                                                    checkPresence(rowDriverId, id);
+                                                                                }
+                                                                            }}
                                                                         >
                                                                             Check Status
                                                                         </Typography>
                                                                     )
                                                                 )}
                                                         </td>
+                                                        {props.bookingData?.serviceType !== "PARCEL" && (
+                                                            <>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                 {travelDistance}
@@ -975,10 +1007,19 @@ export function SearchDrivers(props) {
                                                                 {travelDuration} Min.
                                                             </Typography>
                                                         </td>
+                                                            </>
+                                                        )}                                                        
                                                         <td className={className}>
                                                             <Button
                                                                 as="a"
-                                                                onClick={() => { onAssignDriver(props?.bookingData?.serviceType, id, props?.bookingData?.serviceType == 'DRIVER' ? 0 : Drivers[0]?.id, fullData) }}
+                                                                onClick={() => {
+                                                                    const selectedDriverId = props?.bookingData?.serviceType == 'DRIVER'
+                                                                        ? 0
+                                                                        : props?.bookingData?.serviceType === "PARCEL"
+                                                                            ? (Drivers?.[0]?.id || fullData?.DriverId || fullData?.driverId || fullData?.Driver?.id || fullData?.driver?.id)
+                                                                            : Drivers?.[0]?.id;
+                                                                    onAssignDriver(props?.bookingData?.serviceType, id, selectedDriverId, fullData);
+                                                                }}
                                                                 className="text-xs font-semibold text-white bg-primary"
                                                             >
                                                                 {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : props?.bookingData.serviceType === "PARCEL" ? "Assign Bike" : "Assign Cab"}
