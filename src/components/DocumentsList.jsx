@@ -224,7 +224,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                 }
             </Card>
             {modalData && (
-                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md" className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <div className="flex justify-between items-center w-full">
                             <Typography variant="h6">Document Details</Typography>
