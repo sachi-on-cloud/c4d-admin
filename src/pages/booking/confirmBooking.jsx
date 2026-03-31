@@ -239,6 +239,7 @@ const ConfirmBooking = (props) => {
         if (bookingDetails?.packageType === 'Local') return 'Hourly Package';
         if (bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
         if (bookingDetails?.serviceType === 'AUTO') return 'Auto';
+        if (bookingDetails?.serviceType === 'PARCEL') return 'Parcel';
         return 'Outstation';
     };
     const formatStatus = (status = '') => {
@@ -868,7 +869,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     )
                 }
 
-                {bookingDetails?.status === 'QUOTED' && (
+                {bookingDetails?.status === 'QUOTED' && bookingDetails?.serviceType !== 'PARCEL' && (
                     <Button
                         color="white"
                         variant="outlined"
@@ -1337,6 +1338,22 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </span>
                             </div>
                             }
+                            {bookingDetails?.serviceType == "PARCEL" &&
+                                <div className="flex flex-col-2 gap-2">
+                                    <span className="text-gray-500 font-semibold">Weight:</span>
+                                    <span className="text-gray-900 font-medium">
+                                        {bookingDetails?.weight ? `${bookingDetails?.weight} Kg` : 'N/A'}
+                                    </span>
+                                </div>  
+                            }
+                            {bookingDetails?.serviceType == "PARCEL" &&
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Per Km Rate:</span>
+                                <span className="text-gray-900 font-medium">
+                                    {bookingDetails?.estimatedFareBreakdown?.ratePerKm ? `₹${bookingDetails?.estimatedFareBreakdown?.ratePerKm}` : 'N/A'}
+                                </span>
+                            </div>
+                            }
                             {bookingDetails?.sourceType &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Source Type:</span>
@@ -1453,7 +1470,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 
                             }
-                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' &&
+                            {bookingDetails?.serviceType != 'RIDES' && bookingDetails?.packageType != 'Outstation' && bookingDetails?.serviceType != 'AUTO' && bookingDetails?.serviceType != 'PARCEL' && 
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Package:</span>
                                     <span className="text-gray-900 font-medium">{`${bookingDetails?.packageType == 'Local' ? bookingDetails?.Package?.period : ''}
@@ -1928,6 +1945,27 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             )}
                     </CardBody>
                 </Card>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {bookingDetails?.serviceType === 'PARCEL' && bookingDetails?.paymentStatus === 'PAID' && (
+                <Card className="mb-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <CardBody className="space-y-4">
+                        <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                            <span>Parcel Payment Details</span>
+                        </div>
+                        <div>
+                            <div className="space-y-4 gap-2">
+                                <span className=" text-gray-500 font-semibold">Payment Collected by</span> : <span className="text-gray-900 font-medium">{bookingDetails?.paymentCollected}</span>
+                                <div>
+                                    <span className="text-gray-500 font-semibold">Payment Method</span> : <span className="text-gray-900 font-medium">{bookingDetails?.paymentMethod}</span></div>
+                                <div>
+                                <span className="text-gray-500 font-semibold">Payment Status</span> : <span className="text-gray-900 font-medium">{bookingDetails?.paymentStatus}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
+            )}
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 pb-2">
                 {shouldShowReceipt && (
