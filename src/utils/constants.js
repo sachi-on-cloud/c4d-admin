@@ -963,6 +963,7 @@ export const API_ROUTES = {
     'GET_PARCEL_CAB_BY_ID':'/parcel/', 
     'UPDATE_PARCEL_CAB':'/update/admin/parcel',
     'GET_BIKE_PACKAGE':'/get-parcel-driver',
+    'CONFIRM_PARCEL_BOOKING':'/confirm-parcel-booking',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
