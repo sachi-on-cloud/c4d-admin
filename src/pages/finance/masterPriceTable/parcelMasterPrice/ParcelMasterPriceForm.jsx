@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Button, Card, CardBody, Typography, Switch } from "@material-tailwind/react";
 import { ColorStyles } from "@/utils/constants";
 import { buildParcelPayload } from "./mapper";
-import { buildWeightCode, toNum } from "./defaults";
+import { buildWeightCode, normalizeParcelVehicleType, toNum } from "./defaults";
 import { validateParcelForm } from "./validation";
 
 const inputClass = "w-full min-w-0";
@@ -31,6 +31,7 @@ export default function ParcelMasterPriceForm({
   onSubmit,
   onBack,
   readOnly = false,
+  disableZoneAndVehicleType = false,
   primaryButtonLabel,
   onPrimaryButtonClick,
 }) {
@@ -50,6 +51,7 @@ export default function ParcelMasterPriceForm({
     if (!selectedServiceArea) return [];
     return zones.filter((item) => !item.parent_id || item.parent_id === selectedServiceArea.id);
   }, [zones, selectedServiceArea]);
+  const isAutoVehicleType = normalizeParcelVehicleType(form.parcelVehicleType, "BIKE") === "AUTO";
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -394,13 +396,13 @@ export default function ParcelMasterPriceForm({
         <div>
           <Card className="rounded-none">
             <CardBody className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
               <div className="min-w-0">
                 <label className="text-xs font-semibold text-gray-500 uppercase">Zone</label>
                 <select
                   className="p-2 w-full rounded-md border border-gray-300 bg-white"
                   value={form.zone}
-                  disabled={readOnly}
+                  disabled={readOnly || disableZoneAndVehicleType}
                   onChange={(e) => {
                     updateField("zone", e.target.value);
                     updateField("subZoneId", "");
@@ -412,6 +414,25 @@ export default function ParcelMasterPriceForm({
                   ))}
                 </select>
               </div>
+              <div className="min-w-0">
+                <label className="text-xs font-semibold text-gray-500 uppercase">Parcel Vehicle Type</label>
+                <select
+                  className="p-2 w-full rounded-md border border-gray-300 bg-white"
+                  value={normalizeParcelVehicleType(form.parcelVehicleType, "BIKE")}
+                  disabled={readOnly || disableZoneAndVehicleType}
+                  onChange={(e) => {
+                    const selectedVehicleType = normalizeParcelVehicleType(e.target.value, "BIKE");
+                    updateField("parcelVehicleType", selectedVehicleType);
+                    if (selectedVehicleType === "AUTO") {
+                      updateField("subZoneId", "");
+                    }
+                  }}
+                >
+                  <option value="BIKE">BIKE</option>
+                  <option value="AUTO">AUTO</option>
+                </select>
+              </div>
+              {!isAutoVehicleType ? (
               <div className="min-w-0">
                 <label className="text-xs font-semibold text-gray-500 uppercase">Sub Zone</label>
                 <select
@@ -426,6 +447,7 @@ export default function ParcelMasterPriceForm({
                   ))}
                 </select>
               </div>
+              ) : null}
               <div className="min-w-0">
                 <label className="text-xs font-semibold text-gray-500 uppercase">Base Fare</label>
                 <UiInput className={inputClass} type="number" readOnly={readOnly} value={form.baseFare} onChange={(e) => updateField("baseFare", e.target.value)} />
@@ -540,7 +562,9 @@ export default function ParcelMasterPriceForm({
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2">
+            {!isAutoVehicleType ? (
             <Card  className="rounded-none"><CardBody>{renderOutsideDropSurchargeFields()}</CardBody></Card>
+            ) : null}
             <Card  className="rounded-none"><CardBody>{renderNightSurchargeFields()}</CardBody></Card>
           </div>
         </div>

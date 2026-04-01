@@ -5,13 +5,23 @@ import { ColorStyles } from "@/utils/constants";
 export function ParcelExpandableRow({
   row,
   className,
+  hideSubZoneColumn = false,
 }) {
   return (
     <>
       <tr>
         <td className={className}>
+          {hideSubZoneColumn ? (
+            <Typography className="text-xs font-semibold text-blue-gray-600">
+              <Link to={`/dashboard/finance/master-price/parcel-details/${row.pkgId}`} className="underline text-blue-700">
+                {row.zone}
+              </Link>
+            </Typography>
+          ) : (
           <Typography className="text-xs font-semibold text-blue-gray-600">{row.zone}</Typography>
+          )}
         </td>
+        {!hideSubZoneColumn ? (
         <td className={className}>
           <Typography className="text-xs font-semibold text-blue-gray-600">
             <Link to={`/dashboard/finance/master-price/parcel-details/${row.pkgId}`} className="underline text-blue-700">
@@ -19,6 +29,7 @@ export function ParcelExpandableRow({
             </Link>
           </Typography>
         </td>
+        ) : null}
         <td className={className}>
           <Typography className="text-xs font-semibold text-blue-gray-600">{row.baseFare}</Typography>
         </td>

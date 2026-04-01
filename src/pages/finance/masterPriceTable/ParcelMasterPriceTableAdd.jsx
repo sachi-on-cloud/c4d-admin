@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
 import ParcelMasterPriceForm from "./parcelMasterPrice/ParcelMasterPriceForm";
@@ -7,11 +7,21 @@ import { createInitialParcelForm } from "./parcelMasterPrice/defaults";
 
 export default function ParcelMasterPriceTableAdd() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefilledZone = location?.state?.zone || "";
+  const prefilledParcelVehicleType = location?.state?.parcelVehicleType || "BIKE";
   const [serviceAreas, setServiceAreas] = useState([]);
   const [zones, setZones] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const initialForm = useMemo(() => createInitialParcelForm(), []);
+  const initialForm = useMemo(
+    () =>
+      createInitialParcelForm({
+        zone: prefilledZone,
+        parcelVehicleType: prefilledParcelVehicleType,
+      }),
+    [prefilledZone, prefilledParcelVehicleType]
+  );
 
   useEffect(() => {
     const fetchGeoData = async () => {

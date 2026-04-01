@@ -86,6 +86,7 @@ export default function ParcelMasterPriceTableEdit() {
         initialForm={initialForm}
         serviceAreas={serviceAreas}
         zones={zones}
+        disableZoneAndVehicleType
         saving={saving}
         submitLabel="Update Parcel Price"
         errorMessage={error}

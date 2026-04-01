@@ -4,6 +4,7 @@ import {
   defaultNightSurcharge,
   defaultOutsideDropSurcharge,
   defaultSimpleSurcharge,
+  normalizeParcelVehicleType,
   toNum,
 } from "./defaults";
 
@@ -14,11 +15,13 @@ export const mapApiToParcelForm = (data) => {
     : (Array.isArray(data?.peakHour) ? data.peakHour : []);
   const ppRaw = data?.parcelPricing;
   const pp = Array.isArray(ppRaw) ? (ppRaw[0] || {}) : (ppRaw || {});
+  const parcelVehicleType = normalizeParcelVehicleType(data?.parcelVehicleType, "BIKE");
 
   return {
     ...form,
     zone: data?.zone || "",
-    subZoneId: data?.subZoneId ? String(data.subZoneId) : "",
+    parcelVehicleType,
+    subZoneId: parcelVehicleType === "AUTO" ? "" : (data?.subZoneId ? String(data.subZoneId) : ""),
     baseFare: data?.baseFare ?? "",
     baseKm: data?.baseKm ?? "",
     kilometerPrice: data?.kilometerPrice ?? "",
@@ -82,12 +85,15 @@ export const mapApiToParcelForm = (data) => {
   };
 };
 
-export const buildParcelPayload = (form) => ({
+export const buildParcelPayload = (form) => {
+  const vehicleType = normalizeParcelVehicleType(form.parcelVehicleType, "BIKE");
+  return ({
   serviceType: 'PARCEL',
   type: 'Parcel',
   period: 'Parcel',
+  parcelVehicleType: vehicleType,
   zone: form.zone,
-  subZoneId: Number(form.subZoneId),
+  ...(vehicleType !== "AUTO" && form.subZoneId ? { subZoneId: Number(form.subZoneId) } : {}),
   baseFare: toNum(form.baseFare),
   baseKm: toNum(form.baseKm),
   kilometerPrice: toNum(form.kilometerPrice),
@@ -120,6 +126,8 @@ export const buildParcelPayload = (form) => ({
         end: form.parcelPricing.nightSurcharge.end,
         value: toNum(form.parcelPricing.nightSurcharge.value),
       },
+      ...(vehicleType !== "AUTO"
+        ? {
       outsideDropSurcharge: {
         status: form.parcelPricing.outsideDropSurcharge.status,
         zoneToZone: {
@@ -131,6 +139,8 @@ export const buildParcelPayload = (form) => ({
           value: toNum(form.parcelPricing.outsideDropSurcharge.withoutZone.value),
         },
       },
+          }
+        : {}),
       commission: {
         baseFarePercent: toNum(form.parcelPricing.baseFarePercent),
         distanceFarePercent: toNum(form.parcelPricing.distanceFarePercent),
@@ -138,3 +148,4 @@ export const buildParcelPayload = (form) => ({
     },
   ],
 });
+};

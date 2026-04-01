@@ -29,9 +29,16 @@ export const defaultOutsideDropSurcharge = (status = "INACTIVE") => ({
   withoutZone: { type: "FLAT", value: 0 },
 });
 
-export const createInitialParcelForm = () => ({
+export const normalizeParcelVehicleType = (value, fallback = "BIKE") => {
+  const normalized = String(value || "").trim().toUpperCase();
+  if (normalized === "AUTO" || normalized === "BIKE") return normalized;
+  return fallback;
+};
+
+export const createInitialParcelForm = (overrides = {}) => ({
   zone: "",
   subZoneId: "",
+  parcelVehicleType: normalizeParcelVehicleType(overrides.parcelVehicleType, "BIKE"),
   baseFare: "",
   baseKm: "",
   kilometerPrice: "",
@@ -46,6 +53,8 @@ export const createInitialParcelForm = () => ({
     baseFarePercent: "",
     distanceFarePercent: "",
   },
+  ...overrides,
+  parcelVehicleType: normalizeParcelVehicleType(overrides.parcelVehicleType, "BIKE"),
 });
 
 export const toNum = (val) => {
