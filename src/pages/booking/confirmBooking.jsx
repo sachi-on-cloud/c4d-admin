@@ -732,6 +732,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
 
     const bookingTimes = Utils.generateBookingTimesForDay(moment().add(1, 'days'));
     const shouldShowReceipt = bookingDetails && (bookingDetails.status === BOOKING_STATUS.END_OTP || ((bookingDetails.status === BOOKING_STATUS.ENDED || bookingDetails.status === BOOKING_STATUS.PAYMENT_REQUESTED) && !!amount));
+    const isTerminalStatus = [BOOKING_STATUS.ENDED,BOOKING_STATUS.END_OTP,BOOKING_STATUS.PAYMENT_REQUESTED,BOOKING_STATUS.CANCELLED,BOOKING_STATUS.CUSTOMER_CANCELLED,BOOKING_STATUS.SUPPORT_CANCELLED].includes(bookingDetails?.status);
     const extraHoursMinutes = Number(bookingDetails?.finalFareBreakdown?.extraHours?.minutes || bookingDetails?.extraHours || 0);
     const hasExtraHours = extraHoursMinutes > 0;
     const extraHoursRate = Number(bookingDetails?.finalFareBreakdown?.extraHours?.rate || bookingDetails?.extraHourPrice || 0);
@@ -830,11 +831,11 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     </div>           
                     {showDetails && (
                 <div className="w-full pb-3 lg:w-auto flex flex-wrap justify-start lg:justify-end gap-3">
-                    {(
+                    {(!isTerminalStatus && (
                         (bookingDetails.status === "QUOTED" && bookingDetails.followup !== "FOLLOWUP") ||
                         (bookingDetails.ownership === "ASSIGNED_TO_SUPPORT" &&
                             (bookingDetails.serviceType === "AUTO" || bookingDetails.serviceType === "PARCEL"))
-                    ) && (
+                    )) && (
                     <Button
                         color="white"
                         variant="outlined"
@@ -1188,28 +1189,92 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                         </div>
                         <div className="grid sm:grid-cols-2 gap-3 text-sm">
                             <div>
-                                <p className="text-gray-500 font-semibold">Sender Name:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderName || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Sender Name: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderName || '-'}</span>
                             </div>
                             <div>
-                                <p className="text-gray-500 font-semibold">Phone:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderPhone || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Phone: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.senderPhone || '-'}</span>
                             </div>
                             <div>
-                                <p className="text-gray-500 font-semibold">Receiver Name:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverName || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Receiver Name: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverName || '-'}</span>
                             </div>
                             <div>
-                                <p className="text-gray-500 font-semibold">Receiver Phone:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverPhone || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Receiver Phone: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.receiverPhone || '-'}</span>
                             </div>
                             <div>
-                                <p className="text-gray-500 font-semibold">Order Type:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.orderType || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Order Type: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.orderType || '-'}</span>
                             </div>
                             <div>
-                                <p className="text-gray-500 font-semibold">Instructions:</p>
-                                <p className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.deliveryInstructions || '-'}</p>
+                                <span className="text-gray-500 font-semibold">Instructions: </span>
+                                <span className="text-gray-900 font-medium">{bookingDetails?.deliveryDetails?.deliveryInstructions || '-'}</span>
+                                </div>
+                            </div>                        
+                        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <p className="text-gray-500 font-semibold">Pickup Proof:</p>
+                                {bookingDetails?.deliveryDetails?.pickupProofImage ? (
+                                    <div className="mt-1 space-y-2">
+                                        <a
+                                            href={bookingDetails.deliveryDetails.pickupProofImage}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-block"
+                                        >
+                                            <img
+                                                src={bookingDetails.deliveryDetails.pickupProofImage}
+                                                alt="Pickup proof"
+                                                className="w-32 h-16 object-cover rounded border border-gray-200"
+                                            />
+                                        </a>
+                                        <div className="flex items-center gap-2">
+                                        <a
+                                            href={bookingDetails.deliveryDetails.pickupProofImage}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-semibold"
+                                        >
+                                            View
+                                        </a>
+                                    </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-900 font-medium">-</p>
+                                )}
+                            </div>
+                            <div>
+                                <p className="text-gray-500 font-semibold">Drop Proof:</p>
+                                {bookingDetails?.deliveryDetails?.dropProofImage ? (
+                                    <div className="mt-1 space-y-2">
+                                        <a
+                                            href={bookingDetails.deliveryDetails.dropProofImage}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-block"
+                                        >
+                                            <img
+                                                src={bookingDetails.deliveryDetails.dropProofImage}
+                                                alt="Drop proof"
+                                                className="w-32 h-16 object-cover rounded border border-gray-200"
+                                            />
+                                        </a>
+                                        <div className="flex items-center gap-2">
+                                        <a
+                                            href={bookingDetails.deliveryDetails.dropProofImage}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-semibold"
+                                        >
+                                            View
+                                        </a>
+                                    </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-900 font-medium">-</p>
+                                )}
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
