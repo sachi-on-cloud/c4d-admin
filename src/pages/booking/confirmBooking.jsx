@@ -2238,12 +2238,6 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                                 </Typography>
                                             </div>
                                         } */}
-                                        {bookingDetails?.finalFareBreakdown?.nightCharge > 0 &&
-                                            <div className="flex justify-between  my-1">
-                                                <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${bookingDetails?.finalFareBreakdown?.nightCharge})`}</Typography>
-                                                <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.nightCharge || 0).toFixed(2)}</Typography>
-                                            </div>
-                                        }
                                         {bookingDetails?.finalFareBreakdown?.driverCharge > 0 &&
                                             <div className="flex justify-between  my-1">
                                                 <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Driver Charge: </Typography>
@@ -2269,6 +2263,12 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                             </div>
                                         }
                                     </> : ""
+                                }
+                                {bookingDetails?.finalFareBreakdown?.nightCharge > 0 &&
+                                    <div className="flex justify-between  my-1">
+                                        <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">{`Night Charge: ₹ (${bookingDetails?.finalFareBreakdown?.nightCharge})`}</Typography>
+                                        <Typography className="text-sm text-black font-medium">₹ {Number(bookingDetails?.finalFareBreakdown?.nightCharge || 0).toFixed(2)}</Typography>
+                                    </div>
                                 }
                                 <hr className="my-2" />
                                 {finalPaymentPirces.amountBeforeGst > 0 && (
