@@ -32,6 +32,13 @@ export function SearchDrivers(props) {
     const [cabTypeFilter, setCabTypeFilter] = useState(['All']);
     const [checkingAllStatus, setCheckingAllStatus] = useState(false);
     const [seconds, setSeconds] = useState(15);
+    const parcelVehicleType = props?.bookingData?.parcelVehicleType || "BIKE";
+    const parcelSubZoneId =  props?.bookingData?.subZoneId || null;
+    const shouldIncludeParcelSubZone = Boolean(parcelSubZoneId) && parcelVehicleType !== "AUTO";
+    const isParcelAuto = props?.bookingData?.serviceType === "PARCEL" && parcelVehicleType === "AUTO";
+    const showParcelSubZone = props?.bookingData?.serviceType === "PARCEL" && parcelVehicleType === "BIKE";
+    const parcelVehicleLabel = isParcelAuto ? "Auto" : "Bike";
+    const parcelVehiclePlural = isParcelAuto ? "Autos" : "Bikes";
 
     const checkPresence = async (driverId, rowId) => {
         setCheckingStatusDriverIds((prev) => [...prev, driverId]);
@@ -305,7 +312,10 @@ export function SearchDrivers(props) {
                     let data = {
                         bookingId: props.bookingData.id,
                         distance: 0,
-                        customerId: props.bookingData.CustomerId
+                        customerId: props.bookingData.CustomerId,
+                        serviceType: "PARCEL",
+                        parcelVehicleType,
+                        ...(shouldIncludeParcelSubZone ? { subZoneId: parcelSubZoneId } : {}),
                     };
                     let requestDriver = await ApiRequestUtils.post('/search/parcel', data);
                     if (requestDriver?.success) {
@@ -328,7 +338,7 @@ export function SearchDrivers(props) {
                                     travelDistance: item.travelDistance || '',
                                     travelDuration: item.travelDuration || 0,
                                 }));
-                                console.log("Formatted Drivers for bike:", formattedDrivers);
+                                console.log(`Formatted Drivers for ${parcelVehicleLabel}:`, formattedDrivers);
                                 setDrivers(formattedDrivers);
                             } else {
                                 console.log("No driver found.");
@@ -341,7 +351,7 @@ export function SearchDrivers(props) {
                         setLoading(false);
                     }
                 } catch (error) {
-                    console.error("Error in sendDriverRequest for Bike:", error);
+                    console.error(`Error in sendDriverRequest for ${parcelVehicleLabel}:`, error);
                 }
             } else {
                 let data;
@@ -365,6 +375,9 @@ export function SearchDrivers(props) {
                         latitude: props?.bookingData?.pickupLat,
                         longitude: props?.bookingData?.pickupLong,
                         bookingId: props.bookingData.id,
+                        serviceType: "PARCEL",
+                        parcelVehicleType,
+                        ...(shouldIncludeParcelSubZone ? { subZoneId: parcelSubZoneId } : {}),
                     });
                     // console.log("Bike Package Data:", data);
                 }
@@ -507,14 +520,28 @@ export function SearchDrivers(props) {
                 props?.onNext();
             }           
         } else if (service === "PARCEL") {
-            const reqBody = {
+            const baseReqBody = {
                 bookingId: props?.bookingData?.id,
                 driverId: cabDriverId || fullData?.DriverId || fullData?.driverId || fullData?.Driver?.id || fullData?.driver?.id,
                 status: 'BOOKING_ACCEPTED',
+                serviceType: "PARCEL",
                 packageId: props?.bookingData?.packageId,
-                shiftId:  fullData?.ShiftId || fullData?.shiftId || fullData?.Shifts?.[0]?.id,
+                shiftId:  fullData?.ShiftId || fullData?.shiftId || fullData?.Shift?.id || fullData?.Shifts?.[0]?.id,
+                parcelVehicleType: parcelVehicleType,
+                ...(shouldIncludeParcelSubZone ? { subZoneId: parcelSubZoneId } : {}),
+            };
+            let reqBody;
+            if (parcelVehicleType === "AUTO") {
+                reqBody = {
+                    ...baseReqBody,
+                    autoId: fullData?.autoId || fullData?.Auto?.id || fullData?.id,
+                };
+            }  else {
+                reqBody = {
+                    ...baseReqBody,
                 cabId: fullData?.parcelId || fullData?.Parcel?.id || fullData?.driver?.Parcel?.id || fullData?.Driver?.Parcel?.id || fullData?.id || driverId,
                 };
+            }
                 let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_PARCEL_BOOKING, reqBody);
             if (data?.success) {
                 props?.onNext();
@@ -831,7 +858,7 @@ export function SearchDrivers(props) {
                                 <Typography variant="h6" color="white">
                                     {`Loading ${props.bookingData.serviceType=== "AUTO"
                                         ? "Autos"
-                                        : props.bookingData.serviceType=== "PARCEL" ? "Bikes"
+                                        : props.bookingData.serviceType=== "PARCEL" ? parcelVehiclePlural
                                             : "Cabs"
                                         }...`}
                                 </Typography>
@@ -858,8 +885,8 @@ export function SearchDrivers(props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : props.bookingData.serviceType === "PARCEL" ? 'Bike Name' : "Cab Name", "Driver Name", "Phone Number", "Current Address",
-                                            ...(props.bookingData?.serviceType === "PARCEL" ? ["sub Zone"] : []),
+                                            {[props.bookingData.serviceType === "AUTO" ? "Auto Name" : props.bookingData.serviceType === "PARCEL" ? `${parcelVehicleLabel} Name` : "Cab Name", "Driver Name", "Phone Number", "Current Address",
+                                            ...(showParcelSubZone ? ["sub Zone"] : []),
                                             ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Cab Type"] : []), 
                                             ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Local Count"] : []),
                                             ...(props.bookingData?.serviceType !== "AUTO" && props.bookingData?.serviceType !== "PARCEL" ? ["Outstation Count"] : []), "Status", 
@@ -934,7 +961,7 @@ export function SearchDrivers(props) {
                                                                 {(Shifts?.[0]?.curAddress?.name || curAddress?.name) || curAddress}
                                                             </Typography>
                                                         </td>
-                                                        {props.bookingData?.serviceType === "PARCEL" && (
+                                                        {showParcelSubZone && (
                                                             <td className={className}>
                                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
                                                                     {subZoneName}
@@ -1022,7 +1049,7 @@ export function SearchDrivers(props) {
                                                                 }}
                                                                 className="text-xs font-semibold text-white bg-primary"
                                                             >
-                                                                {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : props?.bookingData.serviceType === "PARCEL" ? "Assign Bike" : "Assign Cab"}
+                                                                {props.bookingData.serviceType === "AUTO" ? "Assign Auto" : props?.bookingData.serviceType === "PARCEL" ? `Assign ${parcelVehicleLabel}` : "Assign Cab"}
                                                             </Button>
                                                         </td>
                                                     </tr>
@@ -1036,7 +1063,7 @@ export function SearchDrivers(props) {
                             <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
                                 <Typography variant="h6" color="white">
                                     {`No ${props.bookingData.serviceType === "AUTO" ? "Autos" 
-                                    : props.bookingData.serviceType == "PARCEL" ? "Bikes" : "Cabs"} Near By`}
+                                    : props.bookingData.serviceType == "PARCEL" ? parcelVehiclePlural : "Cabs"} Near By`}
                                 </Typography>
                             </CardHeader>
                             )
@@ -1051,7 +1078,7 @@ export function SearchDrivers(props) {
                             {props?.bookingData?.serviceType === "AUTO"
                                 ? "Assign Auto Later"
                                 : props?.bookingData?.serviceType === "PARCEL"
-                                    ? "Assign Bike Later"
+                                    ? `Assign ${parcelVehicleLabel} Later`
                                     : "Assign Cab Later"
                             }
                         </Button>

@@ -239,7 +239,10 @@ const ConfirmBooking = (props) => {
         if (bookingDetails?.packageType === 'Local') return 'Hourly Package';
         if (bookingDetails?.serviceType === 'RENTAL' && bookingDetails?.bookingType === 'DROP ONLY') return 'Drop Taxi';
         if (bookingDetails?.serviceType === 'AUTO') return 'Auto';
-        if (bookingDetails?.serviceType === 'PARCEL') return 'Parcel';
+        if (bookingDetails?.serviceType === 'PARCEL') {
+            const parcelVehicleTypeLabel = bookingDetails?.parcelVehicleType === 'AUTO' ? 'Auto' : bookingDetails?.parcelVehicleType === 'BIKE' ? 'Bike' : '';
+            return parcelVehicleTypeLabel ? `Parcel - ${parcelVehicleTypeLabel}` : 'Parcel';
+        }
         return 'Outstation';
     };
     const formatStatus = (status = '') => {
