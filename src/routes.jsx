@@ -135,6 +135,7 @@ import DriverOpsView from "./pages/DriverOps/view";
 import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
 import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
 import AutoMasterPriceTableAdd from "./pages/finance/masterPriceTable/AutoMasterPriceTableAdd";
+import ParcelCommissionList from "./pages/finance/parcelCommission/list";
 import TierDetailsList from "./pages/DriverEngagementModule/TierDetails/list";
 import TierDetailsAdd from "./pages/DriverEngagementModule/TierDetails/add";
 import TierDetailsEdit from "./pages/DriverEngagementModule/TierDetails/edit";
@@ -891,6 +892,14 @@ export const routes = [
         name: "Payable Details",
         path: "/finance/payable/details/:id",
         element: <PayableDetails />,
+        display: false,
+        permission: "Finance",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Parcel Commission",
+        path: "/finance/parcel-commission",
+        element: <ParcelCommissionList />,
         display: false,
         permission: "Finance",
       },
