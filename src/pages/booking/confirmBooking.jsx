@@ -1576,7 +1576,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             )}
                         
 
-                            {bookingDetails?.estimatedDistance > 0 &&
+                            {bookingDetails?.estimatedDistance > 0 && bookingDetails?.serviceType !== 'PARCEL' &&
                             <div className="flex flex-col-2 gap-2">
                                 <span className="text-gray-500 font-semibold">Estimate km:</span>
                                 <span className="text-gray-900 font-medium"> {bookingDetails?.estimatedDistance} Km</span>
@@ -2105,7 +2105,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         </Typography>
                                 </div>
                                 )}
-                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' &&
+                                {bookingDetails?.packageType !== 'Local' && bookingDetails?.serviceType !== 'DRIVER' && bookingDetails?.serviceType !== 'RENTAL_DROP_TAXI' && bookingDetails?.serviceType !== 'PARCEL' &&
                                     <div className="flex justify-between my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Estimate km:</Typography>
                                     <Typography className="text-sm text-black font-medium">
@@ -2114,7 +2114,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </div>
 
                                 }
-                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && <>
+                                {bookingDetails?.serviceType !== "RIDES" && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'PARCEL' && <>
                                 <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Start KM:</Typography>
                                     <Typography className="text-sm text-black font-medium">{bookingDetails?.startKM}</Typography>
