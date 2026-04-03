@@ -812,14 +812,31 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     couponCode: Yup.string().required('Coupon code is required'),  
     percentage: Yup.mixed().notRequired(),
     amount: Yup.mixed().notRequired(),
-    cabType: Yup.string().when(['isPremium', 'serviceType'], {
-        is: (isPremium, serviceType) => isPremium === false && serviceType !== 'AUTO',
+    cabType: Yup.string().when(['isPremium', 'serviceType', 'offerType'], {
+        is: (isPremium, serviceType, offerType) =>
+            isPremium === false &&
+            serviceType !== 'AUTO' &&
+            !(offerType === 'GENERAL' && serviceType === 'PARCEL'),
         then: (schema) => schema.required('Car Type is required'),
         otherwise: (schema) => schema.nullable(),
     }),
-    premiumCabType: Yup.string().when(['isPremium', 'serviceType'], {
-        is: (isPremium, serviceType) => isPremium === true && serviceType !== 'AUTO',
+    premiumCabType: Yup.string().when(['isPremium', 'serviceType', 'offerType'], {
+        is: (isPremium, serviceType, offerType) =>
+            isPremium === true &&
+            serviceType !== 'AUTO' &&
+            !(offerType === 'GENERAL' && serviceType === 'PARCEL'),
         then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    parcelVehicleType: Yup.string().when(['offerType', 'serviceType'], {
+        is: (offerType, serviceType) => offerType === 'GENERAL' && serviceType === 'PARCEL',
+        then: (schema) => schema.oneOf(['BIKE', 'AUTO'], 'Invalid Parcel Vehicle Type').required('Parcel Vehicle Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    subZoneId: Yup.string().when(['offerType', 'serviceType', 'parcelVehicleType'], {
+        is: (offerType, serviceType, parcelVehicleType) =>
+            offerType === 'GENERAL' && serviceType === 'PARCEL' && String(parcelVehicleType || '').toUpperCase() === 'BIKE',
+        then: (schema) => schema.required('Sub Zone is required'),
         otherwise: (schema) => schema.nullable(),
     }),
     startDate: Yup.string().required('Start date is required'),
@@ -830,7 +847,22 @@ export const VERSION_CONTROL_EDIT=Yup.object({
     title: Yup.string().required('Title is required'),
     serviceArea: Yup.array()
           .min(1, 'At least one city must be selected')
+          .test('single-for-parcel', 'Only one zone can be selected for Parcel service', function (value) {
+              const { serviceType } = this.parent;
+              if (serviceType === 'PARCEL') {
+                  return Array.isArray(value) && value.length === 1;
+              }
+              return true;
+          })
+          .test('no-all-for-parcel', '"All" is not allowed for Parcel service', function (value) {
+              const { serviceType } = this.parent;
+              if (serviceType === 'PARCEL') {
+                  return Array.isArray(value) && !value.includes('All');
+              }
+              return true;
+          })
           .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+              if (!Array.isArray(value)) return true;
               if (value.includes('All')) {
                   return value.length === 1;
               }
@@ -847,14 +879,31 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     couponCode: Yup.string().required('Coupon code is required'),
     percentage: Yup.mixed().notRequired(),
     amount: Yup.mixed().notRequired(),
-    cabType: Yup.string().when(['isPremium', 'serviceType'], {
-        is: (isPremium, serviceType) => isPremium === false && serviceType !== 'AUTO',
+    cabType: Yup.string().when(['isPremium', 'serviceType', 'offerType'], {
+        is: (isPremium, serviceType, offerType) =>
+            isPremium === false &&
+            serviceType !== 'AUTO' &&
+            !(offerType === 'GENERAL' && serviceType === 'PARCEL'),
         then: (schema) => schema.required('Car Type is required'),
         otherwise: (schema) => schema.nullable(),
     }),
-    premiumCabType: Yup.string().when(['isPremium', 'serviceType'], {
-        is: (isPremium, serviceType) => isPremium === true && serviceType !== 'AUTO',
+    premiumCabType: Yup.string().when(['isPremium', 'serviceType', 'offerType'], {
+        is: (isPremium, serviceType, offerType) =>
+            isPremium === true &&
+            serviceType !== 'AUTO' &&
+            !(offerType === 'GENERAL' && serviceType === 'PARCEL'),
         then: (schema) => schema.required('Car Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    parcelVehicleType: Yup.string().when(['offerType', 'serviceType'], {
+        is: (offerType, serviceType) => offerType === 'GENERAL' && serviceType === 'PARCEL',
+        then: (schema) => schema.oneOf(['BIKE', 'AUTO'], 'Invalid Parcel Vehicle Type').required('Parcel Vehicle Type is required'),
+        otherwise: (schema) => schema.nullable(),
+    }),
+    subZoneId: Yup.string().when(['offerType', 'serviceType', 'parcelVehicleType'], {
+        is: (offerType, serviceType, parcelVehicleType) =>
+            offerType === 'GENERAL' && serviceType === 'PARCEL' && String(parcelVehicleType || '').toUpperCase() === 'BIKE',
+        then: (schema) => schema.required('Sub Zone is required'),
         otherwise: (schema) => schema.nullable(),
     }),
     startDate: Yup.string().required('Start date is required'),
@@ -865,7 +914,22 @@ export const DISCOUNT_EDIT_SCHEMA=  Yup.object({
     title: Yup.string().required('Title is required'),
     serviceArea: Yup.array()
         .min(1, 'At least one city must be selected')
+        .test('single-for-parcel', 'Only one zone can be selected for Parcel service', function (value) {
+            const { serviceType } = this.parent;
+            if (serviceType === 'PARCEL') {
+                return Array.isArray(value) && value.length === 1;
+            }
+            return true;
+        })
+        .test('no-all-for-parcel', '"All" is not allowed for Parcel service', function (value) {
+            const { serviceType } = this.parent;
+            if (serviceType === 'PARCEL') {
+                return Array.isArray(value) && !value.includes('All');
+            }
+            return true;
+        })
         .test('all-with-others', 'Cannot select "All" with other cities', (value) => {
+            if (!Array.isArray(value)) return true;
             if (value.includes('All')) {
                 return value.length === 1;
             }
@@ -923,6 +987,20 @@ export const DriverOfferSchema = Yup.object({
 
 export const CASH_BACK_SCHEMA = Yup.object().shape({
   serviceType: Yup.string().required("Service type is required"),
+  parcelVehicleType: Yup.string().when("serviceType", {
+    is: "PARCEL",
+    then: (schema) =>
+      schema
+        .oneOf(["BIKE", "AUTO"], "Invalid Parcel Vehicle Type")
+        .required("Parcel Vehicle Type is required"),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  subZoneId: Yup.string().when(["serviceType", "parcelVehicleType"], {
+    is: (serviceType, parcelVehicleType) =>
+      serviceType === "PARCEL" && String(parcelVehicleType || "").toUpperCase() === "BIKE",
+    then: (schema) => schema.required("Sub Zone is required"),
+    otherwise: (schema) => schema.nullable(),
+  }),
   name: Yup.string().trim().required("Name is required"),
   description: Yup.string().nullable(),
   config: Yup.object()
@@ -938,4 +1016,3 @@ export const CASH_BACK_SCHEMA = Yup.object().shape({
     .required(),
   isActive: Yup.boolean().required("Status is required"),
 });
-
