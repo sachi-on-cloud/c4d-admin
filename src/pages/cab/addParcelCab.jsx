@@ -273,7 +273,7 @@ const ParcelCabAdd = () => {
               <div>
                 <label className="text-sm font-medium text-gray-700">Bike Type</label>
                 <div className="space-x-4 mt-1">
-                  {['PETROL', 'EV'].map((type) => (
+                  {['BIKE'].map((type) => (
                     <label key={type} className="inline-flex items-center">
                       <Field
                         type="radio"
