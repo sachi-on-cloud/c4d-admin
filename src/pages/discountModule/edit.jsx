@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Button, Alert, Spinner } from '@material-tailwind/react';
@@ -15,11 +15,18 @@ const DiscountEdit = () => {
 
   const [initialValues, setInitialValues] = useState(null);
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [zones, setZones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
   const [dashboardOfferImgPreview, setDashboardOfferImgPreview] = useState(null); 
   const [premiumServicesMap, setPremiumServicesMap] = useState({});
   const [alert, setAlert] = useState(null);
+  const PARCEL_VEHICLE_OPTIONS = ['BIKE', 'AUTO'];
+
+  const normalizeParcelVehicleType = (value) => {
+    const parsed = String(value || '').trim().toUpperCase();
+    return PARCEL_VEHICLE_OPTIONS.includes(parsed) ? parsed : 'BIKE';
+  };
 
   const formatDateOnly = (isoString) => {
     return isoString ? isoString.slice(0, 10) : '';
@@ -28,13 +35,22 @@ const DiscountEdit = () => {
   useEffect(() => {
     const fetchGeoData = async () => {
       try {
-        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST,{
+        const [serviceAreaResponse, zoneResponse] = await Promise.all([
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
           type: 'Service Area',
-        });
-        if (response.premiumServices) {
-          setPremiumServicesMap(response.premiumServices);
+          }),
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+            type: 'Zone',
+          }),
+        ]);
+
+        if (serviceAreaResponse.premiumServices) {
+          setPremiumServicesMap(serviceAreaResponse.premiumServices);
         }
-        setServiceAreas(response.data);
+        const allServiceAreas = Array.isArray(serviceAreaResponse?.data) ? serviceAreaResponse.data : [];
+        const allZones = Array.isArray(zoneResponse?.data) ? zoneResponse.data : [];
+        setServiceAreas(allServiceAreas);
+        setZones(allZones.filter((zone) => zone.type === 'Zone' && zone.description === 'Zone'));
       } catch (error) {
         console.error('Error fetching GEO_MARKINGS_LIST:', error);
       }
@@ -49,6 +65,10 @@ const DiscountEdit = () => {
       label: area.name,
     })),
   ];
+  const PARCEL_ZONE_OPTIONS = serviceAreas.map((area) => ({
+    value: area.name,
+    label: area.name,
+  }));
 
     const handleImageUpload = (file,setFieldValue) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -88,6 +108,18 @@ const DiscountEdit = () => {
     return premiumServicesMap[serviceType] || [];
   };
 
+  const getSubZoneOptions = useMemo(() => {
+    return (selectedServiceAreas = []) => {
+      if (!Array.isArray(selectedServiceAreas) || selectedServiceAreas.length === 0) return zones;
+      const selectedAreaIds = serviceAreas
+        .filter((area) => selectedServiceAreas.includes(area.name))
+        .map((area) => area.id);
+
+      if (selectedAreaIds.length === 0) return zones;
+      return zones.filter((zone) => !zone.parent_id || selectedAreaIds.includes(zone.parent_id));
+    };
+  }, [serviceAreas, zones]);
+
   useEffect(() => {
     const discountFromState = location.state?.discount;
 
@@ -118,6 +150,8 @@ const DiscountEdit = () => {
             cabType: discountFromState.isPremium ? '' : discountFromState.cabType || '',
             premiumCabType: discountFromState.isPremium ? discountFromState.cabType || '' : '',
             isPremium: discountFromState.isPremium || false,
+            parcelVehicleType: normalizeParcelVehicleType(discountFromState.parcelVehicleType),
+            subZoneId: discountFromState?.subZoneId ? String(discountFromState.subZoneId) : '',
             image: null,
             imageUrl: discountFromState.imageUrl || '',
             dashboardOfferImg: null,                    
@@ -162,6 +196,8 @@ const DiscountEdit = () => {
             cabType: data.isPremium ? '' : data.cabType || '',
             premiumCabType: data.isPremium ? data.cabType || '' : '',
             isPremium: data.isPremium || false,
+            parcelVehicleType: normalizeParcelVehicleType(data.parcelVehicleType),
+            subZoneId: data?.subZoneId ? String(data.subZoneId) : '',
             image: null,
             imageUrl: data.imageUrl || '',
             dashboardOfferImg: null,                    
@@ -259,11 +295,22 @@ const DiscountEdit = () => {
         formData.append('dashboardExtImage', '');
       }
 
+      const isGeneralParcel = values.offerType === 'GENERAL' && values.serviceType === 'PARCEL';
+      if (isGeneralParcel) {
+        const parcelVehicleType = normalizeParcelVehicleType(values.parcelVehicleType);
+        formData.append('parcelVehicleType', parcelVehicleType);
+        formData.append('isPremium', false);
+        formData.append('cabType', '');
+        if (parcelVehicleType === 'BIKE' && values.subZoneId) {
+          formData.append('subZoneId', Number(values.subZoneId));
+        }
+      } else {
       const finalCabType = values.isPremium
         ? (values.premiumCabType || '')
         : (values.cabType || '');
       formData.append('cabType', finalCabType);
       formData.append('isPremium', values.isPremium);
+      }
     const response = await ApiRequestUtils.updateDocs(API_ROUTES.PUT_DISCOUNT, formData);
 
       if (response?.success) {
@@ -310,6 +357,12 @@ const DiscountEdit = () => {
         {({ isSubmitting, isValid, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+              {(() => {
+                const isGeneralParcel = values.offerType === 'GENERAL' && values.serviceType === 'PARCEL';
+                const selectedParcelVehicleType = normalizeParcelVehicleType(values.parcelVehicleType);
+                const subZoneOptions = getSubZoneOptions(values.serviceArea);
+                return (
+                  <>
               <Field type="hidden" name="removeImage" />
               <Field type="hidden" name="removeDashboardOfferImg" />
               <Field type="hidden" name="discountId" />
@@ -333,6 +386,19 @@ const DiscountEdit = () => {
                 <Field
                   as="select"
                   name="serviceType"
+                  onChange={(e) => {
+                    const nextServiceType = e.target.value;
+                    setFieldValue('serviceType', nextServiceType);
+                    setFieldValue('serviceArea', []);
+                    if (nextServiceType !== 'PARCEL') {
+                      setFieldValue('parcelVehicleType', 'BIKE');
+                      setFieldValue('subZoneId', '');
+                    } else if (values.offerType === 'GENERAL') {
+                      setFieldValue('isPremium', false);
+                      setFieldValue('cabType', '');
+                      setFieldValue('premiumCabType', '');
+                    }
+                  }}
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 >
                   <option value="">Select Service Type</option>
@@ -342,10 +408,51 @@ const DiscountEdit = () => {
                   <option value="RENTAL_DROP_TAXI">DROP TAXI</option>
                   <option value="RENTAL">OUTSTATION</option>
                   <option value="AUTO">AUTO</option>
+                  <option value="PARCEL">PARCEL</option>
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
               </div>
+              {values.serviceType === 'PARCEL' && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Parcel Vehicle Type</label>
+                  <Field
+                    as="select"
+                    name="parcelVehicleType"
+                    onChange={(e) => {
+                      const nextVehicleType = normalizeParcelVehicleType(e.target.value);
+                      setFieldValue('parcelVehicleType', nextVehicleType);
+                      if (nextVehicleType === 'AUTO') {
+                        setFieldValue('subZoneId', '');
+                      }
+                    }}
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                  >
+                    <option value="BIKE">BIKE</option>
+                    <option value="AUTO">AUTO</option>
+                  </Field>
+                  <ErrorMessage name="parcelVehicleType" component="div" className="text-red-500 text-sm" />
+                </div>
+              )}
+              {isGeneralParcel && selectedParcelVehicleType === 'BIKE' && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Sub Zone</label>
+                  <Field
+                    as="select"
+                    name="subZoneId"
+                    disabled={subZoneOptions.length === 0}
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                  >
+                    <option value="">Select Sub Zone</option>
+                    {subZoneOptions.map((subZone) => (
+                      <option key={subZone.id} value={subZone.id}>
+                        {subZone.name}
+                      </option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="subZoneId" component="div" className="text-red-500 text-sm" />
+                </div>
+              )}
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">Estimate Summary Image</label>
                 {(imagePreview || values.imageUrl) && (
@@ -403,6 +510,7 @@ const DiscountEdit = () => {
                 <p className="text-xs text-gray-500 mt-1">Leave blank to keep current image</p>
                 <ErrorMessage name="dashboardOfferImg" component="div" className="text-red-500 text-sm" />
               </div>
+              {!isGeneralParcel && (
               <div className="md:col-span-2">
                 <label className="flex items-center space-x-3 cursor-pointer text-lg font-medium">
                 <Field
@@ -451,7 +559,8 @@ const DiscountEdit = () => {
                   </div>
                 )}
               </div>
-              {!values.isPremium && values.serviceType !== 'AUTO' && (
+              )}
+              {!isGeneralParcel && !values.isPremium && values.serviceType !== 'AUTO' && (
               <div>
                 <label className="text-sm font-medium text-gray-700">Car Type</label>
                 <Field
@@ -583,17 +692,26 @@ const DiscountEdit = () => {
                 <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">Select Service Area</label>
                 <Select
                   name="serviceArea"
-                  options={ZONE_OPTIONS}
-                  isMulti
-                  value={values.serviceArea.map((val) => ({ value: val, label: val }))}
+                  options={values.serviceType === 'PARCEL' ? PARCEL_ZONE_OPTIONS : ZONE_OPTIONS}
+                  isMulti={values.serviceType !== 'PARCEL'}
+                  value={
+                    values.serviceType === 'PARCEL'
+                      ? (values.serviceArea[0] ? { value: values.serviceArea[0], label: values.serviceArea[0] } : null)
+                      : values.serviceArea.map((val) => ({ value: val, label: val }))
+                  }
                   onChange={(selectedOptions) => {
+                    if (values.serviceType === 'PARCEL') {
+                      const selectedValue = selectedOptions?.value || '';
+                      setFieldValue('serviceArea', selectedValue ? [selectedValue] : []);
+                    } else {
                     const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
                     if (selectedValues.includes('All') && selectedValues.length > 1) {
-                      setFieldValue('serviceArea', ['All']); // Only keep 'All' if selected with other cities
+                      setFieldValue('serviceArea', ['All']);
                     } else if (selectedValues.includes('All')) {
-                      setFieldValue('serviceArea', ['All']); // Keep only 'All'
+                      setFieldValue('serviceArea', ['All']);
                     } else {
-                      setFieldValue('serviceArea', selectedValues); // Allow multiple serviceArea selections
+                      setFieldValue('serviceArea', selectedValues);
+                      }
                     }
                   }}
                   placeholder="Select Service Area"
@@ -619,6 +737,9 @@ const DiscountEdit = () => {
                 />
                 <ErrorMessage name="serviceArea" component="div" className="text-red-500 text-sm mt-1" />
               </div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="flex flex-row">
