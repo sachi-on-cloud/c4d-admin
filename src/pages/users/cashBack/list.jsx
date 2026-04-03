@@ -12,6 +12,7 @@ const SERVICE_TYPE_OPTIONS = [
   { value: "RENTAL_DROP_TAXI", label: "Drop Taxi" },
   { value: "RENTAL", label: "Round Trip" },
   { value: "AUTO", label: "Auto" },
+  { value: "PARCEL", label: "Parcel" },
   // { value: "ALL", label: "All" },
 ];
 

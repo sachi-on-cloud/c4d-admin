@@ -9,6 +9,8 @@ const CashBackAdd = () => {
 
   const initialValues = {
     serviceType: "",
+    parcelVehicleType: "BIKE",
+    subZoneId: "",
     name: "",
     description: "",
     config: {
@@ -29,7 +31,16 @@ const CashBackAdd = () => {
           cashbackDiscount: Number(values.config.cashbackDiscount),
         },
         isActive: Boolean(values.isActive),
+        ...(values.serviceType === "PARCEL"
+          ? {
+              parcelVehicleType: String(values.parcelVehicleType || "BIKE").toUpperCase(),
+              ...(String(values.parcelVehicleType || "BIKE").toUpperCase() === "BIKE" && values.subZoneId
+                ? { subZoneId: Number(values.subZoneId) }
+                : {}),
+            }
+          : {}),
       };
+      // console.log("Submitting new Cash Back with payload:", payload);
 
       const response = await ApiRequestUtils.post(API_ROUTES.ADD_CASH_BACK, payload);
       if (response?.success) {

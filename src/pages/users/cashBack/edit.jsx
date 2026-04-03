@@ -7,6 +7,8 @@ import CashBackForm from "./CashBackForm";
 const getNormalizedRecord = (record = {}) => ({
   id: record?.settingId || record?.id || record?.cashBackId || record?._id || null,
   serviceType: record?.serviceType || "",
+  parcelVehicleType: String(record?.parcelVehicleType || "BIKE").toUpperCase(),
+  subZoneId: record?.subZoneId ? String(record.subZoneId) : "",
   name: record?.name || "",
   description: record?.description || "",
   config: {
@@ -27,6 +29,8 @@ const CashBackEdit = () => {
   const [recordId, setRecordId] = useState(id || null);
   const [initialValues, setInitialValues] = useState({
     serviceType: "",
+    parcelVehicleType: "BIKE",
+    subZoneId: "",
     name: "",
     description: "",
     config: {
@@ -95,6 +99,14 @@ const CashBackEdit = () => {
           cashbackDiscount: Number(values.config.cashbackDiscount),
         },
         isActive: Boolean(values.isActive),
+        ...(values.serviceType === "PARCEL"
+          ? {
+              parcelVehicleType: String(values.parcelVehicleType || "BIKE").toUpperCase(),
+              ...(String(values.parcelVehicleType || "BIKE").toUpperCase() === "BIKE" && values.subZoneId
+                ? { subZoneId: Number(values.subZoneId) }
+                : {}),
+            }
+          : {}),
       };
 
       const updateRoute = API_ROUTES.UPDATE_CASH_BACK.replace(

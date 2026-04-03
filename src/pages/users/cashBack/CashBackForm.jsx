@@ -13,8 +13,11 @@ const SERVICE_TYPE_OPTIONS = [
   { value: "RENTAL_DROP_TAXI", label: "Drop Taxi" },
   { value: "RENTAL", label: "Round Trip" },
   { value: "AUTO", label: "Auto" },
+  { value: "PARCEL", label: "Parcel" },
   { value: "ALL", label: "All" },
 ];
+
+const PARCEL_VEHICLE_OPTIONS = ["BIKE", "AUTO"];
 
 const CashBackForm = ({
   initialValues,
@@ -24,20 +27,29 @@ const CashBackForm = ({
   loading = false,
 }) => {
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [zones, setZones] = useState([]);
   const [zonesLoading, setZonesLoading] = useState(false);
 
   useEffect(() => {
     const fetchGEOData = async () => {
       try {
         setZonesLoading(true);
-        const response = await ApiRequestUtils.getWithQueryParam(
-          API_ROUTES.GEO_MARKINGS_LIST,
-          { type: "Service Area" }
-        );
-        setServiceAreas(Array.isArray(response?.data) ? response.data : []);
+        const [serviceAreaResponse, zoneResponse] = await Promise.all([
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+            type: "Service Area",
+          }),
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+            type: "Zone",
+          }),
+        ]);
+        const allServiceAreas = Array.isArray(serviceAreaResponse?.data) ? serviceAreaResponse.data : [];
+        const allZones = Array.isArray(zoneResponse?.data) ? zoneResponse.data : [];
+        setServiceAreas(allServiceAreas);
+        setZones(allZones.filter((zone) => zone.type === "Zone" && zone.description === "Zone"));
       } catch (error) {
         console.error("Error fetching GEO_MARKINGS_LIST:", error);
         setServiceAreas([]);
+        setZones([]);
       } finally {
         setZonesLoading(false);
       }
@@ -55,6 +67,15 @@ const CashBackForm = ({
     ],
     [serviceAreas]
   );
+
+  const getSubZoneOptions = (selectedServiceAreas = []) => {
+    if (!Array.isArray(selectedServiceAreas) || selectedServiceAreas.length === 0) return zones;
+    const selectedAreaIds = serviceAreas
+      .filter((area) => selectedServiceAreas.includes(area.name))
+      .map((area) => area.id);
+    if (selectedAreaIds.length === 0) return zones;
+    return zones.filter((zone) => !zone.parent_id || selectedAreaIds.includes(zone.parent_id));
+  };
 
   if (loading) {
     return (
@@ -81,6 +102,14 @@ const CashBackForm = ({
                 <Field
                   as="select"
                   name="serviceType"
+                  onChange={(e) => {
+                    const nextServiceType = e.target.value;
+                    setFieldValue("serviceType", nextServiceType);
+                    if (nextServiceType !== "PARCEL") {
+                      setFieldValue("parcelVehicleType", "BIKE");
+                      setFieldValue("subZoneId", "");
+                    }
+                  }}
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 >
                   <option value="">Select Service Type</option>
@@ -92,6 +121,29 @@ const CashBackForm = ({
                 </Field>
                 <ErrorMessage name="serviceType" component="div" className="text-red-500 text-sm" />
               </div>
+
+              {values.serviceType === "PARCEL" && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Parcel Vehicle Type</label>
+                  <Field
+                    as="select"
+                    name="parcelVehicleType"
+                    onChange={(e) => {
+                      const nextVehicleType = String(e.target.value || "").toUpperCase();
+                      const normalizedType = PARCEL_VEHICLE_OPTIONS.includes(nextVehicleType) ? nextVehicleType : "BIKE";
+                      setFieldValue("parcelVehicleType", normalizedType);
+                      if (normalizedType === "AUTO") {
+                        setFieldValue("subZoneId", "");
+                      }
+                    }}
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                  >
+                    <option value="BIKE">BIKE</option>
+                    <option value="AUTO">AUTO</option>
+                  </Field>
+                  <ErrorMessage name="parcelVehicleType" component="div" className="text-red-500 text-sm" />
+                </div>
+              )}
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Name</label>
@@ -147,7 +199,24 @@ const CashBackForm = ({
                 </Field>
                 <ErrorMessage name="isActive" component="div" className="text-red-500 text-sm" />
               </div>
-
+              {values.serviceType === "PARCEL" && String(values.parcelVehicleType || "").toUpperCase() === "BIKE" && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Sub Zone</label>
+                  <Field
+                    as="select"
+                    name="subZoneId"
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                  >
+                    <option value="">Select Sub Zone</option>
+                    {getSubZoneOptions(values?.config?.zones || []).map((zone) => (
+                      <option key={zone.id} value={zone.id}>
+                        {zone.name}
+                      </option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="subZoneId" component="div" className="text-red-500 text-sm" />
+                </div>
+              )}
 
               <div>
                 <label className="text-sm font-medium text-gray-700">Zones</label>
