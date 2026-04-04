@@ -2568,6 +2568,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                       }
 
         // Validate required fields
+        const isParcelBooking = bookingDetails?.serviceType === 'PARCEL';
         const requiredFields = [
             'bookingId',
             'bookingNumber',
@@ -2576,8 +2577,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
             'driverName',
             'startAddress',
             'endAddress',
-            'startKm',
-            'endKm',
+            ...(!isParcelBooking ? ['startKm', 'endKm'] : []),
             // 'totalKm',
             'fuelType',
             'tripFare',
