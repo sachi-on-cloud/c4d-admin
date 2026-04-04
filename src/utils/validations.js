@@ -987,20 +987,6 @@ export const DriverOfferSchema = Yup.object({
 
 export const CASH_BACK_SCHEMA = Yup.object().shape({
   serviceType: Yup.string().required("Service type is required"),
-  parcelVehicleType: Yup.string().when("serviceType", {
-    is: "PARCEL",
-    then: (schema) =>
-      schema
-        .oneOf(["BIKE", "AUTO"], "Invalid Parcel Vehicle Type")
-        .required("Parcel Vehicle Type is required"),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  subZoneId: Yup.string().when(["serviceType", "parcelVehicleType"], {
-    is: (serviceType, parcelVehicleType) =>
-      serviceType === "PARCEL" && String(parcelVehicleType || "").toUpperCase() === "BIKE",
-    then: (schema) => schema.required("Sub Zone is required"),
-    otherwise: (schema) => schema.nullable(),
-  }),
   name: Yup.string().trim().required("Name is required"),
   description: Yup.string().nullable(),
   config: Yup.object()
@@ -1012,6 +998,36 @@ export const CASH_BACK_SCHEMA = Yup.object().shape({
       cashbackDiscount: Yup.number()
         .typeError("Cashback discount must be a number")
         .required("Cashback discount is required"),
+      parcelVehicleType: Yup.string().nullable(),
+      subZoneId: Yup.string().nullable(),
+    })
+    .test("parcel-config-fields", function (config) {
+      const serviceType = this.parent?.serviceType;
+      if (serviceType !== "PARCEL") return true;
+
+      const parcelVehicleType = String(config?.parcelVehicleType || "").toUpperCase();
+      if (!parcelVehicleType) {
+        return this.createError({
+          path: "config.parcelVehicleType",
+          message: "Parcel Vehicle Type is required",
+        });
+      }
+
+      if (!["BIKE", "AUTO"].includes(parcelVehicleType)) {
+        return this.createError({
+          path: "config.parcelVehicleType",
+          message: "Invalid Parcel Vehicle Type",
+        });
+      }
+
+      if (parcelVehicleType === "BIKE" && !config?.subZoneId) {
+        return this.createError({
+          path: "config.subZoneId",
+          message: "Sub Zone is required",
+        });
+      }
+
+      return true;
     })
     .required(),
   isActive: Yup.boolean().required("Status is required"),

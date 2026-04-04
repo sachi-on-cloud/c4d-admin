@@ -106,8 +106,8 @@ const CashBackForm = ({
                     const nextServiceType = e.target.value;
                     setFieldValue("serviceType", nextServiceType);
                     if (nextServiceType !== "PARCEL") {
-                      setFieldValue("parcelVehicleType", "BIKE");
-                      setFieldValue("subZoneId", "");
+                      setFieldValue("config.parcelVehicleType", "BIKE");
+                      setFieldValue("config.subZoneId", "");
                     }
                   }}
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
@@ -127,21 +127,22 @@ const CashBackForm = ({
                   <label className="text-sm font-medium text-gray-700">Parcel Vehicle Type</label>
                   <Field
                     as="select"
-                    name="parcelVehicleType"
+                    name="config.parcelVehicleType"
                     onChange={(e) => {
                       const nextVehicleType = String(e.target.value || "").toUpperCase();
                       const normalizedType = PARCEL_VEHICLE_OPTIONS.includes(nextVehicleType) ? nextVehicleType : "BIKE";
-                      setFieldValue("parcelVehicleType", normalizedType);
+                      setFieldValue("config.parcelVehicleType", normalizedType);
                       if (normalizedType === "AUTO") {
-                        setFieldValue("subZoneId", "");
+                        setFieldValue("config.subZoneId", "");
                       }
                     }}
                     className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                   >
+                    <option value="">Select Vehicle Type</option>
                     <option value="BIKE">BIKE</option>
                     <option value="AUTO">AUTO</option>
                   </Field>
-                  <ErrorMessage name="parcelVehicleType" component="div" className="text-red-500 text-sm" />
+                  <ErrorMessage name="config.parcelVehicleType" component="div" className="text-red-500 text-sm" />
                 </div>
               )}
 
@@ -199,12 +200,12 @@ const CashBackForm = ({
                 </Field>
                 <ErrorMessage name="isActive" component="div" className="text-red-500 text-sm" />
               </div>
-              {values.serviceType === "PARCEL" && String(values.parcelVehicleType || "").toUpperCase() === "BIKE" && (
+              {values.serviceType === "PARCEL" && String(values?.config?.parcelVehicleType || "").toUpperCase() === "BIKE" && (
                 <div>
                   <label className="text-sm font-medium text-gray-700">Sub Zone</label>
                   <Field
                     as="select"
-                    name="subZoneId"
+                    name="config.subZoneId"
                     className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                   >
                     <option value="">Select Sub Zone</option>
@@ -214,7 +215,7 @@ const CashBackForm = ({
                       </option>
                     ))}
                   </Field>
-                  <ErrorMessage name="subZoneId" component="div" className="text-red-500 text-sm" />
+                  <ErrorMessage name="config.subZoneId" component="div" className="text-red-500 text-sm" />
                 </div>
               )}
 

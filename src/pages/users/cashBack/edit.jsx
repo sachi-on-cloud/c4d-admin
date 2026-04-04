@@ -7,8 +7,6 @@ import CashBackForm from "./CashBackForm";
 const getNormalizedRecord = (record = {}) => ({
   id: record?.settingId || record?.id || record?.cashBackId || record?._id || null,
   serviceType: record?.serviceType || "",
-  parcelVehicleType: String(record?.parcelVehicleType || "BIKE").toUpperCase(),
-  subZoneId: record?.subZoneId ? String(record.subZoneId) : "",
   name: record?.name || "",
   description: record?.description || "",
   config: {
@@ -16,6 +14,12 @@ const getNormalizedRecord = (record = {}) => ({
     cashbackDiscount:
       record?.config?.cashbackDiscount !== null && record?.config?.cashbackDiscount !== undefined
         ? String(record.config.cashbackDiscount)
+        : "",
+    parcelVehicleType: String(record?.config?.parcelVehicleType || record?.parcelVehicleType || "").toUpperCase(),
+    subZoneId: record?.config?.subZoneId
+      ? String(record.config.subZoneId)
+      : record?.subZoneId
+        ? String(record.subZoneId)
         : "",
   },
   isActive: Boolean(record?.isActive),
@@ -29,13 +33,13 @@ const CashBackEdit = () => {
   const [recordId, setRecordId] = useState(id || null);
   const [initialValues, setInitialValues] = useState({
     serviceType: "",
-    parcelVehicleType: "BIKE",
-    subZoneId: "",
     name: "",
     description: "",
     config: {
       zones: [],
       cashbackDiscount: "",
+      parcelVehicleType: "",
+      subZoneId: "",
     },
     isActive: true,
   });
@@ -89,6 +93,10 @@ const CashBackEdit = () => {
       if (!Number.isFinite(parsedSettingId) || parsedSettingId <= 0) {
         throw new Error("Invalid settingId");
       }
+      const selectedParcelVehicleType = String(
+        values?.config?.parcelVehicleType || "BIKE"
+      ).toUpperCase();
+      const selectedParcelSubZoneId = values?.config?.subZoneId;
 
       const payload = {
         serviceType: values.serviceType,
@@ -97,16 +105,16 @@ const CashBackEdit = () => {
         config: {
           zones: values.config.zones,
           cashbackDiscount: Number(values.config.cashbackDiscount),
-        },
-        isActive: Boolean(values.isActive),
         ...(values.serviceType === "PARCEL"
           ? {
-              parcelVehicleType: String(values.parcelVehicleType || "BIKE").toUpperCase(),
-              ...(String(values.parcelVehicleType || "BIKE").toUpperCase() === "BIKE" && values.subZoneId
-                ? { subZoneId: Number(values.subZoneId) }
+              parcelVehicleType: selectedParcelVehicleType,
+              ...(selectedParcelVehicleType === "BIKE" && selectedParcelSubZoneId
+                ? { subZoneId: Number(selectedParcelSubZoneId) }
                 : {}),
             }
           : {}),
+        },
+        isActive: Boolean(values.isActive),
       };
 
       const updateRoute = API_ROUTES.UPDATE_CASH_BACK.replace(

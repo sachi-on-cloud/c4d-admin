@@ -9,19 +9,24 @@ const CashBackAdd = () => {
 
   const initialValues = {
     serviceType: "",
-    parcelVehicleType: "BIKE",
-    subZoneId: "",
     name: "",
     description: "",
     config: {
       zones: [],
       cashbackDiscount: "",
+      parcelVehicleType: "",
+      subZoneId: "",
     },
     isActive: true,
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
+      const selectedParcelVehicleType = String(
+        values?.config?.parcelVehicleType || "BIKE"
+      ).toUpperCase();
+      const selectedParcelSubZoneId = values?.config?.subZoneId;
+
       const payload = {
         serviceType: values.serviceType,
         name: values.name,
@@ -29,16 +34,16 @@ const CashBackAdd = () => {
         config: {
           zones: values.config.zones,
           cashbackDiscount: Number(values.config.cashbackDiscount),
+          ...(values.serviceType === "PARCEL"
+            ? {
+                parcelVehicleType: selectedParcelVehicleType,
+                ...(selectedParcelVehicleType === "BIKE" && selectedParcelSubZoneId
+                  ? { subZoneId: Number(selectedParcelSubZoneId) }
+                  : {}),
+              }
+            : {}),
         },
         isActive: Boolean(values.isActive),
-        ...(values.serviceType === "PARCEL"
-          ? {
-              parcelVehicleType: String(values.parcelVehicleType || "BIKE").toUpperCase(),
-              ...(String(values.parcelVehicleType || "BIKE").toUpperCase() === "BIKE" && values.subZoneId
-                ? { subZoneId: Number(values.subZoneId) }
-                : {}),
-            }
-          : {}),
       };
       // console.log("Submitting new Cash Back with payload:", payload);
 
