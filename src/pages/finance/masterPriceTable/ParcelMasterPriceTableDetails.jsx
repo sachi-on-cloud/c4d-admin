@@ -7,13 +7,12 @@ import ParcelMasterPriceForm from "./parcelMasterPrice/ParcelMasterPriceForm";
 import { createInitialParcelForm } from "./parcelMasterPrice/defaults";
 import { mapApiToParcelForm } from "./parcelMasterPrice/mapper";
 
-export default function ParcelMasterPriceTableEdit() {
+export default function ParcelMasterPriceTableDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [serviceAreas, setServiceAreas] = useState([]);
   const [zones, setZones] = useState([]);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [initialForm, setInitialForm] = useState(createInitialParcelForm());
 
@@ -41,56 +40,36 @@ export default function ParcelMasterPriceTableEdit() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchPriceDetails = async () => {
+    const fetchDetails = async () => {
+      setError("");
       try {
         const response = await ApiRequestUtils.get(`${API_ROUTES.PARCEL_PACKAGE_BY_ID}/${id}`);
         if (response?.success && response?.data) {
           setInitialForm(mapApiToParcelForm(response.data));
+        } else {
+          setError(response?.message || "Failed to fetch parcel package details");
         }
       } catch (fetchErr) {
-        console.error("Fetch error:", fetchErr);
+        console.error("Fetch parcel package details error:", fetchErr);
+        setError("Network or server error while fetching details");
       }
     };
 
-    fetchPriceDetails();
+    fetchDetails();
   }, [id]);
-
-  const handleSubmit = async (payload) => {
-    setError("");
-    try {
-      setSaving(true);
-      const reqBody = { packageId: Number(id), ...payload };
-
-      let response = await ApiRequestUtils.post(API_ROUTES.PARCEL_PRICE_EDIT, reqBody);
-      if (!response?.success) {
-        response = await ApiRequestUtils.update(API_ROUTES.PARCEL_PRICE_EDIT, reqBody);
-      }
-
-      if (response?.success) {
-        navigate("/dashboard/finance/master-price");
-      } else {
-        setError(response?.message || "Update failed");
-      }
-    } catch (saveErr) {
-      console.error("Save error:", saveErr);
-      setError("Network or server error while saving");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <>
       <ParcelMasterPriceForm
-        title="Edit Parcel Master Price"
+        title="Parcel Master Price Details"
         initialForm={initialForm}
         serviceAreas={serviceAreas}
         zones={zones}
-        disableZoneAndVehicleType
-        saving={saving}
-        submitLabel="Update Parcel Price"
+        saving={false}
         errorMessage={error}
-        onSubmit={handleSubmit}
+        readOnly
+        primaryButtonLabel="Edit"
+        onPrimaryButtonClick={() => navigate(`/dashboard/finance/master-price/parcel-edit/${id}`)}
         onBack={() => navigate("/dashboard/finance/master-price")}
       />
 

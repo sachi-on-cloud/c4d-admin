@@ -19,7 +19,7 @@ import {
 } from "@material-tailwind/react";
 import { FaArrowRight, FaFilter, FaChartBar, FaClipboardList,FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaUsers, FaSync, FaPhone, FaUser } from 'react-icons/fa';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, BOOKING_STATUS, ColorStyles, Feature } from "@/utils/constants";
+import { API_ROUTES, BOOKING_STATUS, ColorStyles } from "@/utils/constants";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
@@ -564,6 +564,25 @@ if (!statusFilter.includes('All')) {
         onAssignDriver(data);
         setSelectedBookingId(data.id);
         setIsOpen(true)
+    };
+    const onAssignParcelVehicleHandler = (data, parcelVehicleType) => {
+        const bookingData = {
+            ...data,
+            serviceType: "PARCEL",
+            parcelVehicleType,
+            subZoneId: data?.subZoneId,
+        };
+        onAssignDriverHandler(bookingData);
+    };
+    const onReassignParcelVehicleHandler = (data, parcelVehicleType) => {
+        const bookingData = {
+            ...data,
+            serviceType: "PARCEL",
+            parcelVehicleType,
+            subZoneId: data?.subZoneId,
+        };
+        setSelectedBookingForReassign(bookingData);
+        setShowReassignModal(true);
     };
     const onRequestDriverHandler = (data, requestDriver) => {
         setShowPickedBooking(data?.id);
@@ -1217,6 +1236,10 @@ if (!statusFilter.includes('All')) {
                                                         : isSelected ? 'bg-primary-50'
                                                         : "hover:bg-gray-50"
                                                     } transition-colors duration-200`;
+                                                    const hasAssignedDriver = Boolean(data?.Driver?.id || data?.driverId);
+                                                    const hasAssignedVehicle = Boolean(data?.Cab?.id || data?.cabId || data?.Auto?.id || data?.autoId || data?.Parcel?.id || data?.parcelId);
+                                                    const hasAssignedDriverOrCab = Boolean(hasAssignedDriver ||(hasAssignedVehicle && ['BOOKING_ACCEPTED', 'QUOTED', 'CONFIRMED'].includes(data?.status))
+                                                    );
 
                                                 return (
                                                     <tr key={data?.id} className={className}>
@@ -1427,7 +1450,7 @@ if (!statusFilter.includes('All')) {
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {(['CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
+                                                            {data?.serviceType !== "PARCEL" && (['CONFIRMED'].includes(data?.status) || (data?.status == "REQUEST_DRIVER" && (data?.serviceType == "RIDES" || data?.serviceType == "RENTAL" || data?.serviceType == "DRIVER" || data?.serviceType == "AUTO"))) && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => onAssignDriverHandler(data)}
@@ -1438,12 +1461,10 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
-                                                                                ? "Bike"
                                                                                 : "Cab"}
                                                                 </Button>
                                                             }
-                                                            {(['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
+                                                            {data?.serviceType !== "PARCEL" && (['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && (data?.Driver?.id || data?.Cab?.id) && // need to add permission from redux
                                                                 <Button
                                                                     fullWidth
                                                                     onClick={() => {
@@ -1457,9 +1478,37 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL"
-                                                                                ? "Bike"
                                                                                 : "Cab"}
+                                                                </Button>
+                                                            }
+                                                            {data?.serviceType === "PARCEL" && ['CONFIRMED', 'REQUEST_DRIVER'].includes(data?.status) && data?.pickupLat && data?.pickupLong && !hasAssignedDriverOrCab &&
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onAssignParcelVehicleHandler(data, "BIKE")}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
+                                                                >
+                                                                    Assign Bike
+                                                                </Button>
+                                                            }
+                                                            {data?.serviceType === "PARCEL" && ['CONFIRMED', 'REQUEST_DRIVER'].includes(data?.status) && data?.pickupLat && data?.pickupLong && !hasAssignedDriverOrCab &&
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onAssignParcelVehicleHandler(data, "AUTO")}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
+                                                                >
+                                                                    Assign Auto
+                                                                </Button>
+                                                            }
+                                                            {data?.serviceType === "PARCEL" && (['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && hasAssignedDriverOrCab &&
+                                                                <Button
+                                                                    fullWidth
+                                                                    onClick={() => onReassignParcelVehicleHandler(data, data?.parcelVehicleType === "AUTO" ? "AUTO" : "BIKE")}
+                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
+                                                                    disabled={data?.User == null}
+                                                                >
+                                                                    ReAssign {data?.parcelVehicleType === "AUTO" ? "Auto" : "Bike"}
                                                                 </Button>
                                                             }
                                                             {data?.status === 'ASSIGNED_TO_SUPPORT' && data?.pickupLat && data?.pickupLong && (!data?.Driver?.id && !data?.Cab?.id) &&
@@ -1473,7 +1522,7 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : Feature.parcel && data?.serviceType === "PARCEL" ? "Bike"
+                                                                                : data?.serviceType === "PARCEL" ? "Bike"
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>

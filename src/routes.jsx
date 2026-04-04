@@ -4,7 +4,6 @@ import {
   RectangleStackIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { Feature } from "@/utils/constants";
 import { Home } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { DeleteAccount } from "@/pages/public/DeleteAccount";
@@ -114,7 +113,9 @@ import ParcelDetailsList from "./pages/parcel/list";
 import ParcelCabAdd from "./pages/cab/addParcelCab";
 import ParcelCabDetails from "./pages/cab/parcelCabDetails";
 import ParcelCabEdit from "./pages/cab/parcelCabEdit";
+import ParcelMasterPriceAdd from "./pages/finance/masterPriceTable/ParcelMasterPriceTableAdd";
 import ParcelMasterPriceEdit from "./pages/finance/masterPriceTable/ParcelMasterPriceTableEdit";
+import ParcelMasterPriceDetails from "./pages/finance/masterPriceTable/ParcelMasterPriceTableDetails";
 import TripDetails from "./pages/TripDetails/tripDetails";
 import Reports from "./pages/TripDetails/reports";
 import AddTripDetails from "./pages/TripDetails/add";
@@ -134,6 +135,7 @@ import DriverOpsView from "./pages/DriverOps/view";
 import BookingInvoiceList from "./pages/finance/bookingInvoice/list";
 import BookingInvoiceDetails from "./pages/finance/bookingInvoice/details";
 import AutoMasterPriceTableAdd from "./pages/finance/masterPriceTable/AutoMasterPriceTableAdd";
+import ParcelCommissionList from "./pages/finance/parcelCommission/list";
 import TierDetailsList from "./pages/DriverEngagementModule/TierDetails/list";
 import TierDetailsAdd from "./pages/DriverEngagementModule/TierDetails/add";
 import TierDetailsEdit from "./pages/DriverEngagementModule/TierDetails/edit";
@@ -685,7 +687,6 @@ export const routes = [
         display: false,
         permission: "Autos",
       },
-      ...(Feature.parcel ? [
         {
           icon: <UserIcon {...icon} />,
           name: "Parcel Bookings",
@@ -694,7 +695,6 @@ export const routes = [
           display: false,
           permission: "All bookings",
         },
-      ] : []),
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",
@@ -897,6 +897,14 @@ export const routes = [
       },
       {
         icon: <UserIcon {...icon} />,
+        name: "Parcel Commission",
+        path: "/finance/parcel-commission",
+        element: <ParcelCommissionList />,
+        display: false,
+        permission: "Finance",
+      },
+      {
+        icon: <UserIcon {...icon} />,
         name: "Receipt",
         path: "/finance/receipt",
         element: <ReceiptList />,
@@ -1088,7 +1096,6 @@ export const routes = [
         display: false,
         permission: "Users",
       },
-      ...(Feature.parcel ? [
         {
           icon: <UserIcon {...icon} />,
           name: "bike",
@@ -1156,13 +1163,28 @@ export const routes = [
         },
         {
           icon: <UserIcon {...icon} />,
+          name: "Parcel Master Price Add",
+          path: "/finance/master-price/parcel-add",
+          element: <ParcelMasterPriceAdd />,
+          display: true,
+          permission: "Users"
+        },
+        {
+          icon: <UserIcon {...icon} />,
+          name: "Parcel Master Price Details",
+          path: "/finance/master-price/parcel-details/:id",
+          element: <ParcelMasterPriceDetails />,
+          display: false,
+          permission: "Users"
+        },
+        {
+          icon: <UserIcon {...icon} />,
           name: "Parcel Master Price Edit",
           path: "/finance/master-price/parcel-edit/:id",
           element: <ParcelMasterPriceEdit />,
           display: true,
           permission: "Users"
         },
-      ] : []),
 
       {
         icon: <UserIcon {...icon} />,

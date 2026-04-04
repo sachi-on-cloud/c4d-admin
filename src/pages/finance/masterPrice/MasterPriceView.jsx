@@ -1,12 +1,23 @@
 import { useState, useEffect, useMemo  } from "react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
-import { API_ROUTES, ColorStyles, Feature } from "@/utils/constants";
+import { API_ROUTES, ColorStyles } from "@/utils/constants";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Utils } from '@/utils/utils';
 import Select from 'react-select';
+import { ParcelExpandableRow } from "./ParcelExpandableRow";
 
 export function MasterPriceView() {
+    const normalizeText = (value) => String(value || "").trim().toLowerCase();
+    const normalizeVehicleType = (value) => {
+        const normalized = String(value || "").trim().toUpperCase();
+        if (normalized === "AUTO" || normalized === "BIKE") return normalized;
+        return "BIKE";
+    };
+    const parcelSubServiceOptions = [
+        { value: "BIKE", label: "Bike" },
+        { value: "AUTO", label: "Auto" },
+    ];
     const [localPackageList, setLocalPackageList] = useState([]);
     const [outstationPackageList, setOutstationPackageList] = useState([]);
     const [autoLocalPackageList, setAutoLocalPackageList] = useState([]);
@@ -16,13 +27,33 @@ export function MasterPriceView() {
     const [ridesData, setRidesData] = useState([]);
     // const [rentalsData, setRentalsData] = useState([]);
     const [zone, setZone] = useState("");
+    const [parcelSubService, setParcelSubService] = useState("BIKE");
+    const [showParcelGeoError, setShowParcelGeoError] = useState(false);
     const [serviceAreas, setServiceAreas] = useState([]);
+    const [subZones, setSubZones] = useState([]);
 
-    const fetchGeoData = async () => {
+    const fetchGeoData = async (selectedServiceType = "",selectedParcelSubService = parcelSubService, selectedZone = zone) => {
         try {
-            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {});
-            const filteredAreas = response.data.filter((area) => area.type === 'Service Area');
+            const geoParams = selectedServiceType === "PARCEL" ? { parcelSubServices: selectedParcelSubService || "" } : {};
+            const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, geoParams);
+            const allGeo = Array.isArray(response?.data) ? response.data : [];
+            const filteredAreas = allGeo.filter((area) => area.type === 'Service Area');
+            const filteredSubZones = allGeo.filter((area) => area.type === "Zone" && area.description === "Zone");
             setServiceAreas(filteredAreas);
+            setSubZones(filteredSubZones);
+            if (selectedServiceType === "PARCEL") {
+                if (!selectedZone) {
+                    setShowParcelGeoError(allGeo.length === 0);
+                } else {
+                    const selectedArea = filteredAreas.find(
+                        (area) => normalizeText(area.name) === normalizeText(selectedZone)
+                    );
+                    const zoneParcelSubServices = Array.isArray(selectedArea?.parcelSubServices) ? selectedArea.parcelSubServices : [];
+                    setShowParcelGeoError(Boolean(selectedArea) && zoneParcelSubServices.length === 0);
+                }
+            } else {
+                setShowParcelGeoError(false);
+            }
         } catch (error) {
             console.error('Error fetching GEO_MARKINGS_LIST:', error);           
         } 
@@ -37,11 +68,25 @@ export function MasterPriceView() {
         label: area.name, 
     }));
 
+    const fetchParcelPackageList = async (selectedZone = zone, selectedParcelSubService = parcelSubService) => {
+        const query = {};
+        if (selectedZone) query.zone = selectedZone;
+        if (selectedParcelSubService) query.parcelVehicleType = selectedParcelSubService;
+
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.PARCEL_PACKAGE_LIST, query);
+        if (data?.success) {
+            const parcelRows = Array.isArray(data?.data) ? data.data : [];
+            const filteredData = selectedZone ? parcelRows.filter((item) => normalizeText(item.zone) === normalizeText(selectedZone)) : parcelRows;
+            setParcelLocalPackageList(filteredData.filter((item) => item.type === "Parcel" && item.serviceType === "PARCEL"));
+        }
+    };
+
     const handleChange = async (selectedOption, field) => {
         if (field === 'serviceType') {
             const selectedServiceType = selectedOption.target.value;
         setServiceType(selectedServiceType);
         try {
+            await fetchGeoData(selectedServiceType, parcelSubService, zone);
             if (selectedServiceType === 'DRIVER') {
                 const data = await ApiRequestUtils.get(API_ROUTES.PACKAGES_LIST);
                 if (data?.success) {
@@ -69,16 +114,7 @@ export function MasterPriceView() {
             }
 
              else if(selectedServiceType === 'PARCEL') {
-                const data = await ApiRequestUtils.get(API_ROUTES.PARCEL_PACKAGE_LIST,{
-                    type : "Service area",
-                });
-                    if(data?.success) {
-                        const filteredData = zone
-                            ? data?.data.filter(item => item.zone === zone)
-                            : data?.data;
-                        setParcelLocalPackageList(filteredData.filter(item => item.type === "Parcel" && item.serviceType === "PARCEL"));
-                    }
-                    // console.log("DADADADAD",data)
+                await fetchParcelPackageList(zone, parcelSubService);
             } 
            
             // else if (selectedServiceType === 'RENTAL') {
@@ -133,9 +169,19 @@ export function MasterPriceView() {
                         setLocalPackageList(filteredData.filter(item => item.type === "Local" && item.serviceType === "RENTAL"));
                         setOutstationPackageList(filteredData.filter(item => item.type === "Outstation" && item.serviceType === "RENTAL"));
                     }
+                } else if (serviceType === "PARCEL") {
+                    await fetchGeoData("PARCEL", parcelSubService, selectedZone);
+                    await fetchParcelPackageList(selectedZone, parcelSubService);
             }
         } catch (err) {
             console.error("Error fetching subscription data:", err);
+        }
+        } else if (field === 'parcelSubServices') {
+            const selectedValue = normalizeVehicleType(selectedOption?.value || "");
+            setParcelSubService(selectedValue);
+            if (serviceType === "PARCEL") {
+                await fetchGeoData("PARCEL", selectedValue, zone);
+                await fetchParcelPackageList(zone, selectedValue);
         }
         }
     };
@@ -150,21 +196,32 @@ export function MasterPriceView() {
         }
         else if (serviceType === 'AUTO') {
         navigate('/dashboard/finance/master-price/auto-add');     // ← add this block
+        } else if (serviceType === 'PARCEL') {
+            navigate('/dashboard/finance/master-price/parcel-add', {
+                state: {
+                    zone,
+                    parcelVehicleType: parcelSubService || "BIKE",
+                },
+            });
     }
     };
-    const tierList = useMemo(() => {
-    return parcelLocalPackageList.flatMap((pkg) =>
-      (pkg.parcelPricing || []).map((tier) => ({
+    const parcelPackageRows = useMemo(() => {
+    return (parcelLocalPackageList || []).map((pkg) => ({
         pkgId: pkg.id,
-        zone: pkg.zone,
-        parcelType: tier.parcelType?.toUpperCase() || "—",
-        baseFare: tier.baseFare || "—",
-        baseKm: tier.baseKm || "—",
-        pickupFreeKm: tier.pickupFreeKm || "—",
-        nightCharge: tier.nightCharge || "—",
-      }))
-    );
-  }, [parcelLocalPackageList]);
+            zone: pkg.zone || "—",
+            parcelVehicleType: normalizeVehicleType(pkg.parcelVehicleType),
+            subZoneId: (pkg.subZoneId ?? pkg?.subZone?.id ?? "—"),
+            subZoneName:
+                pkg?.subZone?.name ||
+                subZones.find((item) => Number(item.id) === Number(pkg.subZoneId ?? pkg?.subZone?.id))?.name ||
+                "",
+            baseFare: pkg.baseFare ?? "—",
+            baseKm: pkg.baseKm ?? "—",
+            kilometerPrice: pkg.kilometerPrice ?? "—",
+            peakHour: pkg.peakHours || pkg.peakHour || [],
+            parcelPricing: pkg.parcelPricing || {},
+        }));
+}, [parcelLocalPackageList, subZones]);
 
     const renderLocalPriceTable = () => {
         return (
@@ -906,6 +963,11 @@ export function MasterPriceView() {
         );
     };
     const LocalParcelTable = () => {
+        const hideSubZoneColumn = parcelPackageRows.length > 0
+            && parcelPackageRows.every((row) => normalizeVehicleType(row.parcelVehicleType) === "AUTO");
+        const parcelTableHeaders = hideSubZoneColumn
+            ? ["Zone", "Base Fare", "Base Km", "Kilometer Price", "Actions"]
+            : ["Zone", "Sub Zone", "Base Fare", "Base Km", "Kilometer Price", "Actions"];
         return (
             <div className='my-6'>
                 <h3 className="text-3xl font-bold mb-4 ml-2">Local</h3>
@@ -914,15 +976,7 @@ export function MasterPriceView() {
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
-                                    {[
-                                        "Zone",
-                                        "Parcel Type",
-                                        "Base Fare",
-                                        "Base Km",
-                                        "Pickup Free Km",
-                                        "Night Charge", 
-                                        "Actions"
-                                    ].map((el, index) => (
+                                    {parcelTableHeaders.map((el, index) => (
                                         <th key={index} className={`border-b border-blue-gray-50 py-3 px-5 text-left ${ColorStyles.bgColor}`}>
                                             <Typography
                                                 variant="small"
@@ -935,52 +989,15 @@ export function MasterPriceView() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {tierList.map(({ 
-                                    pkgId, 
-                                    zone, 
-                                    parcelType, 
-                                    baseKm, 
-                                    baseFare,
-                                    pickupFreeKm,
-                                    nightCharge }, 
-                                    idx) => {
-                                    const className = `py-3 px-5 ${idx === tierList.length - 1 ? "" : "border-b border-blue-gray-50"}`;
+                                {parcelPackageRows.map((row, idx) => {
+                                    const className = `py-3 px-5 ${idx === parcelPackageRows.length - 1 ? "" : "border-b border-blue-gray-50"}`;
                                     return (
-                                        <tr key={`${pkgId}-${parcelType}`}>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {zone}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">{parcelType}</Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {baseFare}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {baseKm}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {pickupFreeKm}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {nightCharge}
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Link to={`/dashboard/finance/master-price/parcel-edit/${pkgId}`} className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block ${ColorStyles.editButton}`}>
-                                                    View / Edit
-                                                </Link>
-                                            </td>
-                                        </tr>
+                                        <ParcelExpandableRow
+                                            key={row.pkgId}
+                                            row={row}
+                                            className={className}
+                                            hideSubZoneColumn={hideSubZoneColumn}
+                                        />
                                     );
                                 })}
                             </tbody>
@@ -1087,8 +1104,8 @@ export function MasterPriceView() {
         <>
             <div className="p-4 border border-gray-300 rounded-lg shadow-sm">
                 <div className="flex items-center justify-between">
-                    <div className="relative flex-grow max-w-[500px]">
-                        <div className="p-4 flex flex-row space-x-5">
+                    <div className="relative flex-grow max-w-[860px]">
+                        <div className="p-4 flex flex-row flex-wrap gap-5">
                             <div className="flex flex-col">
                                 <label className="text-base font-medium text-gray-700">Select Zone:</label>
                                 <Select
@@ -1113,15 +1130,26 @@ export function MasterPriceView() {
                                     <option value="RIDES">Rides</option>
                                     <option value="RENTAL">Rental</option>
                                     <option value="AUTO">Auto</option>
-                                {(Feature.parcel ? [
                                     <option value="PARCEL">Parcel</option>
-                                ] : [])}
                                 </select>
                                 {serviceType === "" && <div className="text-red-500 text-sm mt-1">Please select a service type</div>}
                             </div>
+                            {serviceType === "PARCEL" && (
+                                <div className="flex flex-col">
+                                    <label className="text-base font-medium text-gray-700">Parcel Sub Services:</label>
+                                    <Select
+                                        isClearable
+                                        options={parcelSubServiceOptions}
+                                        value={parcelSubServiceOptions.find((item) => item.value === parcelSubService) || null}
+                                        onChange={(selectedOption) => handleChange(selectedOption, 'parcelSubServices')}
+                                        placeholder="Select Parcel Sub Services"
+                                        className="w-[260px]"
+                                    />                                   
+                                </div>
+                            )}
                         </div>
                     </div>
-                    {serviceType && serviceType !== 'PARCEL' && (
+                    {serviceType && (
                     <button
                         onClick={onHandleAddNew}
                         className={`ml-4 px-4 py-2 rounded-2xl hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
@@ -1133,6 +1161,13 @@ export function MasterPriceView() {
                     )}
                 </div>
             </div>
+            {serviceType === "PARCEL" && showParcelGeoError ? (
+                <div className="px-4 pb-4">
+                    <p className="text-sm font-medium text-red-600" style={{ color: "red" }}>
+                        Kindly add the Parcel Sub Services (such as Bike or Auto) to the Geo Markings.
+                    </p>
+                </div>
+            ) : null}
 
             {serviceType === 'DRIVER' && localPackageList && localPackageList.length > 0 ? (
                 <div className=''>

@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button, Typography } from "@material-tailwind/react";
-import { Feature, NAV_UI } from "@/utils/constants";
+import { NAV_UI } from "@/utils/constants";
 
 function VendorsSubmenu({ miniSidenav }) {
   const getItemClasses = (isActive) =>
@@ -55,19 +55,11 @@ function VendorsSubmenu({ miniSidenav }) {
     { label: "All Cab Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
     { label: "All Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
     { label: "All Auto Owner", path: "/dashboard/vendors/account/autoview", icon: "/img/parcel_list.png" },
-     ...(Feature.parcel
-      ? [
     { label: "All Bike Owner", path: "/dashboard/vendors/account/parcel/list", icon: "/img/parcel_list.png" },
-       ]
-      : []),
     { label: "Online Vehicles List", path: "/dashboard/vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
     { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
     { label: "All Auto List", path: "/dashboard/vendors/account/autoList", icon: "/img/auto.png" },
-    ...(Feature.parcel
-      ? [
               { label: "All Bike List", path: "/dashboard/vendors/account/parcel", icon: "/img/Parcel_driver.png" },
-        ]
-      : []),
     { label: "All Document Verification", path: "/dashboard/doc-verification", icon: "/img/all.png" },
     { label: "All Pending Documents", path: "/dashboard/doc-verification/pending", icon: "/img/pending_doc.png" },
   ];

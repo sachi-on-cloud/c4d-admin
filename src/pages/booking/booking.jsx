@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -1403,6 +1403,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                             setSearchBookingId={(value) => {setSearchBookingId(value)}}
                         />
                     </div>} */}
+                    {String(props?.typeProp).toUpperCase() !== 'PARCEL' && !location.pathname.toLowerCase().includes('/booking/list/parcel') && (
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`relative rounded-xl px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
@@ -1412,6 +1413,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         Add New Booking
                         </div>
                     </button>
+                    )}
 
                 </div>
                 <BookingsList onRegisterRefresh={setRefreshFn}  customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />

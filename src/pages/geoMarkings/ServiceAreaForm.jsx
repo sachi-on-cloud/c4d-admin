@@ -9,6 +9,9 @@ import {
 } from '@material-tailwind/react';
 import Select from 'react-select';
 
+const PARCEL_SERVICE_TYPE = 'PARCEL';
+const DEFAULT_PARCEL_SUB_SERVICES = ['BIKE', 'AUTO'];
+
 const ServiceAreaForm = ({
   onSave, initialData = null, coordinates = null ,
 }) => {
@@ -27,6 +30,33 @@ const ServiceAreaForm = ({
       reader.readAsDataURL(file);
     });
   const initialServiceTypes = initialData?.services || [];
+  const initialParcelSubServices = useMemo(() => {
+    const allowedParcelSubServices = DEFAULT_PARCEL_SUB_SERVICES;
+    const rawParcelSubServices = initialData?.parcelSubServices
+      ?? initialData?.parcelDeliveryType
+      ?? initialData?.deliveryType;
+    const normalizeParcelSubService = (item) => {
+      const value = (item || '').toString().trim().toUpperCase();
+      if (value === 'PARCEL_BIKE') return 'BIKE';
+      if (value === 'PARCEL_AUTO') return 'AUTO';
+      return value;
+    };
+    if (Array.isArray(rawParcelSubServices)) {
+      const values = rawParcelSubServices
+        .map((item) => normalizeParcelSubService(item))
+        .filter((item) => allowedParcelSubServices.includes(item));
+      if (values.length > 0) return values;
+      return initialServiceTypes.includes(PARCEL_SERVICE_TYPE)
+        ? DEFAULT_PARCEL_SUB_SERVICES
+        : [];
+    }
+
+    const fromApi = normalizeParcelSubService(rawParcelSubServices);
+    if (allowedParcelSubServices.includes(fromApi)) return [fromApi];
+    return initialServiceTypes.includes(PARCEL_SERVICE_TYPE)
+      ? DEFAULT_PARCEL_SUB_SERVICES
+      : [];
+  }, [initialData?.parcelSubServices, initialData?.parcelDeliveryType, initialData?.deliveryType, initialServiceTypes]);
   const initialQuickServices = useMemo(() => {
     return initialData?.quickServices?.filter(qs =>
       initialServiceTypes.includes(qs)
@@ -63,6 +93,7 @@ const ServiceAreaForm = ({
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
+    parcelSubServices: initialParcelSubServices,
     services: initialServiceTypes,
     quickServices: initialQuickServices,
     highlightedService: initialHighlighted, // ← Now string (single value)
@@ -72,6 +103,7 @@ const ServiceAreaForm = ({
   const [error, setError] = useState(null);
   const [nameError, setNameError] = useState(null);
   const [descriptionError, setDescriptionError] = useState(null);
+  const [parcelSubServicesError, setParcelSubServicesError] = useState(null);
   const [servicesError, setServicesError] = useState(null);
   const [quickServiceError, setQuickServiceError] = useState(null);
   const [newServicesError, setNewServicesError] = useState(null);
@@ -86,6 +118,10 @@ const ServiceAreaForm = ({
     { value: 'RENTAL_HOURLY_PACKAGE', label: 'Hourly Package' },
     { value: 'AUTO', label: 'Auto' },
     { value: 'PARCEL', label: 'Parcel' },
+  ];
+  const parcelSubServicesOptions = [
+    { value: 'BIKE', label: 'Bike' },
+    { value: 'AUTO', label: 'Auto' },
   ];
 
   const newServiceNameOptions = [
@@ -106,6 +142,7 @@ const ServiceAreaForm = ({
       formData.services.includes(opt.value)
     );
   }, [formData.services]);
+  const isParcelSelected = formData.services.includes(PARCEL_SERVICE_TYPE);
 
   const isValidHexColor = (value) =>
     typeof value === 'string' && /^#([0-9A-Fa-f]{6})$/.test(value);
@@ -151,20 +188,39 @@ const ServiceAreaForm = ({
 
   const handleServiceTypeChange = (selected) => {
     const values = selected ? selected.map((s) => s.value) : [];
+    const hadParcel = formData.services.includes(PARCEL_SERVICE_TYPE);
+    const hasParcel = values.includes(PARCEL_SERVICE_TYPE);
     const filteredQuick = formData.quickServices.filter((qs) => values.includes(qs));
     const newHighlighted = values.includes(formData.highlightedService)
       ? formData.highlightedService
       : '';
+    const nextParcelSubServices = hasParcel
+      ? hadParcel
+        ? formData.parcelSubServices
+        : DEFAULT_PARCEL_SUB_SERVICES
+      : [];
 
     setFormData((prev) => ({
       ...prev,
       services: values,
+      parcelSubServices: nextParcelSubServices,
       quickServices: filteredQuick,
       highlightedService: newHighlighted,
     }));
 
+    if (!hasParcel) {
+      setParcelSubServicesError(null);
+    }
     validateServices(values);
     validateQuickServices(filteredQuick);
+  };
+  const handleParcelSubServicesChange = (selected) => {
+    const values = selected ? selected.map((s) => s.value) : [];
+    setFormData((prev) => ({
+      ...prev,
+      parcelSubServices: values,
+    }));
+    setParcelSubServicesError(null);
   };
 
   const handleQuickServiceChange = (selected) => {
@@ -258,6 +314,7 @@ const ServiceAreaForm = ({
     setError(null);
     setNameError(null);
     setDescriptionError(null);
+    setParcelSubServicesError(null);
     setServicesError(null);
     setQuickServiceError(null);
 
@@ -270,6 +327,14 @@ const ServiceAreaForm = ({
 
     if (!formData.description) {
       setDescriptionError('Description is required');
+      hasError = true;
+    }
+
+    if (
+      isParcelSelected
+      && (!Array.isArray(formData.parcelSubServices) || formData.parcelSubServices.length === 0)
+    ) {
+      setParcelSubServicesError('Please select at least 1 Parcel Sub Service');
       hasError = true;
     }
 
@@ -312,7 +377,7 @@ const ServiceAreaForm = ({
         })
       );
 
-      await onSave({
+      const payload = {
         name: formData.name.trim(),
         description: formData.description,
         services: formData.services,
@@ -320,7 +385,12 @@ const ServiceAreaForm = ({
         highlightedService: formData.highlightedService || null,
         newServices: { data: cleanNewServices },
         coordinates,
-      });
+      };
+      if (formData.services.includes(PARCEL_SERVICE_TYPE)) {
+        payload.parcelSubServices = formData.parcelSubServices;
+      }
+
+      await onSave(payload);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -416,6 +486,37 @@ const ServiceAreaForm = ({
            
           
         </div>
+      {/* Service Types */}
+        {isParcelSelected && (
+        <div className="relative z-50">
+          <label className="block text-sm text-gray-700 mb-1">
+            Parcel Sub Services {isParcelSelected && <span className="text-red-500">*</span>}
+          </label>
+          <Select
+            isMulti
+            options={parcelSubServicesOptions}
+            value={parcelSubServicesOptions.filter((opt) => formData.parcelSubServices.includes(opt.value))}
+            onChange={handleParcelSubServicesChange}
+            closeMenuOnSelect={false}
+            placeholder="Select parcel sub services"
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+              control: (base, state) => ({
+                ...base,
+                borderColor: parcelSubServicesError ? '#ef4444' : state.isFocused ? '#3b82f6' : '#d1d5db',
+                boxShadow: parcelSubServicesError
+                  ? '0 0 0 1px #ef4444'
+                  : state.isFocused
+                    ? '0 0 0 1px #3b82f6'
+                    : 'none',
+                '&:hover': { borderColor: parcelSubServicesError ? '#ef4444' : '#9ca3af' },
+              }),
+            }}
+          />
+          {parcelSubServicesError && <p className="text-red-500 text-xs mt-1">{parcelSubServicesError}</p>}
+        </div>
+        )}
 
         {/* New Services */}
         <div className="mt-2">

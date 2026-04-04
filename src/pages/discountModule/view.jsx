@@ -62,6 +62,7 @@ const DiscountView = () => {
   RENTAL_DROP_TAXI:"Drop Taxi",
   RENTAL:"Outstation",
   AUTO:"Auto",
+  PARCEL:"Parcel"
 };
 
   const handleSort = (key) => {
@@ -227,7 +228,7 @@ const DiscountView = () => {
                         )}
                       </td>
                       <td className="py-3 px-5">{item.isPremium ? 'Premium' : 'Not Premium'}</td>
-                      <td className="py-3 px-5">{item.cabType}</td>
+                      <td className="py-3 px-5">{item.cabType || item.parcelVehicleType || '-'}</td>
                       <td className="py-3 px-5">
                         {item.serviceArea && item.serviceArea.length > 0 ? (
                           item.serviceArea.map((area, index) => (
