@@ -375,6 +375,15 @@ const TextBoxWithList = ({addNotes, notesData, bookingId }) => {
                 </>
               )}
               <span className="font-bold">Cab Type:</span> {log?.cabType || 'N/A'} |{' '}
+              {String(log?.serviceType || '').toUpperCase() === 'PARCEL' && (
+                <>
+                  <span className="font-bold">Parcel Vehicle Type:</span> {log?.parcelVehicleType || 'N/A'} |{' '}
+                  <span className="font-bold">Sub Zone ID:</span> {log?.subZoneId || 0} |{' '}
+                  <span className="font-bold">Weight Range:</span> {log?.weightRange || 'N/A'} |{' '}
+                  <span className="font-bold">Order Type:</span> {log?.orderType || 'N/A'} |{' '}
+                  <span className="font-bold">Order Type Other:</span> {log?.orderTypeOther || 'N/A'} |{' '}
+                </>
+              )}
               <span className="font-bold">Estimate Price:</span> ₹{log?.amount || 'N/A'} |{' '}
               {log?.discount > 0 && (
                 <>

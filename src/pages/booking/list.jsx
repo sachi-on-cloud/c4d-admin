@@ -1484,21 +1484,11 @@ if (!statusFilter.includes('All')) {
                                                             {data?.serviceType === "PARCEL" && ['CONFIRMED', 'REQUEST_DRIVER'].includes(data?.status) && data?.pickupLat && data?.pickupLong && !hasAssignedDriverOrCab &&
                                                                 <Button
                                                                     fullWidth
-                                                                    onClick={() => onAssignParcelVehicleHandler(data, "BIKE")}
-                                                                    className={`text-xs font-semibold text-blue-gray-900 flex-wrap mb-1 ${ColorStyles.bgStatusColor}`}
-                                                                    disabled={data?.User == null}
-                                                                >
-                                                                    Assign Bike
-                                                                </Button>
-                                                            }
-                                                            {data?.serviceType === "PARCEL" && ['CONFIRMED', 'REQUEST_DRIVER'].includes(data?.status) && data?.pickupLat && data?.pickupLong && !hasAssignedDriverOrCab &&
-                                                                <Button
-                                                                    fullWidth
-                                                                    onClick={() => onAssignParcelVehicleHandler(data, "AUTO")}
+                                                                    onClick={() => onAssignParcelVehicleHandler(data, String(data?.parcelVehicleType || "BIKE").toUpperCase() === "AUTO" ? "AUTO" : "BIKE")}
                                                                     className={`text-xs font-semibold text-blue-gray-900 flex-wrap ${ColorStyles.bgStatusColor}`}
                                                                     disabled={data?.User == null}
                                                                 >
-                                                                    Assign Auto
+                                                                    Assign {String(data?.parcelVehicleType || "BIKE").toUpperCase() === "AUTO" ? "Auto" : "Bike"}
                                                                 </Button>
                                                             }
                                                             {data?.serviceType === "PARCEL" && (['QUOTED', 'CONFIRMED', 'BOOKING_ACCEPTED'].includes(data?.status)) && hasAssignedDriverOrCab &&
@@ -1522,7 +1512,7 @@ if (!statusFilter.includes('All')) {
                                                                                 ? "Auto"
                                                                                 : data?.serviceType === "DRIVER"
                                                                                 ? "Captain"
-                                                                                : data?.serviceType === "PARCEL" ? "Bike"
+                                                                                : data?.serviceType === "PARCEL" ? (String(data?.parcelVehicleType || "BIKE").toUpperCase() === "AUTO" ? "Auto" : "Bike")
                                                                                 : "Cab"}
                                                                    
                                                                 </Button>
