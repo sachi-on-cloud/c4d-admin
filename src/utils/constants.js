@@ -1023,7 +1023,8 @@ export const API_ROUTES = {
     'GET_CASH_BACK':'/cashback-rules',
     "GET_TRANSACTIONS_LIST":'/transactions',
     "GET_TRANSACTIONS_CHART":'/transactions/chart',
-    "ASSIGN_AUTO":'/confirm-auto-booking'
+    "ASSIGN_AUTO":'/confirm-auto-booking',
+    "ADD_SUPPORT_PARCEL_BOOKING":'/add-support-parcel-booking'
 };
 
 export const KYC_PROCESS = {
