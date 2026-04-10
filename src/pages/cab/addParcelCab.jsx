@@ -155,7 +155,7 @@ const ParcelCabAdd = () => {
           vehicleNumber: '',
           address: '',
           insurance: '',
-          autoType: '',
+          autoType: 'BIKE',
           seater: '3',
           modelYear: '',
           serviceArea: '',
@@ -183,7 +183,7 @@ const ParcelCabAdd = () => {
               vehicleNumber: values.vehicleNumber,
               curAddress: values.address,
               insurance: values.insurance,
-              vehicleType: values.autoType,
+              vehicleType: 'BIKE',
               seater: values.seater,
               modelYear: values.modelYear,
               serviceArea: values.serviceArea,
@@ -270,7 +270,7 @@ const ParcelCabAdd = () => {
                 />
                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
               </div>
-              <div>
+              <div className='hidden'>
                 <label className="text-sm font-medium text-gray-700">Bike Type</label>
                 <div className="space-x-4 mt-1">
                   {['BIKE'].map((type) => (

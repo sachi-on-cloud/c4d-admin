@@ -135,7 +135,7 @@ const ParcelCabEdit = () => {
         vehicleNumber: parcelCabVal?.result?.vehicleNumber || '',
         address: parcelCabVal?.result?.curAddress || '',
         insurance: parcelCabVal?.result?.insurance || '',
-        autoType: parcelCabVal?.result?.vehicleType || '',
+        autoType: 'BIKE',
         seater: parcelCabVal?.result?.seater || '3',
         modelYear: parcelCabVal?.result?.modelYear || '',
         serviceArea: parcelCabVal?.result?.serviceArea || parcelCabVal?.result?.subZone?.parent?.name || '',
@@ -181,7 +181,7 @@ const ParcelCabEdit = () => {
                 vehicleNumber: values.vehicleNumber,
                 curAddress: values.address,
                 insurance: values.insurance,
-                vehicleType: values.autoType,
+                vehicleType: 'BIKE',
                 seater: values.seater,
                 modelYear: values.modelYear,
                 serviceArea: values.serviceArea,
@@ -300,7 +300,7 @@ const ParcelCabEdit = () => {
                                 />
                                 <ErrorMessage name="insurance" component="div" className="text-red-500 text-sm" />
                             </div>
-                            <div>
+                            <div className='hidden'>
                                 <label className="text-sm font-medium text-gray-700">Bike Type</label>
                                 <div className="space-x-4 mt-1">
                                     {['BIKE'].map((type) => (
