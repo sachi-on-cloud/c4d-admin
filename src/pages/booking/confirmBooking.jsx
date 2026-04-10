@@ -2427,7 +2427,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                     </Card>
                 )                          
              }
-                    {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) &&
+                    {(bookingDetails?.status === 'ENDED' || paymentDetails.enable) && bookingDetails?.serviceType !== 'PARCEL' &&
                         <Card>
                             <CardBody>
                                 <div className="flex justify-between mb-2">
