@@ -16,7 +16,7 @@ import {
 } from '@material-tailwind/react';
 import { FaFilter } from 'react-icons/fa';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, Feature } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
@@ -412,9 +412,7 @@ export function OnlineVehiclesList({ id = 0 }) {
                           { value: 'All', label: 'All' },
                           { value: 'CAB', label: 'Cab' },
                           { value: 'AUTO', label: 'Auto' },
-                           ...(Feature.parcel ? [
                           { value: 'PARCEL', label: 'Bike' }
-                           ]:[]),
                         ]}
                         selectedFilters={typeFilter}
                         onFilterChange={handleFilterChange}

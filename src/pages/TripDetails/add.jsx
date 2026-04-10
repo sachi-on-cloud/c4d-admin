@@ -311,61 +311,61 @@ const AddTripDetails = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Booking Number *
+                Booking Number <span className='text-red-700'>*</span>
               </Typography>
               <Input type="text" name="bookingNumber" value={formData.bookingNumber} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Trip Date *
+                Trip Date <span className='text-red-700'>*</span>
               </Typography>
               <Input type="date" name="tripDate" value={formData.tripDate} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Vehicle Number *
+                Vehicle Number <span className='text-red-700'>*</span>
               </Typography>
               <Input name="vehicleNumber" value={formData.vehicleNumber} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Driver Name *
+                Driver Name <span className='text-red-700'>*</span>
               </Typography>
               <Input type="text" name="driverName" value={formData.driverName} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Trip Start Point *
+                Trip Start Point <span className='text-red-700'>*</span>
               </Typography>
               <Input type="text" name="startAddress" value={formData.startAddress} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Trip End Point *
+                Trip End Point <span className='text-red-700'>*</span>
               </Typography>
               <Input type="text" name="endAddress" value={formData.endAddress} onChange={handleInputChange} />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Opening KM *
+                Opening KM <span className='text-red-700'>*</span>
               </Typography>
               <Input type="number" name="startKm" value={formData.startKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Closing KM *
+                Closing KM <span className='text-red-700'>*</span>
               </Typography>
               <Input type="number" name="endKm" value={formData.endKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Total KM (Auto)
+                Total KM
               </Typography>
               <Input type="number" value={formData.totalKm} readOnly disabled />
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Fuel Type *
+                Fuel Type <span className='text-red-700'>*</span>
               </Typography>
               <Select
                 name="fuelType"
@@ -412,7 +412,7 @@ const AddTripDetails = () => {
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Trip Type *
+                Trip Type <span className='text-red-700'>*</span>
               </Typography>
               <Select
                 name="tripType"
@@ -425,7 +425,7 @@ const AddTripDetails = () => {
             </div>
             <div>
               <Typography color="gray" variant="h6" className="mb-1">
-                Trip Fare (₹) *
+                Trip Fare (₹) <span className='text-red-700'>*</span>
               </Typography>
               <Input type="number" name="tripFare" value={formData.tripFare} onChange={handleInputChange} />
             </div>

@@ -21,9 +21,14 @@ const MasterPriceLogParcel = ({ id }) => {
   }, [id]);
 
   const fieldMappings = {
+    zone: "Zone",
+    subZoneId: "Sub Zone",
     parcelType: "Parcel Type",
     baseFare: "Base Fare",
     baseKm: "Base Km",
+    kilometerPrice: "Kilometer Price",
+    peakHour: "Peak Hour",
+    parcelPricing: "Parcel Pricing",
     pickupFreeKm: "Pickup Free Km",
     nightCharge: "Night Charge",
     nightHoursFrom: "Night Hours From",
@@ -32,8 +37,13 @@ const MasterPriceLogParcel = ({ id }) => {
     distanceSlabs: "Distance Slabs",
     weightSurcharge: "Weight Surcharge",
     peakSurcharge: "Peak Surcharge",
+    nightSurcharge: "Night Surcharge",
+    outsideDropSurcharge: "Outside Drop Surcharge",
     weatherSurcharge: "Weather Surcharge",
     handlingSurcharge: "Handling Surcharge",
+    commission: "Commission",
+    baseFarePercent: "Base Fare Percent",
+    distanceFarePercent: "Distance Fare Percent",
   };
 
 
@@ -59,10 +69,71 @@ const MasterPriceLogParcel = ({ id }) => {
       .join(", ");
   };
 
-  const formatWeightSurcharge = (arr) => formatArray(arr);
+  const formatWeightSurcharge = (arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return "-";
+    return arr
+      .map((w) => {
+        const min = Number(w?.minKg ?? 0);
+        const max = w?.maxKg === null || w?.maxKg === "" ? "+" : Number(w?.maxKg ?? 0);
+        return `${min}${max === "+" ? "+" : `-${max}`}kg: ${Number(w?.amount ?? 0)}`;
+      })
+      .join(" | ");
+  };
+
+  const formatPeakHour = (arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return "-";
+    return arr
+      .map((p) => `${p?.start || "00:00"}-${p?.end || "00:00"}: ${Number(p?.kilometerPrice ?? 0)}`)
+      .join(" | ");
+  };
+
+  const formatOutsideDropSurcharge = (obj) => {
+    if (!obj || typeof obj !== "object") return "-";
+    const status = obj.status || "INACTIVE";
+    if (obj.zoneToZone || obj.withoutZone) {
+      const zoneToZone = obj.zoneToZone || {};
+      const withoutZone = obj.withoutZone || {};
+      return `${status} | zoneToZone: ${zoneToZone.type || "FLAT"} / ${Number(zoneToZone.value ?? 0)} | withoutZone: ${withoutZone.type || "FLAT"} / ${Number(withoutZone.value ?? 0)}`;
+    }
+    return `${status} / ${obj.type || "FLAT"} / ${Number(obj.value ?? 0)}`;
+  };
+
+  const formatNightSurcharge = (obj) => {
+    if (!obj || typeof obj !== "object") return "-";
+    const status = obj.status || "INACTIVE";
+    const hasTimeWindow = obj.start || obj.end;
+    if (hasTimeWindow) {
+      return `${status} | ${obj.start || "00:00"}-${obj.end || "00:00"} | ${Number(obj.value ?? 0)}`;
+    }
+    return `${status} / ${obj.type || "FLAT"} / ${Number(obj.value ?? 0)}`;
+  };
+
+  const formatSurchargeObject = (obj) => {
+    if (!obj || typeof obj !== "object") return "-";
+    return `${obj.status || "INACTIVE"} / ${obj.type || "FLAT"} / ${Number(obj.value ?? 0)}`;
+  };
+
+  const formatParcelPricing = (pricingRaw) => {
+    const obj = Array.isArray(pricingRaw) ? (pricingRaw[0] || {}) : pricingRaw;
+    if (!obj || typeof obj !== "object") return "-";
+    const commission = obj.commission && typeof obj.commission === "object" ? obj.commission : {};
+    const baseFarePercent = commission.baseFarePercent ?? obj.baseFarePercent ?? 0;
+    const distanceFarePercent = commission.distanceFarePercent ?? obj.distanceFarePercent ?? 0;
+
+    return [
+      `weight: ${formatWeightSurcharge(obj.weightSurcharge)}`,
+      `weather: ${formatSurchargeObject(obj.weatherSurcharge)}`,
+      `handling: ${formatSurchargeObject(obj.handlingSurcharge)}`,
+      `night: ${formatNightSurcharge(obj.nightSurcharge)}`,
+      `outsideDrop: ${formatOutsideDropSurcharge(obj.outsideDropSurcharge)}`,
+      `baseFare%: ${Number(baseFarePercent)}`,
+      `distanceFare%: ${Number(distanceFarePercent)}`,
+    ].join(" | ");
+  };
+
   const formatPeakSurcharge = (arr) => formatArray(arr);
-  const formatWeatherSurcharge = (arr) => formatArray(arr);
-  const formatHandlingSurcharge = (arr) => formatArray(arr);
+  const formatWeatherSurcharge = (arr) => Array.isArray(arr) ? formatArray(arr) : formatSurchargeObject(arr);
+  const formatHandlingSurcharge = (arr) => Array.isArray(arr) ? formatArray(arr) : formatSurchargeObject(arr);
 
   const formatValue = (field, value) => {
     if (value === null || value === undefined || value === "") return "-";
@@ -71,9 +142,14 @@ const MasterPriceLogParcel = ({ id }) => {
 
     if (lower.includes("distanceslabs")) return formatDistanceSlabs(value);
     if (lower.includes("weightsurcharge")) return formatWeightSurcharge(value);
+    if (lower.includes("peakhour")) return formatPeakHour(value);
+    if (lower.includes("peakhours")) return formatPeakHour(value);
     if (lower.includes("peaksurcharge")) return formatPeakSurcharge(value);
+    if (lower.includes("nightsurcharge")) return formatNightSurcharge(value);
+    if (lower.includes("outsidedropsurcharge")) return formatOutsideDropSurcharge(value);
     if (lower.includes("weathersurcharge")) return formatWeatherSurcharge(value);
     if (lower.includes("handlingsurcharge")) return formatHandlingSurcharge(value);
+    if (lower.includes("parcelpricing")) return formatParcelPricing(value);
 
     if (Array.isArray(value)) return formatArray(value);
     if (typeof value === "object") return JSON.stringify(value);
@@ -131,7 +207,11 @@ const MasterPriceLogParcel = ({ id }) => {
                         ...Object.keys(oldData ?? {}),
                         ...Object.keys(newData ?? {}),
                       ])
-                    );
+                    ).filter((field) => {
+                      const oldVal = oldData?.[field];
+                      const newVal = newData?.[field];
+                      return JSON.stringify(oldVal ?? null) !== JSON.stringify(newVal ?? null);
+                    });
 
                     return changed.map((field, fieldIdx) => (
                       <tr key={`${id}-${field}-${fieldIdx}`}>

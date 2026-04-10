@@ -12,7 +12,7 @@ import {
 import CustomerSearch from "@/components/CustomerSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon, StarIcon } from '@heroicons/react/24/solid';
 import { saveAs } from 'file-saver';
 
@@ -254,7 +254,7 @@ export function CustomerView() {
                           </td>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/customers/details/${id}`)}>
+                              <Link to={`/dashboard/customers/details/${id}`}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -262,10 +262,7 @@ export function CustomerView() {
                                 >
                                   {firstName}
                                 </Typography>
-                                {/* <Typography className="text-xs font-normal text-blue-gray-500">
-                                  {email}
-                                </Typography> */}
-                              </div>
+                              </Link>
                             </div>
                           </td>
                           <td className={className}>
@@ -302,13 +299,13 @@ export function CustomerView() {
                             >
                               View
                             </Button> */}
+                            <Link to={`/dashboard/customers/edit/${id}`}>
                             <Button
-                              as='a'
-                              onClick={() => navigate(`/dashboard/customers/edit/${id}`)}
                               className="text-xs font-semibold bg-[#1A73E8] text-white"
                             >
                               Edit
                             </Button>
+                            </Link>
                           </td>
                         </tr>
                       );

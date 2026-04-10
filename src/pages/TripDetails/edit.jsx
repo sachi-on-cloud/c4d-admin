@@ -45,9 +45,12 @@ const TripDetailsEdit = () => {
       setLoading(true);
       try {
         const response = await ApiRequestUtils.get(`${API_ROUTES.GET_TRIP_BY_ID}${id}`);
-        console.log('Fetch trip response:', response);
+        // console.log('Fetch trip response:', response);
         if (response?.success && response?.data) {
           const trip = response.data;
+          const safeTotalKm = Number.isFinite(Number(trip.totalKm))
+            ? Number(trip.totalKm)
+            : (parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0);
           setFormData({
             tripId: trip.id?.toString() || id,
             tripDate: trip.tripDate || '',
@@ -60,7 +63,7 @@ const TripDetailsEdit = () => {
             endAddress: trip.endAddress?.address || trip.endAddress || '',
             startKm: trip.startKm?.toString() || '',
             endKm: trip.endKm?.toString() || '',
-            totalKm: ((parseFloat(trip.endKm) || 0) - (parseFloat(trip.startKm) || 0)).toFixed(1) || '0.0',
+            totalKm: safeTotalKm.toFixed(1),
             fuelType: trip.fuelType || 'CNG',
             fuelCost: trip.fuelCost?.toString() || '',
             tripFare: trip.tripFare?.toString() || '',

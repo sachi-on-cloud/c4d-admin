@@ -115,6 +115,7 @@ export function DocumentVerificationView() {
     if (serviceType === "Company") return "Account";
     if (serviceType === "Individual") return "Cab";
     if (serviceType === "Auto") return "Auto";
+    if(serviceType === "Parcel") return "Parcel";
     // if (serviceType === null) return "Driver"
     return "";
   };
@@ -451,7 +452,8 @@ const getDetails = useCallback(
                               // { value: null, label: "Driver" },
                               { value: "Company", label: "Account" },
                               { value: "Individual", label: "Cab" },
-                               { value: "Auto", label: "Auto" },
+                              { value: "Auto", label: "Auto" },
+                              { value: "Parcel", label: "Parcel" },
                             ]}
                             selectedFilters={typeFilter} 
                             onFilterChange={(value) => handleFilterChange("type", value)}

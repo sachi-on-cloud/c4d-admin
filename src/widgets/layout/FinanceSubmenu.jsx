@@ -17,6 +17,7 @@ function FinanceSubmenu({ permissions = [] }) {
   const items = [
     { label: "Subscription Invoice", path: "/dashboard/finance/invoice" },
     { label: "Booking Receipt", path: "/dashboard/finance/receipt" },
+    { label: "Parcel Commission", path: "/dashboard/finance/parcel-commission" },
     { label: "Master Subscription Table", path: "/dashboard/finance/master-subscription" },
     { label: "Booking Invoice", path: "/dashboard/finance/bookingInvoiceList" },
     { label: "Master Price Table", path: "/dashboard/finance/master-price", requiredPermission: "Users" },
@@ -49,6 +50,9 @@ function FinanceSubmenu({ permissions = [] }) {
     }
     if (label === "TAX") {
       return pathname.startsWith("/dashboard/finance/gst");
+    }
+    if(label === "Parcel Commission") {
+      return pathname.startsWith("/dashboard/finance/parcel-commission");
     }
 
     return pathname.startsWith(path.toLowerCase());

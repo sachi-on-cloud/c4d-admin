@@ -16,10 +16,6 @@ export const getBaseUrl = () => {
     return constants.url + '/api/customer/dev';
 }
 
-export const Feature = {
-    parcel:false
-}
-
 export const GENDER = {
     MALE: 'Male',
     FEMALE: 'Female',
@@ -960,11 +956,14 @@ export const API_ROUTES = {
     'UPDATE_AUTO_DETAILS':'/update/admin/auto',
     'AUTO_PACKAGE_LIST':'/auto-package-list',
     'AUTO_PRICE_EDIT':'/update-auto-package',
+    'ADD_PARCEL_PRICE':'/parcel-package',
     'PARCEL_PACKAGE_LIST':'/parcel-package-list',
+    'PARCEL_PACKAGE_BY_ID':'/parcel-package',
     'PARCEL_PRICE_EDIT':'/update-parcel-package',
     'GET_PARCEL_CAB_BY_ID':'/parcel/', 
     'UPDATE_PARCEL_CAB':'/update/admin/parcel',
     'GET_BIKE_PACKAGE':'/get-parcel-driver',
+    'CONFIRM_PARCEL_BOOKING':'/confirm-parcel-booking',
     'UPDATE_LANDMARK':'/update-landmark',
     'GET_BOOKINGDETAILS_FINAL_PAYMENT':'/bookingPaymentDetails/',
     'GET_TRIP_REPORTS':'/get-trips-report',
@@ -1011,6 +1010,10 @@ export const API_ROUTES = {
     'INCENTIVE_PAYOUT_SUMMARY': '/admin/partner-tier/incentives/summary',
     'DE_AUDIT_LOG': '/admin/partner-tier/history',
     'DE_AUDIT_LOG_SUMMARY': '/admin/partner-tier/history/summary',
+    'PARCEL_COMMISSION_STATE': '/admin/parcel-commission/state',
+    'PARCEL_COMMISSION_HISTORY': '/admin/parcel-commission/history',
+    'PARCEL_COMMISSION_SETTLE': '/admin/parcel-commission/settle',
+    'PARCEL_COMMISSION_SETTLE_ALL': '/admin/parcel-commission/settle-all',
     'DRIVER_INCENTIVE':'/admin/partner-tier/incentive-components',
     'DRIVER_INCENTIVE_EDIT':'/admin/partner-tier/incentive-component',
     'DRIVER_INCENTIVE_STATUS':'/admin/partner-tier/incentive-component/status',
@@ -1018,7 +1021,9 @@ export const API_ROUTES = {
     'UPDATE_CASH_BACK':'/cashback-rules/:settingId',
     'GET_CASH_BACK':'/cashback-rules',
     "GET_TRANSACTIONS_LIST":'/transactions',
-    "GET_TRANSACTIONS_CHART":'/transactions/chart'
+    "GET_TRANSACTIONS_CHART":'/transactions/chart',
+    "ASSIGN_AUTO":'/confirm-auto-booking',
+    "ADD_SUPPORT_PARCEL_BOOKING":'/add-support-parcel-booking'
 };
 
 export const KYC_PROCESS = {

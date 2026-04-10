@@ -16,7 +16,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import UserSearch from "@/components/UserSearch";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 
 export function UserView() {
@@ -153,7 +153,7 @@ export function UserView() {
                         <tr key={id}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/users/details/${id}`)}>
+                              <Link to={`/dashboard/users/details/${id}`}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -161,7 +161,7 @@ export function UserView() {
                                 >
                                   {name}
                                 </Typography>
-                              </div>
+                              </Link>
                             </div>
                           </td>
                           <td className={className}>
@@ -193,13 +193,13 @@ export function UserView() {
                               </Button>
                             </td> */}
                             <td className={className}>
+                              <Link to={`/dashboard/users/edit/${id}`}>
                               <Button
-                                as="a"
-                                onClick={() => navigate(`/dashboard/users/edit/${id}`)}
                                 className="text-xs font-semibold text-white bg-primary"
                               >
                                 Edit
                               </Button>
+                              </Link>
                             </td>
                           </div>
                         </tr>

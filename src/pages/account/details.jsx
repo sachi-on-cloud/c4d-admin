@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, Feature } from '@/utils/constants';
+import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
-import { Button } from '@material-tailwind/react';
+import { Button, Typography } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
@@ -61,9 +61,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                             <option value="Individual">Owner Cum Driver</option>
                                             <option value="Company">Travels</option>
                                             <option value="Auto">Auto</option>
-                                             {...(Feature.parcel ? [
                                             <option value="Parcel">Bike</option>
-                                            ]: [])}
                                         </Field>
                                         <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                     </div>
@@ -91,6 +89,13 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                                         <label htmlFor="ownerStatus" className="text-sm font-medium text-gray-700"> Status</label>
                                         <Field type="text" name="ownerStatus" disabled className="p-2 w-full rounded-md border-gray-300 border bg-gray-200" />
                                         <ErrorMessage name="ownerStatus" component="div" className="text-red-500 text-sm" />
+                                       {accountVal.ownerStatus === 'Blocked' && accountVal.blockedReason && (
+                                            <div className="mt-2 p-2 bg-gray-100 rounded-md">
+                                                    <Typography variant="small" className="font-semibold">Block Reason:</Typography>
+                                                    <Typography variant="small">{accountVal.blockedReason}</Typography>
+                                                </div>
+
+                                        )}
                                     </div>
                                     <div>
                                         <label htmlFor="kycStatus" className="text-sm font-medium text-gray-700">KYC Status</label>
@@ -240,7 +245,7 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
             </div>
             <DriverAccountBookingNotes accountId={accountVal?.id} />
             {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && <DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels}/>}
+            {accountVal && accountVal?.id && (<DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels} serviceType={accountVal?.type} />)}
             {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
             {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
             {!btnShow &&

@@ -151,6 +151,7 @@ const ZoneForm = ({ onSave, initialData = null, coordinates = null, serviceAreaI
             options={[
               { value: 'City', label: 'City' },
               { value: 'Prime', label: 'Prime' },
+              { value: 'Zone', label:'Zone'}
             ]}
             value={
               formData.description

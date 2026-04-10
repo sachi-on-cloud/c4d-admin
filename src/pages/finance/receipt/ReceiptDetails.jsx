@@ -363,10 +363,12 @@ const ReceiptDetails = () => {
                                 )}
 
                                 {/* Tax */}
+                                {payment.gstAmount > 0 && (
                                 <div className="flex justify-between">
                                     <Typography color="gray" variant="h6">TAX:</Typography>
                                     <Typography className="font-bold">₹ {payment.gstAmount || 0}</Typography>
                                 </div>
+                                )}
 
                                 <hr className="my-1 border border-gray-400" />
 

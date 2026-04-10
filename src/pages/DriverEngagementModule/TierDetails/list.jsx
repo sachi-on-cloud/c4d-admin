@@ -85,7 +85,7 @@ function TierDetailsList() {
           </Typography>
         </div>
 
-        <Link to={`/dashboard/driverengagement/tier/add?type=${typeFilter === "ALL" ? "TIER_RULES" : typeFilter}`}>
+        <Link to={`/dashboard/driverengagement/tier/add?type=${typeFilter === "ALL" ? "TIER_RULES" : encodeURIComponent(typeFilter)}`}>
           <Button color="blue">Add Tier</Button>
         </Link>
       </div>

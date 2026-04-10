@@ -16,7 +16,7 @@ import {
 import AutoSearch from '@/components/AutoSearch';
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import moment from "moment";
 import { FaFilter } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
@@ -657,7 +657,7 @@ const fetchZones = async () => {
                           </td>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => navigate(`/dashboard/vendors/account/autoView/details/${id}`)}>
+                              <Link to={`/dashboard/vendors/account/autoView/details/${id}`}>
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -665,7 +665,7 @@ const fetchZones = async () => {
                                 >
                                   {name}
                                 </Typography>
-                              </div>
+                              </Link>
                             </div>
                           </td>
                            <td className={className}>

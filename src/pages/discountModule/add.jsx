@@ -10,9 +10,16 @@ import Select from 'react-select';
 const DiscountAdd = () => {
   const navigate = useNavigate();
   const [serviceAreas, setServiceAreas] = useState([]);
+  const [zones, setZones] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [dashboardOfferImgPreview, setDashboardOfferImgPreview] = useState(null);
-  const [premiumServicesMap, setPremiumServicesMap] = useState({})
+  const [premiumServicesMap, setPremiumServicesMap] = useState({});
+
+  const PARCEL_VEHICLE_OPTIONS = ['BIKE', 'AUTO'];
+  const normalizeParcelVehicleType = (value) => {
+    const parsed = String(value || '').trim().toUpperCase();
+    return PARCEL_VEHICLE_OPTIONS.includes(parsed) ? parsed : 'BIKE';
+  };
 
   const initialValues = {
     serviceType: '',
@@ -32,21 +39,32 @@ const DiscountAdd = () => {
     cabType: '',
     premiumCabType: '',
     isPremium: false,
+    parcelVehicleType: 'BIKE',
+    subZoneId: '',
     removeImage: false,
+    removeDashboardOfferImg: false,
   };
 
   useEffect(() => {
     const fetchGeoData = async () => {
       try {
-        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST,{
+        const [serviceAreaResponse, zoneResponse] = await Promise.all([
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
           type: 'Service Area',
-        });
-        if (response.premiumServices) {
-          setPremiumServicesMap(response.premiumServices);
-          // console.log("Premium Services Map Loaded:", response.premiumServices);
+          }),
+          ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+            type: 'Zone',
+          }),
+        ]);
+
+        if (serviceAreaResponse?.premiumServices) {
+          setPremiumServicesMap(serviceAreaResponse.premiumServices);
         }
-        console.log('GEO MARKINGS RESPONSE:', response);
-        setServiceAreas(response?.data);
+
+        const allServiceAreas = Array.isArray(serviceAreaResponse?.data) ? serviceAreaResponse.data : [];
+        const allZones = Array.isArray(zoneResponse?.data) ? zoneResponse.data : [];
+        setServiceAreas(allServiceAreas);
+        setZones(allZones.filter((zone) => zone.type === 'Zone' && zone.description === 'Zone'));
       } catch (error) {
         console.error('Error fetching GEO_MARKINGS_LIST:', error);
       }
@@ -62,7 +80,21 @@ const DiscountAdd = () => {
     })),
   ];
 
-  const handleImageUpload = (file,setFieldValue) => {
+  const PARCEL_ZONE_OPTIONS = serviceAreas.map((area) => ({
+    value: area.name,
+    label: area.name,
+  }));
+
+  const getSubZoneOptions = (selectedServiceAreas = []) => {
+    if (!Array.isArray(selectedServiceAreas) || selectedServiceAreas.length === 0) return zones;
+    const selectedAreaIds = serviceAreas
+      .filter((area) => selectedServiceAreas.includes(area.name))
+      .map((area) => area.id);
+    if (selectedAreaIds.length === 0) return zones;
+    return zones.filter((zone) => !zone.parent_id || selectedAreaIds.includes(zone.parent_id));
+  };
+
+  const handleImageUpload = (file, setFieldValue) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
       if(!file || !validTypes.includes(file.type)) {
@@ -73,7 +105,7 @@ const DiscountAdd = () => {
     setFieldValue('image', file);
     setImagePreview(URL.createObjectURL(file));
     setFieldValue('removeImage', false);
-  }
+  };
   const handleImageClear = (setFieldValue) => {
     setFieldValue('image', null);
     setImagePreview(null);
@@ -147,6 +179,7 @@ const handleDashboardOfferImgClear = (setFieldValue) => {
       formData.append('isActive', values.isActive);
       formData.append('title', values.title);
       formData.append('description', values.description);
+      formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
       if (values.image) {
       formData.append('image', values.image, values.image.name);
       formData.append('fileType', values.image?.type || '');
@@ -155,7 +188,6 @@ const handleDashboardOfferImgClear = (setFieldValue) => {
         formData.append('fileType', '');
         formData.append('extImage', '');
       }
-      formData.append('serviceArea', values.serviceArea.includes('All') ? ['All'] : values.serviceArea);
       if (values.removeImage) {
         formData.append('imageUrl', '');
       }
@@ -171,14 +203,22 @@ const handleDashboardOfferImgClear = (setFieldValue) => {
 if (values.removeDashboardOfferImg) {
   formData.append('dashboardImageUrl', '');  
 }
-      const finalCabType = values.isPremium
-        ? values.premiumCabType
-        : values.cabType;
+      const isGeneralParcel = values.offerType === 'GENERAL' && values.serviceType === 'PARCEL';
+      if (isGeneralParcel) {
+        const parcelVehicleType = normalizeParcelVehicleType(values.parcelVehicleType);
+        formData.append('parcelVehicleType', parcelVehicleType);
+        formData.append('isPremium', false);
+        formData.append('cabType', '');
+        if (parcelVehicleType === 'BIKE' && values.subZoneId) {
+          formData.append('subZoneId', Number(values.subZoneId));
+        }
+      } else {
+        const finalCabType = values.isPremium ? values.premiumCabType : values.cabType;
       formData.append('cabType', finalCabType);
       formData.append('isPremium', values.isPremium);
-      // console.log('POST payload:', formData); 
+      }
+      // console.log('Submitting form with values:', values);
       const res = await ApiRequestUtils.postDocs(API_ROUTES.POST_DISCOUNT, formData);
-      // Example error: { success:false, code:400, error:"Coupon code already exists" }
       if (!res?.success) {
         const message = res?.error || res?.message || 'Coupon code already exists';
         setFieldError('couponCode', message);
@@ -216,14 +256,30 @@ const getCurrentPremiumOptions = (currentServiceType) => {
         validationSchema={DISCOUNT_ADD_SCHEMA}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting, setFieldValue, values }) => (
+        {({ isSubmitting, setFieldValue, values }) => {
+          const isGeneralParcel = values.offerType === 'GENERAL' && values.serviceType === 'PARCEL';
+          const selectedParcelVehicleType = normalizeParcelVehicleType(values.parcelVehicleType);
+          const subZoneOptions = getSubZoneOptions(values.serviceArea);
+
+          return (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
+                <Field type="hidden" name="removeImage" />
+                <Field type="hidden" name="removeDashboardOfferImg" />
               <div>
                 <label className="text-sm font-medium text-gray-700">Offer Type</label>
                 <Field
                   as="select"
                   name="offerType"
+                    onChange={(e) => {
+                      const nextOfferType = e.target.value;
+                      setFieldValue('offerType', nextOfferType);
+                      if (nextOfferType === 'GENERAL' && values.serviceType === 'PARCEL') {
+                        setFieldValue('isPremium', false);
+                        setFieldValue('cabType', '');
+                        setFieldValue('premiumCabType', '');
+                      }
+                    }}
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 >
                   <option value="">Select Offer Type</option>
@@ -232,12 +288,24 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 </Field>
                 <ErrorMessage name="offerType" className="text-red-500 text-sm" component="div" />
               </div>
-              <Field type="hidden" name="removeImage" />
               <div>
                 <label className="text-sm font-medium text-gray-700">Service Type</label>
                 <Field
                   as="select"
                   name="serviceType"
+                    onChange={(e) => {
+                      const nextServiceType = e.target.value;
+                      setFieldValue('serviceType', nextServiceType);
+                      setFieldValue('serviceArea', []);
+                      if (nextServiceType !== 'PARCEL') {
+                        setFieldValue('parcelVehicleType', 'BIKE');
+                        setFieldValue('subZoneId', '');
+                      } else if (values.offerType === 'GENERAL') {
+                        setFieldValue('isPremium', false);
+                        setFieldValue('cabType', '');
+                        setFieldValue('premiumCabType', '');
+                      }
+                    }}
                   className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
                 >
                   <option value="">Select Service Type</option>
@@ -247,10 +315,32 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                   <option value="RENTAL_DROP_TAXI">DROP TAXI</option>
                   <option value="RENTAL">OUTSTATION</option>
                   <option value="AUTO">AUTO</option>
+                    <option value="PARCEL">PARCEL</option>
                   <option value="ALL">ALL</option>
                 </Field>
                 <ErrorMessage name="serviceType" className="text-red-500 text-sm" component="div" />
               </div>
+                {values.serviceType === 'PARCEL' && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Parcel Vehicle Type</label>
+                    <Field
+                      as="select"
+                      name="parcelVehicleType"
+                      onChange={(e) => {
+                        const nextVehicleType = normalizeParcelVehicleType(e.target.value);
+                        setFieldValue('parcelVehicleType', nextVehicleType);
+                        if (nextVehicleType === 'AUTO') {
+                          setFieldValue('subZoneId', '');
+                        }
+                      }}
+                      className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                    >
+                      <option value="BIKE">BIKE</option>
+                      <option value="AUTO">AUTO</option>
+                    </Field>
+                    <ErrorMessage name="parcelVehicleType" className="text-red-500 text-sm" component="div" />
+                  </div>
+                )}
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
                   Estimate Summary Image
@@ -299,6 +389,8 @@ const getCurrentPremiumOptions = (currentServiceType) => {
   />
   <ErrorMessage name="dashboardOfferImg" component="div" className="text-red-500 text-sm" />
 </div>
+
+                {!isGeneralParcel && (
               <div className="mt-3 flex gap-3">
                 <div className="w-full col-span-2">
                   <label className="flex items-center space-x-2 cursor-pointer select-none">
@@ -348,7 +440,9 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                   )}
                 </div>
               </div>
-              {values?.serviceType !== 'AUTO' && values.isPremium === false && (
+                )}
+
+              {!isGeneralParcel && values.serviceType !== 'AUTO' && values.isPremium === false && (
               <div>
                 <label className="text-sm font-medium text-gray-700">Car Type</label>
                 <Field
@@ -467,18 +561,23 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 <label htmlFor="serviceArea" className="text-sm font-medium text-gray-700">Select service Area</label>
                 <Select
                   name="serviceArea"
-                  options={ZONE_OPTIONS}
-                  isMulti
-                  value={values.serviceArea.map((val) => ({ value: val, label: val }))}
+                  options={values.serviceType === 'PARCEL' ? PARCEL_ZONE_OPTIONS : ZONE_OPTIONS}
+                  isMulti={values.serviceType !== 'PARCEL'}
+                  value={values.serviceType === 'PARCEL' ? (values.serviceArea[0] ? { value: values.serviceArea[0], label: values.serviceArea[0] } : null) : values.serviceArea.map((val) => ({ value: val, label: val }))}
                   onChange={(selectedOptions) => {
+                      if (values.serviceType === 'PARCEL') {
+                        const selectedValue = selectedOptions?.value || '';
+                        setFieldValue('serviceArea', selectedValue ? [selectedValue] : []);
+                      } else {
                     const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
-                    if (selectedValues.includes['All'] && selectedValues.length > 1) {
+                    if (selectedValues.includes('All') && selectedValues.length > 1) {
                       setFieldValue('serviceArea', ['All']); 
                     } else if (selectedValues.includes('All')) {
                       setFieldValue('serviceArea', ['All']); 
                     } else {
                       setFieldValue('serviceArea', selectedValues); 
-                    }
+                        }
+                      }
                   }}
                   placeholder="Select service Area"
                   className="mt-1"
@@ -503,6 +602,26 @@ const getCurrentPremiumOptions = (currentServiceType) => {
                 />
                 <ErrorMessage name="serviceArea" className="text-red-500 text-sm mt-1" component="div" />
               </div>
+
+                {isGeneralParcel && selectedParcelVehicleType === 'BIKE' && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Sub Zone</label>
+                    <Field
+                      as="select"
+                      name="subZoneId"
+                      disabled={subZoneOptions.length === 0}
+                      className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                    >
+                      <option value="">Select Sub Zone</option>
+                      {subZoneOptions.map((subZone) => (
+                        <option key={subZone.id} value={subZone.id}>
+                          {subZone.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage name="subZoneId" className="text-red-500 text-sm" component="div" />
+                  </div>
+                )}
             </div>
 
             <div className="flex flex-row">
@@ -524,7 +643,8 @@ const getCurrentPremiumOptions = (currentServiceType) => {
               </Button>
             </div>
           </Form>
-        )}
+          );
+        }}
       </Formik>
     </div>
   );

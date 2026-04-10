@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button, Typography } from "@material-tailwind/react";
-import { Feature, NAV_UI } from "@/utils/constants";
+import { NAV_UI } from "@/utils/constants";
 
 function VendorsSubmenu({ miniSidenav }) {
   const getItemClasses = (isActive) =>
@@ -11,10 +11,6 @@ function VendorsSubmenu({ miniSidenav }) {
         : `${NAV_UI.colors.topnavInactiveText} ${NAV_UI.topnav.buttonHover}`
     }`;
 
-  const submenuToggleClasses = `${NAV_UI.topnav.buttonBase} ${NAV_UI.spacing.topnavButton} ${NAV_UI.typography.topnavLabel} ${NAV_UI.colors.topnavInactiveText} ${NAV_UI.topnav.buttonHover}`;
-
-  const [openBikeSubMenu, setOpenBikeSubMenu] = useState("");
-  const [openAutoSubMenu, setOpenAutoSubMenu] = useState("");
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
 
@@ -22,12 +18,12 @@ function VendorsSubmenu({ miniSidenav }) {
     const target = path.toLowerCase();
 
     switch (label) {
-      case "Owners":
+      case "All Cab Owners":
         // Only highlight Owners on the main owners page
         return pathname === "/dashboard/vendors/account";
-      case "Acting Driver":
+      case "All Acting Driver":
         return pathname.startsWith("/dashboard/vendors/account/drivers");
-      case "Vehicles":
+      case "All Cab List":
         // Treat vehicles list + allVehicles (+ details/edit) as Vehicles tab
         return (
           pathname.startsWith("/dashboard/vendors/vehiclelist") ||
@@ -35,10 +31,17 @@ function VendorsSubmenu({ miniSidenav }) {
         );
       case "Online Vehicles List":
         return pathname.startsWith("/dashboard/vendors/onlinevehicleslist");
-      case "Auto Owner":
+      case "All Auto Owner":
         return pathname.startsWith("/dashboard/vendors/account/autoview");
-      case "Auto List" :
+      case "All Auto List":
         return pathname.startsWith("/dashboard/vendors/account/autolist");
+      case "All Bike Owner":
+        return pathname.startsWith("/dashboard/vendors/account/parcel/list");
+      case "All Bike List":
+        return (
+          pathname.startsWith("/dashboard/vendors/account/parcel") &&
+          !pathname.startsWith("/dashboard/vendors/account/parcel/list")
+        );
       case "All Document Verification":
         return pathname.startsWith("/dashboard/doc-verification");
       case "All Pending Documents":
@@ -52,75 +55,23 @@ function VendorsSubmenu({ miniSidenav }) {
     { label: "All Cab Owners", path: "/dashboard/vendors/account", icon: "/img/owners.png" },
     { label: "All Acting Driver", path: "/dashboard/vendors/account/drivers", icon: "/img/acting_driver.png" },
     { label: "All Auto Owner", path: "/dashboard/vendors/account/autoview", icon: "/img/parcel_list.png" },
-    { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
+    { label: "All Bike Owner", path: "/dashboard/vendors/account/parcel/list", icon: "/img/parcel_list.png" },
     { label: "Online Vehicles List", path: "/dashboard/vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
+    { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
     { label: "All Auto List", path: "/dashboard/vendors/account/autoList", icon: "/img/auto.png" },
+              { label: "All Bike List", path: "/dashboard/vendors/account/parcel", icon: "/img/Parcel_driver.png" },
     { label: "All Document Verification", path: "/dashboard/doc-verification", icon: "/img/all.png" },
     { label: "All Pending Documents", path: "/dashboard/doc-verification/pending", icon: "/img/pending_doc.png" },
-    ...(Feature.parcel
-      ? [
-          {
-            label: "Bike",
-            isSubMenu: true,
-            icon: "/img/multiple_bike.jpg",
-            subItems: [
-              { label: "Bike Owner", path: "/dashboard/vendors/account/parcel/list", icon: "/img/parcel_list.png" },
-              { label: "Bike List", path: "/dashboard/vendors/account/parcel", icon: "/img/Parcel_driver.png" },
-            ],
-          },
-        ]
-      : []),
   ];
-  const firstRowItems = items.slice(0, 4);
-  const secondRowItems = items.slice(4, 8);
-  const thirdRowItems = items.slice(8);
+  const rowSize = 5;
+  const rows = [];
+  for (let i = 0; i < items.length; i += rowSize) {
+    rows.push(items.slice(i, i + rowSize));
+  }
 
   const renderItems = (menuItems) =>
-    menuItems.map(({ label, path, isSubMenu, subItems, icon }) => (
+    menuItems.map(({ label, path }) => (
         <li key={label}>
-          {isSubMenu ? (
-            <>
-              <Button
-                variant="text"
-                className={submenuToggleClasses}
-                onClick={() =>
-                  label === "Bike"
-                    ? setOpenBikeSubMenu(openBikeSubMenu === label ? "" : label)
-                    : setOpenAutoSubMenu(openAutoSubMenu === label ? "" : label)
-                }
-              >
-                <Typography
-                  color="inherit"
-                  className={NAV_UI.typography.topnavLabel}
-                >
-                  {label}
-                </Typography>
-              </Button>
-              {(label === "Bike" ? openBikeSubMenu === label : openAutoSubMenu === label) && (
-                <ul className={NAV_UI.topnav.nestedList}>
-                  {subItems.map(({ label: subLabel, path: subPath }) => (
-                    <li key={subLabel}>
-                      <NavLink to={subPath} end={false}>
-                        {({ isActive }) => (
-                          <Button
-                            variant="text"
-                            className={getItemClasses(isActive)}
-                          >
-                            <Typography
-                              color="inherit"
-                              className={NAV_UI.typography.topnavLabel}
-                            >
-                              {subLabel}
-                            </Typography>
-                          </Button>
-                        )}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
-          ) : (
             <NavLink to={path} end={false}>
               <Button
                 variant="text"
@@ -134,19 +85,19 @@ function VendorsSubmenu({ miniSidenav }) {
                   </Typography>
               </Button>
             </NavLink>
-          )}
         </li>
     ));
 
   return (
     <div>
-      <ul className={NAV_UI.topnav.list}>{renderItems(firstRowItems)}</ul>
-      {secondRowItems.length > 0 ? (
-        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(secondRowItems)}</ul>
-      ) : null}
-      {thirdRowItems.length > 0 ? (
-        <ul className={NAV_UI.topnav.secondaryList}>{renderItems(thirdRowItems)}</ul>
-      ) : null}
+      {rows.map((row, index) => (
+        <ul
+          key={`vendors-row-${index}`}
+          className={index === 0 ? NAV_UI.topnav.list : NAV_UI.topnav.secondaryList}
+        >
+          {renderItems(row)}
+        </ul>
+      ))}
     </div>
   );
 }

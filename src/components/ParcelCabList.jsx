@@ -1,5 +1,5 @@
 import {Card,CardBody,Typography,Button} from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { ColorStyles } from "@/utils/constants";
 
@@ -70,12 +70,12 @@ const ParcelCabList = ({parcelsList, ownerName, type, id}) => {
                                                 <>
                                                     <tr key={id}>
                                                         <td className={className}>
-                                                            <Typography 
+                                                            <Link
+                                                                to={`/dashboard/vendors/account/parcel/allVehicles/details/${id}`}
                                                                 className="font-semibold underline cursor-pointer text-blue-900"
-                                                                onClick={() => navigate(`/dashboard/vendors/account/parcel/allVehicles/details/${id}`)}
                                                             >
                                                                 {name}
-                                                            </Typography>
+                                                            </Link>
                                                         </td>
                                                         <td className={className}>
                                                            <Typography className="text-xs font-semibold text-blue-gray-600">

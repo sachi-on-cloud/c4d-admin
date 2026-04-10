@@ -14,7 +14,7 @@ import {
     Button,
     Spinner,
 } from "@material-tailwind/react";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { FaFilter } from 'react-icons/fa';
 
@@ -235,13 +235,12 @@ export function ReceiptList() {
                                             .map((receipt, index) => (
                                                 <tr key={index} className="text-sm">
                                                     <td className='border-b border-blue-gray-50 py-3 px-5'>
-                                                        <Typography
-                                                            variant="small"
+                                                        <Link
+                                                            to={`/dashboard/finance/receipt/details/${receipt?.receiptNumber}`}
                                                             className="text-primary-600 font-semibold underline cursor-pointer"
-                                                            onClick={() => navigate(`/dashboard/finance/receipt/details/${receipt?.receiptNumber}`)}
                                                         >
                                                             {receipt?.receiptNumber}
-                                                        </Typography>
+                                                        </Link>
                                                     </td>
                                                     <td className="border-b border-blue-gray-50 text-black py-3 px-5">{moment(receipt?.created_at).format("DD-MM-YYYY")}</td>
                                                     <td className="border-b border-blue-gray-50 text-black py-3 px-5">{receipt?.receiptType}</td>

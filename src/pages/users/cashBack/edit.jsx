@@ -15,6 +15,12 @@ const getNormalizedRecord = (record = {}) => ({
       record?.config?.cashbackDiscount !== null && record?.config?.cashbackDiscount !== undefined
         ? String(record.config.cashbackDiscount)
         : "",
+    parcelVehicleType: String(record?.config?.parcelVehicleType || record?.parcelVehicleType || "").toUpperCase(),
+    subZoneId: record?.config?.subZoneId
+      ? String(record.config.subZoneId)
+      : record?.subZoneId
+        ? String(record.subZoneId)
+        : "",
   },
   isActive: Boolean(record?.isActive),
 });
@@ -32,6 +38,8 @@ const CashBackEdit = () => {
     config: {
       zones: [],
       cashbackDiscount: "",
+      parcelVehicleType: "",
+      subZoneId: "",
     },
     isActive: true,
   });
@@ -85,6 +93,10 @@ const CashBackEdit = () => {
       if (!Number.isFinite(parsedSettingId) || parsedSettingId <= 0) {
         throw new Error("Invalid settingId");
       }
+      const selectedParcelVehicleType = String(
+        values?.config?.parcelVehicleType || "BIKE"
+      ).toUpperCase();
+      const selectedParcelSubZoneId = values?.config?.subZoneId;
 
       const payload = {
         serviceType: values.serviceType,
@@ -93,6 +105,14 @@ const CashBackEdit = () => {
         config: {
           zones: values.config.zones,
           cashbackDiscount: Number(values.config.cashbackDiscount),
+        ...(values.serviceType === "PARCEL"
+          ? {
+              parcelVehicleType: selectedParcelVehicleType,
+              ...(selectedParcelVehicleType === "BIKE" && selectedParcelSubZoneId
+                ? { subZoneId: Number(selectedParcelSubZoneId) }
+                : {}),
+            }
+          : {}),
         },
         isActive: Boolean(values.isActive),
       };

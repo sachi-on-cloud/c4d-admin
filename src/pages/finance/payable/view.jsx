@@ -13,7 +13,7 @@ import {
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES } from "@/utils/constants";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 
@@ -109,27 +109,28 @@ export function PayableView() {
                         <tr key={key}>
                           <td className={className}>
                             <div className="flex items-center gap-4">
-                              <div onClick={() => {navigate(`/dashboard/finance/payable/details/${id}`,{
-                                state:{
-                                  invoiceNumber: invoiceNumber,
-                                  status: status,
-                                  totalPayables: totalPayables,
-                                  totalAmount: totalAmount,
-                                  totalPayout: totalPayout,
-                                  commissionAmount: commissionAmount,
-                                  cashAmount: cashAmount,
-                                  onlineAmount: onlineAmount,
-                                  reviewedBy: reviewedBy,
-                                  approver: approver,
-                                  reviewer: reviewer,
-                                  reviewedTime: reviewedTime,
-                                  approvedBy: approvedBy,
-                                  approvedTime: approvedTime,
-                                  id: id,
-                                  transactionId: transactionId,
-                                  comments: comments,
-                                }
-                              })}}>
+                              <Link
+                                to={`/dashboard/finance/payable/details/${id}`}
+                                state={{
+                                  invoiceNumber,
+                                  status,
+                                  totalPayables,
+                                  totalAmount,
+                                  totalPayout,
+                                  commissionAmount,
+                                  cashAmount,
+                                  onlineAmount,
+                                  reviewedBy,
+                                  approver,
+                                  reviewer,
+                                  reviewedTime,
+                                  approvedBy,
+                                  approvedTime,
+                                  id,
+                                  transactionId,
+                                  comments,
+                                }}
+                              >
                                 <Typography
                                   variant="small"
                                   color="blue"
@@ -137,7 +138,7 @@ export function PayableView() {
                                 >
                                   {invoiceNumber}
                                 </Typography>
-                              </div>
+                              </Link>
                             </div>
                           </td>
                           <td className={className}>

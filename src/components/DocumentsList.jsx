@@ -15,15 +15,23 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import Swal from "sweetalert2";
 
-const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcelsList }) => {
+const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcelsList, serviceType }) => {
     const [documentData, setdocumentData] = useState([]);
     const [modalData, setModalData] = useState(null);
     const navigate = useNavigate();
     const [isDeclining, setIsDeclining] = useState(false);
     const [declineReason, setDeclineReason] = useState("");
-    const [cabs, setCabs] = useState(cabsList);
-    const [autos, setAutos] = useState(autoList);
-    const [parcels, setParcels] = useState(parcelsList);
+    const cabs = cabsList || [];
+    const autos = autoList || [];
+    const parcels = parcelsList || [];
+
+    const getVehicleLabel = () => {
+        const normalizedService = (serviceType || "").toLowerCase();
+        if (normalizedService === "parcel") return "bike";
+        if (normalizedService === "auto") return "auto";
+        if (normalizedService === "individual" || normalizedService === "company") return "cab";
+        return "vehicle";
+    };
 
     const fetchData = async () => {
         const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
@@ -141,7 +149,6 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                                 : "border-b border-blue-gray-50"
                                                 }`;
                                             return (
-                                                <>
                                                     <tr key={id}>
                                                         <td className={className}>
                                                             <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -205,7 +212,6 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                                             </Typography>
                                                         </td>
                                                     </tr>
-                                                </>
                                             );
                                         }
                                     )}
@@ -218,7 +224,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                 }
             </Card>
             {modalData && (
-                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
+                <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md" className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <div className="flex justify-between items-center w-full">
                             <Typography variant="h6">Document Details</Typography>
@@ -317,7 +323,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                 <div className="flex space-x-5">
                                     <Button
                                         onClick={() => {
-                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? (cabs.length > 0 || autos.length > 0 || parcels.length > 0) : true) {
+                                            if (type !== 'driver' && (modalData.type == "RC_COPY" || modalData.type == "LICENSE") ? (cabs.length > 0) || (autos.length > 0) || (parcels.length > 0) : true) {
                                                 handleStatusChange(modalData.id, "APPROVED", "")
                                             } else {
                                                 setModalData(null);
@@ -326,7 +332,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                                 Swal.fire({
                                                     position: "center",
                                                     icon: "error",
-                                                    title: "Please add cab first to approve this document.",
+                                                    title: `Please add ${getVehicleLabel()} first to approve this document.`,
                                                     showConfirmButton: false,
                                                     timer: 1500
                                                 });
@@ -342,7 +348,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                     >
                                         Decline
                                     </Button>
-                                      {["PENDING"].includes(modalData.status) && (
+                                      {/* {["PENDING"].includes(modalData.status) && ( */}
                                     <>
                                         <Button
                                         onClick={() => handleStatusChange(modalData.id, "NOT_INTERESTED", "")}
@@ -365,7 +371,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                         Invalid
                                         </Button>
                                     </>
-                                    )}
+                                    {/* )} */}
                                   {["NOT_INTERESTED", "INVALID", "NO_RESPONSE"].includes(modalData.status) && (
                                     <Button
                                         onClick={() => handleStatusChange(modalData.id, "PENDING", "")}

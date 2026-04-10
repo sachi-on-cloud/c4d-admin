@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button, Typography } from "@material-tailwind/react";
-import { Feature, NAV_UI } from "@/utils/constants";
+import { NAV_UI } from "@/utils/constants";
 
 function AllRecordsSubmenu({ miniSidenav }) {
   const location = useLocation();
@@ -21,7 +21,7 @@ function AllRecordsSubmenu({ miniSidenav }) {
         return pathname.startsWith("/dashboard/booking/list/rides");
       case "Rentals Records":
         return pathname.startsWith("/dashboard/booking/list/rentals");
-      case "Parcel":
+      case "Parcel Records":
         return pathname.startsWith("/dashboard/booking/list/parcel");
       default:
         return pathname.startsWith(target);
@@ -34,9 +34,7 @@ function AllRecordsSubmenu({ miniSidenav }) {
     { label: "Acting Drivers Records", path: "/dashboard/booking/list/actingDriver", icon: "/img/driver.png" },
     { label: "Local Records", path: "/dashboard/booking/list/rides", icon: "/img/rides.png" },
     { label: "Rentals Records", path: "/dashboard/booking/list/rentals", icon: "/img/rental.png" },
-    ...(Feature.parcel
-      ? [{ label: "Parcel", path: "/dashboard/booking/list/Parcel", icon: "/img/Parcel_driver.png" }]
-      : []),
+    { label: "Parcel Records", path: "/dashboard/booking/list/Parcel", icon: "/img/Parcel_driver.png" },
   ];
 
   return (

@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Utils } from '../../utils/utils';
-import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, Feature, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
+import { API_ROUTES, ColorStyles,BOOKING_TERMS_AND_CONDITIONS, BOOKING_TERMS_AND_CONDITIONS_FOR_RIDES } from '../../utils/constants';
 import { BOOKING_DETAILS_SCHEMA } from '../../utils/validations';
 import { ApiRequestUtils } from '../../utils/apiRequestUtils';
 import moment from 'moment';
@@ -52,6 +52,12 @@ const minsToHHMM = (totalMins)=> {
         const mins = Math.round(totalMins % 60);          // round to nearest minute
         return `${hrs} hrs : ${mins.toString().padStart(2, "0")} mins`;
         };
+
+const toTitleLabel = (value = '') =>
+    String(value || '')
+        .toLowerCase()
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
 
 const Booking = (props) => {
     const [loading, setLoading] = useState(false);
@@ -139,7 +145,7 @@ const Booking = (props) => {
   useEffect(() => {
     if (selectedAreaId) {
       const selectedArea = serviceAreas.find((area) => area.id === parseInt(selectedAreaId));
-      const newServices = (selectedArea ? selectedArea.services : []).filter(services => Feature.parcel || services !== 'PARCEL');
+      const newServices = (selectedArea ? selectedArea.services : []);
       setServices(newServices);
     //   console.log('Services for selected area:', newServices);
       setCurrentServiceType('');
@@ -196,8 +202,8 @@ const Booking = (props) => {
     const mappedServiceType = serviceTypeMap[serviceType] || serviceType;
     // console.log('Mapped serviceType:', mappedServiceType);
 
-    // AUTO bookings do not use package list; skip silently
-    if (mappedServiceType === 'AUTO') {
+    // AUTO / PARCEL bookings do not use package list; skip silently
+    if (mappedServiceType === 'AUTO' || mappedServiceType === 'PARCEL') {
       setPackageTypeSelectedData([]);
       return;
     }
@@ -305,6 +311,12 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
 
          serviceType: values?.serviceType == "RENTAL_DROP_TAXI" ? 'DROP TAXI': values?.serviceType === "RENTAL_HOURLY_PACKAGE"? "HOURLY PACKAGE" : values?.serviceType === "RENTAL"? "OUTSTATION": values?.serviceType || '',
         cabType: values?.carType || '', 
+        	
+	    parcelVehicleType: values?.parcelVehicleType || '',
+        subZoneId: values?.subZoneId || 0,
+        weightRange: values?.weightRange || '',
+        orderType: values?.orderType || '',
+        orderTypeOther: values?.orderTypeOther || ''
     };
     setQuotationLogs((prevLogs) => [...prevLogs, newLog]);
 };
@@ -510,6 +522,50 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         }
     }
 
+    const getQuoteParcel = async (val, setFieldValue) => {
+        let actualZone = serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+
+        const zoneData = await zoneCheckUpFun(val);
+        if (!zoneData.success || !zoneData.serviceArea) {
+            const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+            setZoneErrorModal({
+                show: true,
+                text: errorText,
+                title: zoneData.title || 'Oops!'
+            });
+            setFieldValue?.('pickupAddress', '');
+            setFieldValue?.('dropAddress', '');
+            setIsButtonDisabled(false);
+            return;
+        }
+
+        actualZone = zoneData.serviceArea.name;
+
+        const quoteData = {
+            serviceType: 'PARCEL',
+            serviceFor: 'PARCEL',
+            customerId: val?.customerId?.id,
+            fromDate: moment(`${val?.rideDate} ${val?.rideTime}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            pickupLat: val?.pickupLocation?.lat,
+            pickupLong: val?.pickupLocation?.lng,
+            dropLat: val?.dropLocation?.lat,
+            dropLong: val?.dropLocation?.lng,
+            zone: actualZone,
+            parcelVehicleType: val?.parcelVehicleType || 'BIKE',
+            weightRange: val?.weightRange || '',
+            orderType: val?.orderType || null,
+            orderTypeOther: val?.orderType === 'Others' ? (val?.orderTypeOther || '') : null,
+            deliveryType: 'DOOR_DELIVERY',
+        };
+
+        const data = await ApiRequestUtils.post(API_ROUTES.GET_QUOTE_OUTSTATION, quoteData);
+        if (data?.success) {
+            setQuoteDetails(data?.data);
+            setDiscountDetails(data?.data);
+            addQuotationLog(val, data?.data);
+        }
+    };
+
     useEffect(() => {
         setBookingTimes(Utils.generateBookingTimes());
         fetchData();
@@ -546,7 +602,19 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         sourceType: '',
         isPremiumService : '',
         driverEndAddress: '',
-    driverEndLocation: null,
+        driverEndLocation: null,
+        isPickupSameAsDriverStart: false,
+        parcelVehicleType: 'BIKE',
+        weightRange: '',
+        receiverName: '',
+        receiverPhone: '+91',
+        receiverAddress: '',
+        senderName: '',
+        senderPhone: '+91',
+        senderAddress: '',
+        orderType: '',
+        orderTypeOther: '',
+        deliveryInstructions: '',
     };
 
     const handleDateChange = (dates, setFieldValue, handleChange, rideDate) => {
@@ -625,13 +693,19 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         return false;
     };
 
-const sendQuotationLogs = async (bookingId, userId) => {
+const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) => {
     try {
+        if (!Array.isArray(quotationLogs) || quotationLogs.length === 0) {
+            return;
+        }
         // Update bookingId and ensure userId is included in all logs
         const updatedLogs = quotationLogs.map(log => ({
             ...log,
             bookingId: bookingId || 0, // Update with actual bookingId
             userId: userId || log.userId || 0, // Use provided userId or fallback to log's userId
+            subZoneId: Number(log?.subZoneId || 0) > 0
+                ? Number(log.subZoneId)
+                : (Number(fallbackSubZoneId || 0) > 0 ? Number(fallbackSubZoneId) : 0),
         }));
         const response = await ApiRequestUtils.post(API_ROUTES.POST_QUOTATION_LOG, updatedLogs);
         if (response?.success) {
@@ -642,6 +716,117 @@ const sendQuotationLogs = async (bookingId, userId) => {
         }
     } catch (error) {
         console.error('Error sending quotation logs:', error);
+    }
+};
+
+    const onParcelSubmitHandler = async (values, formikBag) => {
+        if (isButtonDisabled) return;
+        setIsButtonDisabled(true);
+
+        try {
+            const resolveLocationByAddress = async (address) => {
+                if (!address) return null;
+                try {
+                    const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_LATLONG, { address });
+                    if (data?.success && data?.data?.lat && data?.data?.lng) {
+                        return { lat: data.data.lat, lng: data.data.lng };
+                    }
+                } catch (err) {
+                    console.error('Failed to resolve address to lat/lng:', err);
+                }
+                return null;
+            };
+
+            const pickupAddress = values.pickupAddress || values.senderAddress;
+            const dropAddress = values.dropAddress || values.receiverAddress;
+            let pickupLocation = values.pickupLocation;
+            let dropLocation = values.dropLocation;
+
+            if ((!pickupLocation?.lat || !pickupLocation?.lng) && pickupAddress) {
+                pickupLocation = await resolveLocationByAddress(pickupAddress);
+            }
+            if ((!dropLocation?.lat || !dropLocation?.lng) && dropAddress) {
+                dropLocation = await resolveLocationByAddress(dropAddress);
+            }
+
+            if (!pickupAddress || !dropAddress || !pickupLocation || !dropLocation) {
+                formikBag.setErrors({ submit: 'Please enter valid sender and receiver address.' });
+                return;
+            }
+
+            const parcelValues = {  
+                ...values,
+                pickupAddress,
+                dropAddress,
+                pickupLocation,
+                dropLocation,
+            };
+
+            const zoneCheckUp = await zoneCheckUpFun(parcelValues);
+            if (!zoneCheckUp.success || !zoneCheckUp.serviceArea) {
+                const errorText = "Selected locations are outside the service area. Please choose a nearby pickup or drop location to continue.";
+                setZoneErrorModal({ show: true, text: errorText, title: zoneCheckUp.title || 'Oops!' });
+                return;
+            }
+
+            const actualZone = zoneCheckUp.serviceArea.name || serviceAreas.find(area => area.id === parseInt(selectedAreaId))?.name || '';
+            const bookingData = {
+                serviceType: 'PARCEL',
+                parcelDirection:'RECEIVER',
+                deliveryType:'DOOR_DELIVERY',
+                source: 'Call',
+                sourceType: values.sourceType,
+                ...((values.sourceType === "Others" || values.sourceType === "Offline Ads") && {
+                    otherSourceType: values.otherSourceType?.trim() || null
+                }),
+                customerId: values?.customerId?.id,
+                pickupLat: pickupLocation?.lat,
+                pickupLong: pickupLocation?.lng,
+                pickupAddress: {
+                    name: pickupAddress,
+                },
+                dropLat: dropLocation?.lat,
+                dropLong: dropLocation?.lng,
+                dropAddress: {
+                    name: dropAddress,
+                },
+                zone: actualZone,
+                landmark: values.landmark || '',
+                parcelVehicleType: values.parcelVehicleType || 'BIKE',
+                weightRange: values.weightRange,
+                receiverName: values.receiverName || '',
+                receiverPhone: values.receiverPhone || '',
+                receiverAddress: values.receiverAddress || '',
+                senderName: values.senderName || '',
+                senderPhone: values.senderPhone || '',
+                senderAddress: values.senderAddress || '',
+                orderType: values.orderType || null,
+                orderTypeOther: values.orderType === 'Others' ? (values.orderTypeOther || '') : null,
+                deliveryInstructions: values.deliveryInstructions || '',
+                fromDate: moment(`${values.rideDate} ${values.rideTime || '00:00'}`, "YYYY-MM-DD HH:mm:ss").toISOString(),
+            };
+            console.log("Booking Data for Parcel:", bookingData);
+            const data = await ApiRequestUtils.post(API_ROUTES.ADD_SUPPORT_PARCEL_BOOKING, bookingData, values?.customerId?.id);
+            if (data?.success) {
+                const createdBooking = data?.data?.result || data?.data;
+                setIsOpen(false);
+                setBookingData(createdBooking);
+                if (createdBooking?.id) {
+                    await sendQuotationLogs(createdBooking.id, loggedInUserId, createdBooking?.subZoneId || null);
+                }
+                navigate('/dashboard/booking');
+                formikBag.resetForm();
+                setSelectedCustomer(0);
+                setSearchBookingId('');
+            } else {
+                formikBag.setErrors({ submit: data?.message || 'Failed to create parcel booking. Please try again.' });
+            }
+        } catch (error) {
+            console.error('Error in onParcelSubmitHandler:', error);
+            formikBag.setErrors({ submit: 'An error occurred while creating parcel booking. Please try again.' });
+        } finally {
+            setIsButtonDisabled(false);
+            formikBag.setSubmitting(false);
     }
 };
     const onRideSubmitHandler = async (values, formikBag) => {
@@ -909,7 +1094,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setIsOpen(false);
         await sendQuotationLogs(data?.data?.result?.id, loggedInUserId);
             if (params?.bookingDetails) {
-                navigate('/dashboard/confirm-booking', { state: { 'bookingId': params?.bookingDetails?.id, fromPath: location.pathname}});
+                const targetBookingId = data?.data?.result?.id || params?.bookingDetails?.id;
+                const targetCustomerId = values?.customerId?.id || params?.bookingDetails?.customerId || 0;
+                navigate(
+                    `/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                        targetBookingId || 0
+                    )}&customerId=${encodeURIComponent(
+                        targetCustomerId
+                    )}&fromPath=${encodeURIComponent(location.pathname)}`
+                );
             } else {
                 setBookingStage(1);
                 setRange({ startDate: new Date(values?.fromDate), endDate: new Date(values?.toDate) })
@@ -949,13 +1142,15 @@ const sendQuotationLogs = async (bookingId, userId) => {
     };
 
     const onSelectBooking = (data) => {
-        navigate("/dashboard/confirm-booking", {
-            state: {
-                bookingId: data?.id,
-                customerId: data?.customerId || data?.Customer?.id || 0,
-                fromPath: location.pathname,
-            },
-        });
+        const targetBookingId = data?.id;
+        const targetCustomerId = data?.customerId || data?.Customer?.id || 0;
+        navigate(
+            `/dashboard/confirm-booking?bookingId=${encodeURIComponent(
+                targetBookingId || 0
+            )}&customerId=${encodeURIComponent(targetCustomerId)}&fromPath=${encodeURIComponent(
+                location.pathname
+            )}`
+        );
                 // console.log('selecting booking', data);
         // setBookingStage(4);
         // setBookingData(data);
@@ -989,6 +1184,18 @@ const sendQuotationLogs = async (bookingId, userId) => {
         setFieldValue('driverPickUpLocation', null);
         setFieldValue('driverEndAddress', '');
         setFieldValue('driverEndLocation', null);
+        setFieldValue('isPickupSameAsDriverStart', false);
+        setFieldValue('parcelVehicleType', 'BIKE');
+        setFieldValue('weightRange', '');
+        setFieldValue('receiverName', '');
+        setFieldValue('receiverPhone', '+91');
+        setFieldValue('receiverAddress', '');
+        setFieldValue('senderName', '');
+        setFieldValue('senderPhone', '+91');
+        setFieldValue('senderAddress', '');
+        setFieldValue('orderType', '');
+        setFieldValue('orderTypeOther', '');
+        setFieldValue('deliveryInstructions', '');
 
         // Clear vehicle / service-related fields
         setFieldValue('carType', '');
@@ -1071,6 +1278,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setFieldValue("pickupLocation", location);
             setPickupLocation(location);
             setPickupSuggestions([]);
+            if (values?.serviceType === 'PARCEL') {
+                setFieldValue("senderAddress", address);
+            }
 
             // Check zone for pickup location
             const zoneData = await zoneCheckUpFun({ 
@@ -1121,6 +1331,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
             setFieldValue("dropLocation", location);
             setDropLocation(location);
             setDropSuggestions([]);
+            if (values?.serviceType === 'PARCEL') {
+                setFieldValue("receiverAddress", address);
+            }
         }
     }
 };
@@ -1400,6 +1613,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                         Add New Booking
                         </div>
                     </button>
+                    
 
                 </div>
                 <BookingsList onRegisterRefresh={setRefreshFn}  customerId={selectedCustomer} searchBookingId={searchBookingId} setIsOpen={setIsOpen} bookingStage={bookingStage} onAssignDriver={onAssignDriver} onSelectBooking={onSelectBooking} type={props.typeProp} onTypeChange={handleTypeChange} />
@@ -1476,6 +1690,8 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                             } 
                                             else if (values.submitType === "auto") {
                                                 await onAutoSubmitHandler(values, formikBag);
+                                            } else if (values.submitType === "parcel") {
+                                                await onParcelSubmitHandler(values, formikBag);
                                             } else {
                                                 await onSubmitHandler(values);
                                             }
@@ -1894,7 +2110,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                 <div className='grid grid-cols-2 mt-2 space-x-3'>
-                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
+                                                    {(values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH' || values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_HOURLY_PACKAGE' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO' || values.serviceType === 'PARCEL') && (
                                                         <div className="flex-1 mb-2">
                                                             <Typography variant="h6" className="mb-2">
                                                                 Pickup Date & Time
@@ -2155,7 +2371,39 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                 <div className='grid grid-cols-1'>
-                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType == 'AUTO') && 
+                                                    {values.serviceType === 'PARCEL' && (
+                                                        <div className="p-2 space-y-2">
+                                                            <label className="block text-sm font-medium text-black-700">
+                                                                Parcel Vehicle Type
+                                                            </label>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {[
+                                                                    { value: 'BIKE', label: 'Bike', image: '/img/multiple_bike.jpg' },
+                                                                    { value: 'AUTO', label: 'Auto', image: '/img/auto.png' },
+                                                                ].map((opt) => {
+                                                                    const isSelected = values.parcelVehicleType === opt.value;
+                                                                    return (
+                                                                        <button
+                                                                            key={opt.value}
+                                                                            type="button"
+                                                                            onClick={() => setFieldValue('parcelVehicleType', opt.value)}
+                                                                            className={`rounded-xl border-2 p-2 text-left transition ${isSelected ? 'border-blue-500 ring-1 ring-blue-300 bg-blue-50' : 'border-gray-300 bg-white hover:border-gray-400'}`}
+                                                                        >
+                                                                            <div className="flex items-center gap-3">
+                                                                                <img
+                                                                                    src={opt.image}
+                                                                                    alt={opt.label}
+                                                                                    className="h-10 w-10 rounded-md object-cover border border-gray-200"
+                                                                                />
+                                                                                <span className="text-sm font-medium text-gray-800">{opt.label}</span>
+                                                                            </div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {(values.tripType || values.serviceType == 'RIDES' || values.serviceType == 'RENTAL' || values.serviceType == 'RENTAL_HOURLY_PACKAGE' || values.serviceType == 'AUTO' || values.serviceType == 'PARCEL') && 
                                                     (<div className="p-2 space-y-2">
                                                         <label className="block text-sm font-medium text-black-700">
                                                             Customer Pickup Location <span className="text-red-500">*</span>
@@ -2169,6 +2417,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         onChange={(e) => {
                                                             setFieldValue("pickupAddress", e.target.value);
                                                             setFieldValue("pickupLocation", null);
+                                                            if (values.serviceType === 'PARCEL') {
+                                                                setFieldValue("senderAddress", e.target.value);
+                                                            }
                                                             searchLocations(e.target.value, true);
                                                         }}
                                                         />
@@ -2203,7 +2454,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     </div>
                                                 )}
                                                     <div className="p-2 space-y-2 space-x-3">
-                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO')) && (
+                                                        {((values.packageSelected && values.tripType == "Local" && values.serviceType !== 'RENTAL_HOURLY_PACKAGE') || (values.packageSelected && values.tripType == "Round Trip" && values.serviceType !== 'CAR_WASH') || (values.packageTypeSelected == 'Outstation') || (values.serviceType == 'RIDES' || values.serviceType =='AUTO' || values.serviceType == 'PARCEL')) && (
                                                             <div>
                                                                 <label className="block text-sm font-medium text-black-700">Drop Location<span className="text-red-500">*</span></label>
                                                                 <div className="relative">
@@ -2215,6 +2466,9 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                     onChange={(e) => {
                                                                         setFieldValue("dropAddress", e.target.value);
                                                                         setFieldValue("dropLocation", null);
+                                                                        if (values.serviceType === 'PARCEL') {
+                                                                            setFieldValue("receiverAddress", e.target.value);
+                                                                        }
                                                                         searchLocations(e.target.value, false);
                                                                     }}
                                                                 />
@@ -2285,12 +2539,38 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 )}
                                                     {(values.serviceType === 'RENTAL' || values.serviceType === 'RENTAL_DROP_TAXI' || values.serviceType === 'RIDES' || values.serviceType === 'AUTO') && (
                                                         <div className="p-2 space-y-2">
+                                                            <div className="flex items-center gap-3">
                                                             <label className="block text-sm font-medium text-black-700">
                                                             {values.serviceType === 'AUTO' ? 'Auto' : 'Cab'} Starting Point 
                                                             {(values.serviceType === 'RENTAL' && values.packageTypeSelected === "Outstation") && (
                                                                 <span className="text-red-500">*</span>
                                                             )}
                                                             </label>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        id="samePickupAsStart"
+                                                                        checked={values.isPickupSameAsDriverStart}
+                                                                        onChange={(e) => {
+                                                                            setFieldValue("isPickupSameAsDriverStart", e.target.checked);
+                                                                            if (e.target.checked) {
+                                                                                setFieldValue("driverPickUpAddress", values.pickupAddress);
+                                                                                setFieldValue("driverPickUpLocation", values.pickupLocation);
+                                                                                setDriverPickUpLocation(values.pickupLocation || null);
+                                                                                setDriverSuggestions([]);
+                                                                            } else {
+                                                                                setFieldValue("driverPickUpAddress", "");
+                                                                                setFieldValue("driverPickUpLocation", null);
+                                                                                setDriverPickUpLocation(null);
+                                                                                setDriverSuggestions([]);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <label htmlFor="samePickupAsStart" className="text-sm text-gray-700 cursor-pointer">
+                                                                        Same as Pickup Address
+                                                                    </label>
+                                                                </div>
+                                                            </div>
                                                             <div className="relative">
                                                             <Field
                                                                 type="text"
@@ -2422,6 +2702,152 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                 )}
                                                  {/* Source Type Field for all services */}
                                                 {values.serviceType && (
+                                                    <>
+                                                        {values.serviceType === 'PARCEL' && (
+                                                            <div className="p-2 space-y-3">
+                                                                <label className="text-sm font-medium text-gray-700">
+                                                                    Weight Range <span className="text-red-500">*</span>
+                                                                </label>
+                                                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                                                    {[
+                                                                        { value: 'W_0_1', label: '0 to 1 Kg' },
+                                                                        { value: 'W_1_5', label: '1 to 5 Kg' },
+                                                                        { value: 'W_5_10', label: '5 to 10 Kg' },
+                                                                        { value: 'W_10_PLUS', label: '10+ Kg' },
+                                                                    ].map((opt) => (
+                                                                        <label key={opt.value} className="flex items-center space-x-2 cursor-pointer">
+                                                                            <Field
+                                                                                type="radio"
+                                                                                name="weightRange"
+                                                                                value={opt.value}
+                                                                                className="h-4 w-4 text-primary-600"
+                                                                            />
+                                                                            <span className="text-sm text-gray-800">{opt.label}</span>
+                                                                        </label>
+                                                                    ))}
+                                                                </div>
+                                                                <ErrorMessage name="weightRange" component="div" className="text-red-500 text-sm" />
+
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Sender Name</label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="senderName"
+                                                                            placeholder="Enter sender name"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Sender Phone</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            name="senderPhone"
+                                                                            placeholder="Enter sender phone"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                            value={values.senderPhone ?? '+91'}
+                                                                            onChange={(e) => {
+                                                                                const raw = String(e.target.value || '');
+                                                                                const digitsOnly = raw.replace(/\D/g, '');
+                                                                                const withoutCountryCode = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly;
+                                                                                const localDigits = withoutCountryCode.slice(0, 10);
+                                                                                setFieldValue('senderPhone', `+91${localDigits}`);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="md:col-span-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Sender Address</label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="senderAddress"
+                                                                            placeholder="Enter sender address"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300 "
+                                                                            disabled={true}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Receiver Name</label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="receiverName"
+                                                                            placeholder="Enter receiver name"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Receiver Phone</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            name="receiverPhone"
+                                                                            placeholder="Enter receiver phone"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                            value={values.receiverPhone ?? '+91'}
+                                                                            onChange={(e) => {
+                                                                                const raw = String(e.target.value || '');
+                                                                                const digitsOnly = raw.replace(/\D/g, '');
+                                                                                const withoutCountryCode = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly;
+                                                                                const localDigits = withoutCountryCode.slice(0, 10);
+                                                                                setFieldValue('receiverPhone', `+91${localDigits}`);
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="md:col-span-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Receiver Address</label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="receiverAddress"
+                                                                            placeholder="Enter receiver address"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                            disabled={true}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="pt-2">
+                                                                    <label className="text-sm font-medium text-gray-700">Order Type</label>
+                                                                    <Field
+                                                                        as="select"
+                                                                        name="orderType"
+                                                                        className="mt-1 p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                                                    >
+                                                                        <option value="">Select Order Type</option>
+                                                                        <option value="Food">Food</option>
+                                                                        <option value="Medicines">Medicines</option>
+                                                                        <option value="Electronics">Electronics</option>
+                                                                        <option value="Documents">Documents</option>
+                                                                        <option value="Groceries">Groceries</option>
+                                                                        <option value="Clothes">Clothes</option>
+                                                                        <option value="Others">Others</option>
+                                                                    </Field>
+                                                                </div>
+
+                                                                {values.orderType === 'Others' && (
+                                                                    <div>
+                                                                        <label className="text-sm font-medium text-gray-700">Order Type Other</label>
+                                                                        <Field
+                                                                            type="text"
+                                                                            name="orderTypeOther"
+                                                                            placeholder="Enter other order type"
+                                                                            className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                        />
+                                                                    </div>
+                                                                )}
+
+                                                                <div>
+                                                                    <label className="text-sm font-medium text-gray-700">Delivery Instructions</label>
+                                                                    <Field
+                                                                        as="textarea"
+                                                                        name="deliveryInstructions"
+                                                                        placeholder="Enter delivery instructions"
+                                                                        rows={3}
+                                                                        className="mt-1 p-2 w-full rounded-md border-2 border-gray-300"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     <div className="p-2 space-y-2 ">
                                                         <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
                                                         <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
@@ -2456,8 +2882,6 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                     <ErrorMessage name="otherSourceType" component="div" className="text-red-500 text-sm" />
                                                 )}
                                                     </div>
-                                                )}
-                                                {values.serviceType && (
                                                     <div className="p-2 space-y-2 ">
                                                         <label htmlFor="landmark" className="text-sm font-medium text-gray-700">
                                                             Landmark (Optional) 
@@ -2471,6 +2895,7 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         />
                                                         <ErrorMessage name="landmark" component="div" className="text-red-500 text-sm" />
                                                     </div>
+                                                    </>
                                                 )}
                                                 </div>
                                                 
@@ -2713,6 +3138,53 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                                 <Typography> {quoteDetails.amount?.premiumDetails?.appliedCarType}</Typography>
                                                                             </>
                                                                         )}
+
+                                                                    {values?.serviceType === 'PARCEL' && (
+                                                                        <>
+                                                                            <Typography color="gray" variant="h6">Parcel Vehicle Type</Typography>
+                                                                            <Typography>
+                                                                                {toTitleLabel(quoteDetails.amount?.parcelVehicleType || values.parcelVehicleType || '')}
+                                                                            </Typography>
+                                                                            <Typography color="gray" variant="h6">Zone Rule</Typography>
+                                                                            <Typography>
+                                                                                {toTitleLabel(quoteDetails.amount?.fareBreakdown?.zoneRule || values.zoneRule || '')}
+                                                                            </Typography>
+                                                                            {quoteDetails.amount?.pricingDetails?.surcharges?.weight > 0 && (
+                                                                                <>
+                                                                                    <Typography color="gray" variant="h6">Surcharges weight</Typography>
+                                                                                    <Typography>
+                                                                                        {quoteDetails.amount?.pricingDetails?.surcharges?.weight}
+                                                                                    </Typography>
+                                                                                </>)}
+                                                                            {quoteDetails.amount?.pricingDetails?.surcharges?.weather > 0 && (
+                                                                                <>
+                                                                                    <Typography color="gray" variant="h6">Surcharges weather</Typography>
+                                                                                    <Typography>
+                                                                                        {quoteDetails.amount?.pricingDetails?.surcharges?.weather}
+                                                                                    </Typography>
+                                                                                </>)}
+                                                                            {quoteDetails.amount?.pricingDetails?.surcharges?.handling > 0 && (
+                                                                                <>
+                                                                                    <Typography color="gray" variant="h6">Surcharges handling</Typography>
+                                                                                    <Typography>
+                                                                                        {quoteDetails.amount?.pricingDetails?.surcharges?.handling}
+                                                                                    </Typography>
+                                                                                </>)}
+                                                                            {quoteDetails.amount?.pricingDetails?.surcharges?.night > 0 && (
+                                                                                <>
+                                                                                    <Typography color="gray" variant="h6">Surcharges night</Typography>
+                                                                                    <Typography>
+                                                                                        {quoteDetails.amount?.pricingDetails?.surcharges?.night}
+                                                                                    </Typography>
+                                                                                </>)}
+                                                                            {quoteDetails.amount?.pricingDetails?.surcharges?.zone > 0 && (
+                                                                                <>
+                                                                                    <Typography color="gray" variant="h6">Surcharges zone</Typography>
+                                                                                    <Typography>
+                                                                                        {quoteDetails.amount?.pricingDetails?.surcharges?.zone}
+                                                                                    </Typography>
+                                                                                </>)}
+                                                                        </>)}
                                                                           {values?.serviceType !== 'DRIVER' && values?.serviceType !== 'RENTAL_DROP_TAXI' && (
                                                                             <>
                                                                         <Typography color="gray" variant="h6">Per Km Rate</Typography>
@@ -2984,9 +3456,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             <Typography className="text-sm text-gray-700">
                                                                 • A Driver starting  Points <span className="font-bold text-black">{Number(quoteDetails.amount?.driverWithin).toFixed(2) || ''}</span> Kms.
                                                             </Typography>
+                                                            {quoteDetails.amount?.gst_percentage > 0 && (
                                                             <Typography className="text-sm text-gray-700">
-                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| '0'}%</span> tax.
                                                             </Typography>
+                                                            )}
 
                                                             {quoteDetails.amount?.driverCharge > 0 && (
                                                             <Typography className=" text-sm text-gray-700">
@@ -3057,9 +3531,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                                 • Driver charge <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.driverCharge || '0')}</span>.
                                                             </Typography>
                                                             )}
+                                                            {quoteDetails.amount?.gst_percentage > 0 && (
                                                              <Typography className="text-sm text-gray-700">
-                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| ''}%</span> tax.
+                                                                • The estimated price includes  <span className="font-bold text-black">{quoteDetails.amount?.gst_percentage|| '0'}%</span> tax.
                                                             </Typography>
+                                                            )}
                                                             {quoteDetails.amount?.extraNightCharge > 0 && (
                                                              <Typography className="text-sm text-gray-700">
                                                                 • Night Charge of <span className="font-bold text-black">₹ {Math.round(quoteDetails.amount?.extraNightCharge)}</span> applies if the trip extends past{' '}.
@@ -3122,6 +3598,11 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                         Check Estimated Price
                                                     </Button>
                                                 }
+                                                {values.serviceType == 'PARCEL' && values.dropLocation && values.pickupLocation && values.sourceType && values.customerId?.id && values.rideTime &&
+                                                    <Button fullWidth className='my-6 mx-2' onClick={() => getQuoteParcel(values, setFieldValue)}>
+                                                        Check Estimated Price
+                                                    </Button>
+                                                }
 
                                                 {bookingStage === 0 && (values.serviceType === 'DRIVER' || values.serviceType === 'CAR_WASH') && <Button
                                                     fullWidth
@@ -3170,6 +3651,20 @@ const sendQuotationLogs = async (bookingId, userId) => {
                                                             handleSubmit();
                                                         }}
                                                         disabled={!(values.pickupAddress && values.dropAddress && selectedCustomer && values.sourceType && quoteDetails)}
+                                                        className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                                    >
+                                                        Continue
+                                                    </Button>
+                                                }
+                                                {(values.serviceType == 'PARCEL') &&
+                                                    <Button
+                                                        fullWidth
+                                                        color="blue"
+                                                        onClick={() => {
+                                                            setFieldValue("submitType", "parcel");
+                                                            handleSubmit();
+                                                        }}
+                                                        disabled={!(values.pickupAddress && values.dropAddress && values.sourceType && values.customerId?.id && values.rideTime && quoteDetails) || isButtonDisabled}
                                                         className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
                                                     >
                                                         Continue
