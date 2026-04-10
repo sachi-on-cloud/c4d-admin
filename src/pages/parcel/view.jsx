@@ -11,6 +11,7 @@ import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { Link, useNavigate } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import moment from 'moment';
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -166,7 +167,9 @@ export function ParcelView({ type, ownerName, id }) {
               <table className="w-full min-w-[640px] table-auto">
                 <thead>
                   <tr>
-                    {["Name","company","vehicleType","vehicleNumber"].map((el) => (
+                    {["Name","company",
+                    // "vehicleType",
+                    "vehicleNumber","Registration date"].map((el) => (
                       <th key={el} className="border-b border-gray-50 text-left py-3 px-5">
                         <Typography
                           variant="small"
@@ -185,8 +188,9 @@ export function ParcelView({ type, ownerName, id }) {
                         id,
                         name,
                         company,
-                        vehicleType,
-                        vehicleNumber
+                        // vehicleType,
+                        vehicleNumber,
+                        created_at
                       },
                       key
                     ) => {
@@ -210,14 +214,19 @@ export function ParcelView({ type, ownerName, id }) {
                               {company}
                               </Typography>
                           </td>
-                          <td className={className}>
+                          {/* <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
                               {vehicleType}
+                              </Typography>
+                          </td> */}
+                           <td className={className}>
+                            <Typography className="text-xs font-semibold text-blue-gray-900">
+                              {vehicleNumber}
                               </Typography>
                           </td>
                            <td className={className}>
                             <Typography className="text-xs font-semibold text-blue-gray-900">
-                              {vehicleNumber}
+                              {moment(created_at).format('DD-MM-YYYY')}
                               </Typography>
                           </td>
                           
