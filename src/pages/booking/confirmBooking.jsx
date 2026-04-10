@@ -1610,6 +1610,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 </div>
                                 
                                 )}
+                        {bookingDetails?.serviceType == "PARCEL" &&
+                            <div className="flex flex-col-2 gap-2">
+                                <span className="text-gray-500 font-semibold">Estimated Price:</span>
+                                <span className="text-gray-900 font-medium">
+                                    {bookingDetails?.estimatedFareBreakdown?.total ? `₹${bookingDetails?.estimatedFareBreakdown?.total}` : 'N/A'}
+                                </span>
+                            </div>
+                            }
                              {!(bookingDetails?.status === BOOKING_STATUS.ENDED || bookingDetails?.status === BOOKING_STATUS.END_OTP) && (bookingDetails?.serviceType === 'AUTO' || bookingDetails?.serviceType === 'RIDES') && shouldShowQuotePricing(bookingDetails) && (
                                     
                              <div className="flex flex-col-2 gap-2">
@@ -1681,9 +1689,9 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     {/* </div> */}
                             {/* need to add logic for price */}
                     {/* <div className="grid sm:grid-cols-2 gap-4 text-sm">                                         */}
-                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'RIDES' && shouldShowQuotePricing(bookingDetails)  && (                            
+                            {bookingDetails?.status !== BOOKING_STATUS.ENDED && bookingDetails?.status !== BOOKING_STATUS.END_OTP && bookingDetails?.serviceType !== 'AUTO' && bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'PARCEL' && shouldShowQuotePricing(bookingDetails)  && (                            
                                 <div className="flex flex-col-2 gap-2">
-                                    <span className="text-gray-500 font-semibold">Estimated Price{inclTaxLabel}:</span>
+                                    <span className="text-gray-500 font-semibold">Estimated Price check{inclTaxLabel}:</span>
                                     <span className="text-gray-900 font-medium">
                                         ₹ {Number(
                                             (bookingDetails?.serviceType === 'DRIVER' && bookingDetails?.packageType === 'Local'
@@ -2153,7 +2161,8 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         {(Number(bookingDetails?.value?.driverWithin + 2 || 0)).toFixed(2)} Km
                                     </Typography>
                                 </div>}
-                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' && <div className="flex justify-between  my-1">
+                                {bookingDetails?.serviceType !== 'RIDES' && bookingDetails?.serviceType !== 'AUTO' &&  bookingDetails?.serviceType !== "PARCEL" &&
+                                <div className="flex justify-between  my-1">
                                     <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
                                     <Typography className="text-sm text-black font-medium">
                                         {bookingDetails?.endKM  ?( (bookingDetails.endKM - bookingDetails.startKM)+
@@ -2165,6 +2174,14 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                         <div className="flex justify-between  my-1">
                                             <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
                                             <Typography className="text-sm text-black font-medium">{(Number(bookingDetails?.totalDistanceKilometer) + Number(bookingDetails?.value?.driverWithin)).toFixed(2)} Kms</Typography>
+                                        </div>
+                                    
+                                 }
+                                 {bookingDetails?.serviceType === 'PARCEL' &&
+                                
+                                        <div className="flex justify-between  my-1">
+                                            <Typography color="gray" variant="sm" className="text-sm text-gray-500 font-semibold">Total KM:</Typography>
+                                            <Typography className="text-sm text-black font-medium">{(Number(bookingDetails?.totalDistanceKilometer).toFixed(2))} Kms</Typography>
                                         </div>
                                     
                                  }
