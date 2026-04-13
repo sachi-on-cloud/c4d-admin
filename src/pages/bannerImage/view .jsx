@@ -177,7 +177,8 @@ const BannerView = () => {
   { value: 'TOP_NEW', label: 'Top New'},
   { value: 'MIDCAROUSEL', label: 'Mid Carousel'},
   { value: 'PROMOTION', label: 'Promotion'},
-  { value: 'BOTTOM_NEW', label: 'Bottom New'}
+  { value: 'BOTTOM_NEW', label: 'Bottom New'},
+  { value: 'NEW_CUSTOMER', label: 'New Customer' },
 ];
 
   const zoneOptions = [

@@ -130,23 +130,22 @@ const AddBanner = () => {
       // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      formData.append('fromDate', values.fromDate);
-      formData.append('toDate', values.toDate);
-      formData.append('redirectUrl', values.redirectUrl.trim());
+      const isNewCustomer = values.type === "NEW_CUSTOMER";
+      if (!isNewCustomer) {
+        formData.append('fromDate', values.fromDate);
+        formData.append('toDate', values.toDate);
+        formData.append('redirectUrl', values.redirectUrl.trim());
+        formData.append('dropAddress', values.dropAddress || '');
+        formData.append('dropLat', values.dropLocation?.lat || '');
+        formData.append('dropLong', values.dropLocation?.lng || '');
+        formData.append('navigateTo', values.navigateTo.trim());
+      }
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
-      formData.append('zone', values.zone);
+      formData.append('zone', isNewCustomer ? 'All' : values.zone);
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
-
-      // Append Drop Location
-      formData.append('dropAddress', values.dropAddress||'');
-      formData.append('dropLat', values.dropLocation?.lat || '');
-      formData.append('dropLong', values.dropLocation?.lng || '');
-
-      // NEW FIELD: Append Navigate To
-      formData.append('navigateTo', values.navigateTo.trim());
 
       const response = await ApiRequestUtils.postDocs(API_ROUTES.POST_BANNER, formData);
 
@@ -154,7 +153,7 @@ const AddBanner = () => {
         navigate('/dashboard/user/bannerimgView');
       } else {
         setError(response?.error || 'Banner upload failed.');
-      }
+      } 
     } catch (err) {
       console.error('Upload error:', err);
       setError('Something went wrong. Try again.');
@@ -176,13 +175,44 @@ const AddBanner = () => {
         {({ isSubmitting, values,setFieldValue }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">Type</label>
+                <Field
+                  as="select"
+                  name="type"
+                  className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                  onChange={(e) => {
+                    const selectedType = e.target.value;
+                    setFieldValue('type', selectedType);
+                    if (selectedType === 'NEW_CUSTOMER') {
+                      setFieldValue('zone', 'All');
+                    }
+                  }}
+                >
+                  <option value="">select the Type</option>
+                  <option value="TOP">Top</option>
+                  <option value="BOTTOM">Bottom</option>
+                  <option value="YOUTUBE">YouTube</option>
+                  <option value="BACKGROUND">Background</option>
+                  <option value="BANNER">Banner</option>
+                  <option value="STATS">Stats</option>
+                  <option value="TOP_NEW">Top New</option>
+                  <option value="MIDCAROUSEL">MidCarousel</option>
+                  <option value="PROMOTION">Promotion</option>
+                  <option value="BOTTOM_NEW">Bottom New</option>
+                  <option value="NEW_CUSTOMER">New Customer</option>
+                </Field>
+                <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
+              </div>
+                   {values.type !== 'NEW_CUSTOMER' && (
+                <>
               <div>
                 <label className="text-sm font-medium text-gray-700">From Date</label>
                 <Field name="fromDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
                 <ErrorMessage name="fromDate" component="div" className="text-red-500 text-sm" />
               </div>
-
+             
               <div>
                 <label className="text-sm font-medium text-gray-700">To Date</label>
                 <Field name="toDate" type="date" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
@@ -194,25 +224,7 @@ const AddBanner = () => {
                 <Field name="redirectUrl" type="text" className="p-2 w-full rounded-md border border-gray-300 shadow-sm" />
                 <ErrorMessage name="redirectUrl" component="div" className="text-red-500 text-sm" />
               </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700">Type</label>
-                <Field as="select" name="type" className="p-2 w-full rounded-md border border-gray-300 shadow-sm">
-                  <option value="">select the Type</option>
-                  <option value="TOP">Top</option>
-                  <option value="BOTTOM">Bottom</option>
-                  <option value="YOUTUBE">YouTube</option>
-                  <option value="BACKGROUND">Background</option>
-                  <option value="BANNER">Banner</option>
-                  <option value="STATS">Stats</option>
-                  <option value="TOP_NEW">Top_new</option>
-                  <option value="MIDCAROUSEL">MidCarousel</option>
-                  <option value="PROMOTION">Promotion</option>
-                   <option value="BOTTOM_NEW">Bottom_new</option>
-                </Field>
-                <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
-              </div>
-
+              </>)}
               <div>
                 <label className="text-sm font-medium text-gray-700">Status</label>
                 <Field as="select" name="status" className="p-2 w-full rounded-md border border-gray-300 shadow-sm">
@@ -222,20 +234,24 @@ const AddBanner = () => {
                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
               </div>
 
-              <div>
+              <div  className={`${values.type == 'NEW_CUSTOMER' ? 'hidden' : ''}`}>
                 <label htmlFor="zone" className="text-sm font-medium text-gray-700">
                   Zone
                 </label>
                 <Select
                   options={ZONE_OPTIONS}
-                  onChange={(opt) => setFieldValue('zone', opt.value)}
+                  value={ZONE_OPTIONS.find((opt) => opt.value === values.zone) || null}
+                  onChange={(opt) => setFieldValue('zone', opt?.value || '')}
                   placeholder="Select Zone"
+                  isDisabled={values.type === 'NEW_CUSTOMER'}
                   className="w-full"
                   name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 
               {/* Drop Location (New Field) */}
+              {values.type !== 'NEW_CUSTOMER' && (
+                <>              
               <div>
                 <label className="text-sm font-medium text-gray-700">Drop Location </label>
                 <Field
@@ -292,8 +308,10 @@ const AddBanner = () => {
                   ))}
                 </Field>
               </div>
+              </>)}
 
               {/* Image Upload */}
+
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
                   Image
