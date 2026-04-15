@@ -539,7 +539,7 @@ export function SearchDrivers(props) {
             }  else {
                 reqBody = {
                     ...baseReqBody,
-                cabId: fullData?.parcelId || fullData?.Parcel?.id || fullData?.driver?.Parcel?.id || fullData?.Driver?.Parcel?.id || fullData?.id || driverId,
+                parcelId: fullData?.parcelId || fullData?.Parcel?.id || fullData?.driver?.Parcel?.id || fullData?.Driver?.Parcel?.id || fullData?.id || driverId,
                 };
             }
                 let data = await ApiRequestUtils.update(API_ROUTES.CONFIRM_PARCEL_BOOKING, reqBody);
