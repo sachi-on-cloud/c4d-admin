@@ -78,9 +78,12 @@ const AccountAdd = (props) => {
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
+        vehiclePhoto: null,
         consentForm: null,
         panImage: null,
         bankStatementImage: null,
+        insurance: null,
+        permit: null,
     });
 
     const initialValues = {
@@ -177,7 +180,7 @@ const AccountAdd = (props) => {
                             name={name}
                             onChange={onChange}
                             className="hidden"
-                            multiple={name !== "livePhoto" && name !== "bankStatement"}
+                            multiple={name !== "livePhoto" && name !== "bankStatement" && name !== "insurance" && name !== "permit"}
                         />
                     </div>
                 </td>
@@ -187,7 +190,7 @@ const AccountAdd = (props) => {
                             variant="small"
                             className="font-semibold underline cursor-pointer text-primary-900"
                             onClick={() => {
-                                if (label === 'Live Photo' || label === 'Bank Statement') {
+                                if (label === 'Live Photo' || label === 'Bank Statement' || label === 'Insurance' || label === 'Permit') {
                                     setModalData({
                                         image1: fullDocVal?.image1
                                     });
@@ -288,17 +291,43 @@ const AccountAdd = (props) => {
                 setFieldValue(label, uploadedFiles);
             }
 
-
-
-            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'rc' ? KYC_PROCESS.RC_COPY : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
+            let type = "";
+            switch (label) {
+                case "aadhaarImage":
+                    type = KYC_PROCESS.AADHAAR;
+                    break;
+                case "rc":
+                    type = KYC_PROCESS.RC_COPY;
+                    break;
+                case "drivingLicenseImage":
+                    type = KYC_PROCESS.DRIVING_LICENSE;
+                    break;
+                case "vehiclePhoto":
+                    type = KYC_PROCESS.VEHICLE_PHOTO;
+                    break;
+                case "panImage":
+                    type = KYC_PROCESS.PAN;
+                    break;
+                case "insurance":
+                    type = KYC_PROCESS.INSURANCE;
+                    break;
+                case "permit":
+                    type = KYC_PROCESS.PERMIT;
+                    break;
+                default:
+                    break;
+            }
             const formData = new FormData();
+            const isSingleFileDoc = label === "insurance" || label === "permit";
 
             formData.append('image1', files[0]);
-            formData.append('extImage1', files[0].name.split('.')[1]);
+            formData.append('extImage1', files[0].name.split('.').pop());
             formData.append('fileTypeImage1', files[0].type);
+            if (files[1] && !isSingleFileDoc) {
             formData.append('image2', files[1]);
-            formData.append('extImage2', files[1].name.split('.')[1]);
+            formData.append('extImage2', files[1].name.split('.').pop());
             formData.append('fileTypeImage2', files[1].type);
+            }
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
 
@@ -753,15 +782,32 @@ const AccountAdd = (props) => {
                                                     fullDocVal={imagePreviews.rc}
                                                     image2={imagePreviews.rc?.image2}
                                                     />
-                                            {values.type !== "Company" && values.type !== "Individual" && (
-                                            <>
+                                                    <DocumentUpload
+                                                    label="Vehicle Photo"
+                                                    value={imagePreviews.vehiclePhoto?.image1}
+                                                    name="vehiclePhoto"
+                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhoto")}
+                                                    setModalData={setModalData}
+                                                    fullDocVal={imagePreviews.vehiclePhoto}
+                                                    image2={imagePreviews.vehiclePhoto?.image2}
+                                                    />
                                                     <DocumentUpload
                                                         label="Insurance"
-                                                        value={values.insurance}
+                                                        value={imagePreviews.insurance?.image1}
                                                         name="insurance"
-                                                        onChange={(e) => handleUpload(e, setFieldValue, "insurance")}
+                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
                                                         setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.insurance}
                                                     />
+                                                    <DocumentUpload
+                                                        label="Permit"
+                                                        value={imagePreviews.permit?.image1}
+                                                        name="permit"
+                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "permit")}
+                                                        setModalData={setModalData}
+                                                        fullDocVal={imagePreviews.permit}
+                                                    />
+                                                    {values.type !== "Company" && values.type !== "Individual" && (
                                                     <DocumentUpload
                                                         label="Bank Statement"
                                                         value={imagePreviews.bankStatement?.image1}
@@ -771,7 +817,6 @@ const AccountAdd = (props) => {
                                                         fullDocVal={imagePreviews.bankStatement}
                                                         image2={imagePreviews.bankStatement?.image2}
                                                     />
-                                            </>
                                             )}
                                         </tbody>
                                         </table>

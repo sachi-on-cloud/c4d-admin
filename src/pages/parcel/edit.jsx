@@ -85,7 +85,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                         name={name}
                         onChange={onChange}
                         className="hidden"
-                        multiple={name !== "livePhoto" && name !== "bankStatementImage"}
+                        multiple={name !== "livePhoto" && name !== "bankStatementImage" && name !== "insurranceImage" && name !== "permitImage"}
                     />
                 </div>
             </td>
@@ -126,8 +126,10 @@ const ParcelEdit = () => {
         drivingLicenseImage: null,
         panImage: null,
         rcImage: null,
+        vehiclePhotoImage: null,
         bankStatementImage: null,
         insurranceImage: null,
+        permitImage: null,
     });
 
     useEffect(() => {
@@ -148,7 +150,9 @@ const ParcelEdit = () => {
             bankStatementImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.BANK_STATEMENT),
             panImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.PAN),
             rcImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.RC_COPY),
+            vehiclePhotoImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.VEHICLE_PHOTO),
             insurranceImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.INSURANCE),
+            permitImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.PERMIT),
         });
     };
 
@@ -193,6 +197,9 @@ const ParcelEdit = () => {
                 case 'drivingLicenseImage':
                     type = KYC_PROCESS.DRIVING_LICENSE;
                     break;
+                case 'vehiclePhotoImage':
+                    type = KYC_PROCESS.VEHICLE_PHOTO;
+                    break;
                 case 'panImage':
                     type = KYC_PROCESS.PAN;
                     break;
@@ -205,6 +212,9 @@ const ParcelEdit = () => {
                 case 'insurranceImage':
                     type = KYC_PROCESS.INSURANCE;
                     break;
+                case 'permitImage':
+                    type = KYC_PROCESS.PERMIT;
+                    break;
                 default:
                     type = '';
             }
@@ -214,7 +224,7 @@ const ParcelEdit = () => {
             formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
-            const isSingleFile = label === "livePhoto" || label === "bankStatementImage";
+            const isSingleFile = label === "livePhoto" || label === "bankStatementImage" || label === "insurranceImage" || label === "permitImage";
             
             if (files[0]) {
                 formData.append('image1', files[0]);
@@ -513,6 +523,30 @@ const ParcelEdit = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rcImage", imagePreviews?.rcImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Vehicle Photo"
+                                                value={imagePreviews.vehiclePhotoImage?.image1}
+                                                name="vehiclePhotoImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhotoImage", imagePreviews?.vehiclePhotoImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.vehiclePhotoImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Insurance"
+                                                value={imagePreviews.insurranceImage?.image1}
+                                                name="insurranceImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.insurranceImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Permit"
+                                                value={imagePreviews.permitImage?.image1}
+                                                name="permitImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "permitImage", imagePreviews?.permitImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.permitImage}
                                             />
                                         </tbody>
                                     </table>
