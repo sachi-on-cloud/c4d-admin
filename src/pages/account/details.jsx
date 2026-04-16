@@ -2,26 +2,118 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import DocumentsList from '@/components/DocumentsList';
-import { Button, Typography } from '@material-tailwind/react';
+import { Button, Typography, Card, CardBody, Chip } from '@material-tailwind/react';
 import OwnersCabList from '@/components/OwnersCabList';
 import DocumentLogs from '@/components/DocumentLogs';
 import SubscriptionLog from '@/components/SubscriptionLog';
 import DriverAccountBookingNotes from '@/components/DriverAccountBookingNotes';
+import OwnerCabWizardLayout from '@/pages/account/wizard/OwnerCabWizardLayout';
 
 const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     const navigate = useNavigate();
     const [accountVal, setAccountVal] = useState({});
+    const [documentData, setDocumentData] = useState([]);
     const { id } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const wizardSteps = [
+        { key: 'account', label: 'Account Fields + Aadhaar + Live Photo' },
+        { key: 'cab', label: 'Cab Fields + Cab Documents' },
+        { key: 'review-submit', label: 'Review & Submit' },
+    ];
+    const stepKey = searchParams.get('step') || 'account';
+    const isAccountStep = stepKey === 'account';
+    const isCabStep = stepKey === 'cab';
+    const isReviewStep = stepKey === 'review-submit';
+    const currentStep = Math.max(1, wizardSteps.findIndex((step) => step.key === stepKey) + 1);
+    useEffect(() => {
+        if (!wizardSteps.some((step) => step.key === stepKey)) {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.set('step', 'account');
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams, stepKey]);
+    const handleStepChange = (stepNo) => {
+        const step = wizardSteps[stepNo - 1];
+        if (!step) return;
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set('step', step.key);
+        setSearchParams(nextParams);
+    };
     useEffect(() => {
         if (id) {
             fetchItem(id);
+            fetchDocuments(id);
         }
     }, [id]);
     const fetchItem = async (itemId) => {
         const data = await ApiRequestUtils.get(`${API_ROUTES.GET_ACCOUNT_BY_ID}/${itemId}`);
         setAccountVal(data?.data?.data);
+    };
+    const fetchDocuments = async (itemId) => {
+        const data = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_DOCUMENT_DETAILS, {
+            id: itemId,
+            user: 'account',
+        });
+        if (data?.success) {
+            setDocumentData(data?.data?.Proofs || []);
+        }
+    };
+
+    const getDocStatus = (docTypes) => {
+        const types = Array.isArray(docTypes) ? docTypes : [docTypes];
+        const doc = documentData.find((item) => types.includes(item?.type));
+        return doc?.status || 'MISSING';
+    };
+
+    const getStatusChipColor = (status) => {
+        if (status === 'APPROVED') return 'green';
+        if (status === 'PENDING') return 'amber';
+        if (status === 'DECLINED') return 'red';
+        return 'blue-gray';
+    };
+
+    const accountStepDocs = [
+        { label: 'Aadhaar Image', type: ['AADHAAR'] },
+        { label: 'Live Photo', type: ['PHOTO', 'LIVE_PHOTO'] },
+    ];
+
+    const cabStepDocs = [
+        { label: 'RC Copy', type: ['RC_COPY'] },
+        { label: 'Vehicle Photo', type: ['VEHICLE_PHOTO'] },
+        { label: 'Insurance', type: ['INSURANCE'] },
+        { label: 'Permit', type: ['PERMIT'] },
+    ];
+
+    const renderStepStatusSummary = (title, docs) => {
+        const pendingOrNotApproved = docs.filter((doc) => getDocStatus(doc.type) !== 'APPROVED').length;
+        return (
+            <Card className="mb-4 border border-blue-gray-100">
+                <CardBody className="py-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <Typography variant="h6">{title}</Typography>
+                        <Chip
+                            size="sm"
+                            value={pendingOrNotApproved > 0 ? `${pendingOrNotApproved} Pending/Action` : 'All Approved'}
+                            color={pendingOrNotApproved > 0 ? 'amber' : 'green'}
+                            className="w-fit"
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                        {docs.map((doc) => {
+                            const status = getDocStatus(doc.type);
+                            return (
+                                <div key={doc.type} className="flex items-center justify-between rounded-md border border-blue-gray-50 px-3 py-2">
+                                    <Typography className="text-sm font-medium text-blue-gray-800">{doc.label}</Typography>
+                                    <Chip size="sm" value={status} color={getStatusChipColor(status)} className="w-fit" />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </CardBody>
+            </Card>
+        );
     };
     const initialValues = {
         name: accountVal?.name || '',
@@ -43,8 +135,18 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
     return (
         <>
             <div className="p-4">
+                <OwnerCabWizardLayout
+                    title="Owner Details Wizard"
+                    subtitle="Each step has its own URL page. Account step includes Aadhaar and Live Photo."
+                    steps={wizardSteps}
+                    currentStep={currentStep}
+                    onStepChange={handleStepChange}
+                />
 
                 <h2 className="text-2xl font-bold mb-4">Account Details</h2>
+                {isAccountStep && (
+                <>
+                {renderStepStatusSummary('Account Step Document Status', accountStepDocs)}
                 <Formik
                     initialValues={initialValues}
                     onSubmit={() => { }}
@@ -242,12 +344,28 @@ const AccountDetails = ({ btnShow = false, noApprove = false }) => {
                         </Form>
                     )}
                 </Formik>
+                </>
+                )}
             </div>
-            <DriverAccountBookingNotes accountId={accountVal?.id} />
-            {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
-            {accountVal && accountVal?.id && (<DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels} serviceType={accountVal?.type} />)}
-            {/* {accountVal && accountVal?.subscriptionLog && <SubscriptionLog subscriptionlog={accountVal?.subscriptionLog} />} */}
-            {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
+            {isCabStep && (
+                <>
+                    <div className="px-4">
+                        {renderStepStatusSummary('Cab Step Document Status', cabStepDocs)}
+                    </div>
+                    {accountVal && !btnShow && <OwnersCabList cabsList={accountVal?.Cabs} id={accountVal?.id} ownerName={accountVal?.name} type={accountVal?.type} />}
+                    {accountVal && accountVal?.id && (<DocumentsList id={accountVal?.id} type={'account'} noApprove={noApprove} cabsList={accountVal?.Cabs} autoList={accountVal?.Autos} parcelsList={accountVal?.Parcels} serviceType={accountVal?.type} />)}
+                </>
+            )}
+            {isReviewStep && (
+                <>
+                    <div className="px-4">
+                        {renderStepStatusSummary('Account Step Document Status', accountStepDocs)}
+                        {renderStepStatusSummary('Cab Step Document Status', cabStepDocs)}
+                    </div>
+                    <DriverAccountBookingNotes accountId={accountVal?.id} />
+                    {accountVal && accountVal?.documentLog && <DocumentLogs documentlogs={accountVal?.documentLog} />}
+                </>
+            )}
             {!btnShow &&
                 <div className='flex justify-center w-full'>
                     <Button

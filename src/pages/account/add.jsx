@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 // import Select from 'react-select';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { ACCOUNT_ADD_SCHEMA } from '@/utils/validations';
 import { Alert, Button, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem, Spinner } from '@material-tailwind/react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Select from 'react-select'
+import OwnerCabWizardLayout from '@/pages/account/wizard/OwnerCabWizardLayout';
 
 const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -57,6 +58,14 @@ const LocationInput = ({ field, form, suggestions, onSearch, disabled, onSelect 
     );
 };
 
+const FormDirtyTracker = ({ onDirtyChange }) => {
+    const { dirty } = useFormikContext();
+    useEffect(() => {
+        onDirtyChange(dirty);
+    }, [dirty, onDirtyChange]);
+    return null;
+};
+
 const AccountAdd = (props) => {
     const [districtSearchText, setDistrictSearchText] = useState("");
     const [thalukSearchText, setThalukSearchText] = useState("");
@@ -64,6 +73,7 @@ const AccountAdd = (props) => {
     const [alert, setAlert] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [modalData, setModalData] = useState(null);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSameAddress, setIsSameAddress] = useState(false);
@@ -72,6 +82,7 @@ const AccountAdd = (props) => {
         ownerId: "",
         value: false
     });
+    const [isFormDirty, setIsFormDirty] = useState(false);
     const [isEditable, setIsEditable] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
@@ -100,7 +111,42 @@ const AccountAdd = (props) => {
         pincode: "",
     };
 
-    const onSubmit = async (values, { setSubmitting, setFieldError }) => {
+    const wizardSteps = [
+        { key: 'account', label: 'Account Fields + Aadhaar + Live Photo' },
+        { key: 'cab', label: 'Cab Fields + Cab Documents' },
+        { key: 'review-submit', label: 'Review & Submit' },
+    ];
+    const stepKey = searchParams.get('step') || 'account';
+    const isAccountStep = stepKey === 'account';
+    const isCabStep = stepKey === 'cab';
+    const isReviewStep = stepKey === 'review-submit';
+    const currentStep = Math.max(1, wizardSteps.findIndex((step) => step.key === stepKey) + 1);
+
+    useEffect(() => {
+        if (!wizardSteps.some((step) => step.key === stepKey)) {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.set('step', 'account');
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams, stepKey]);
+
+    const handleStepChange = (stepNo) => {
+        const step = wizardSteps[stepNo - 1];
+        if (!step) return;
+        const nextStepKey = step.key;
+        if (nextStepKey !== stepKey && isFormDirty) {
+            const shouldLeave = window.confirm(
+                "You have unsaved changes in this step. Do you want to switch steps without saving?"
+            );
+            if (!shouldLeave) return;
+            setIsFormDirty(false);
+        }
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set('step', nextStepKey);
+        setSearchParams(nextParams);
+    };
+
+    const onSubmit = async (values, { setSubmitting, resetForm }) => {
         // console.log('Form submission started with values:', values);
         try {
             const reqBody = {
@@ -131,7 +177,9 @@ const AccountAdd = (props) => {
                 // });
                 setOwnerAdded({
                     ownerId: data?.data?.id,
-                    value: true
+                    value: true,
+                    ownerName: values?.name,
+                    type: values?.type,
                 });
                 setIsEditable(false);
             }
@@ -152,7 +200,43 @@ const AccountAdd = (props) => {
     }));
 
 
-    const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal }) => {
+    const getNormalizedDocStatus = (doc) => {
+        const normalized = (doc?.status || "").toUpperCase();
+        if (normalized) return normalized;
+        return doc?.image1 ? "PENDING" : "PENDING_UPLOAD";
+    };
+    const isDocumentApproved = (doc) => getNormalizedDocStatus(doc) === "APPROVED";
+    const isAccountDocsApproved = isDocumentApproved(imagePreviews?.aadhaarImage) && isDocumentApproved(imagePreviews?.livePhoto);
+    const handleAccountStepSubmit = () => {
+        if (!ownerAdded?.value) return;
+        if (!isAccountDocsApproved) {
+            setAlert({
+                message: "Approve Aadhaar and Live Photo before moving to next step.",
+                color: "amber",
+            });
+            setTimeout(() => setAlert(null), 2500);
+            return;
+        }
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set('step', 'cab');
+        setSearchParams(nextParams);
+        setIsFormDirty(false);
+        setAlert({
+            message: "Submitted. Moved to next step.",
+            color: "green",
+        });
+        setTimeout(() => setAlert(null), 2500);
+    };
+
+    const DocumentUpload = ({ label, value, status, name, onChange, setModalData, fullDocVal }) => {
+        const normalizedStatus = (status || "").toUpperCase();
+        const statusColorClass = normalizedStatus === "APPROVED"
+            ? "text-green-500"
+            : normalizedStatus === "DECLINED"
+                ? "text-red-500"
+                : normalizedStatus === "PENDING_UPLOAD"
+                    ? "text-primary-500"
+                    : "text-amber-500";
         return (
             <tr>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -160,9 +244,9 @@ const AccountAdd = (props) => {
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
                     <Typography
-                        className={`text-xs font-semibold ${value ? 'text-green-500' : 'text-primary-500'}`}
+                        className={`text-xs font-semibold ${statusColorClass}`}
                     >
-                        {value ? "UPLOADED" : "NO DOCUMENTS"}
+                        {normalizedStatus || "PENDING_UPLOAD"}
                     </Typography>
                 </td>
                 <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -178,7 +262,15 @@ const AccountAdd = (props) => {
                             accept="image/*, application/pdf"
                             id={name}
                             name={name}
-                            onChange={onChange}
+                            onClick={(e) => {
+                                // Allow selecting the same file again to re-trigger upload.
+                                e.currentTarget.value = "";
+                            }}
+                            onChange={(e) => {
+                                onChange(e);
+                                // Reset so same file selection triggers onChange next time too.
+                                e.currentTarget.value = "";
+                            }}
                             className="hidden"
                             multiple={name !== "livePhoto" && name !== "bankStatement" && name !== "insurance" && name !== "permit"}
                         />
@@ -248,11 +340,22 @@ const AccountAdd = (props) => {
         try {
             setLoading(true);
             const files = e.target.files;
+            console.debug("[AccountAdd][handleImageUpload] triggered", {
+                label,
+                fileCount: files?.length || 0,
+                ownerId: ownerAdded?.ownerId,
+            });
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
+            if (!files || files.length === 0) {
+                console.debug("[AccountAdd][handleImageUpload] no files selected", { label });
+                setLoading(false);
+                return;
+            }
             if (files.length > 2) {
                 setLoading(false);
                 alert("You can upload a maximum of two documents.");
+                console.debug("[AccountAdd][handleImageUpload] blocked: too many files", { label, count: files.length });
                 return;
             }
 
@@ -262,6 +365,11 @@ const AccountAdd = (props) => {
             for (let i = 0; i < files.length; i++) {
                 if (!allowedTypes.includes(files[i].type)) {
                     setLoading(false);
+                    console.debug("[AccountAdd][handleImageUpload] blocked: invalid type", {
+                        label,
+                        type: files[i].type,
+                        name: files[i].name,
+                    });
                     setAlert({
                         message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                         color: "red",
@@ -271,6 +379,11 @@ const AccountAdd = (props) => {
                 }
                 if (files[i].size > maxSize) {
                     setLoading(false);
+                    console.debug("[AccountAdd][handleImageUpload] blocked: file too large", {
+                        label,
+                        size: files[i].size,
+                        name: files[i].name,
+                    });
                     setAlert({
                         message: "File size exceeds 10MB limit.",
                         color: "red",
@@ -330,10 +443,19 @@ const AccountAdd = (props) => {
             }
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
+            console.debug("[AccountAdd][handleImageUpload] calling API", {
+                label,
+                type,
+                accountId: ownerAdded?.ownerId,
+            });
 
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
-
-            console.log('DATA IN DOC INSERT :', data);
+            console.debug("[AccountAdd][handleImageUpload] API response", {
+                label,
+                success: data?.success,
+                message: data?.message,
+                documentId: data?.data?.id,
+            });
 
             if (data?.success) {
                 // console.log(data);
@@ -357,18 +479,34 @@ const AccountAdd = (props) => {
             }
         }
         catch (err) {
-            console.log("ERR - >", err);
+            console.error("[AccountAdd][handleImageUpload] error", { label, error: err });
+            setLoading(false);
         }
     };
     const handlePhotoUpload = async (e, setFieldValue, label) => {
         try {
             setLoading(true);
             const file = e.target.files[0];
+            console.debug("[AccountAdd][handlePhotoUpload] triggered", {
+                label,
+                hasFile: Boolean(file),
+                ownerId: ownerAdded?.ownerId,
+            });
+            if (!file) {
+                console.debug("[AccountAdd][handlePhotoUpload] no file selected", { label });
+                setLoading(false);
+                return;
+            }
             const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
             const maxSize = 10 * 1024 * 1024; // 10MB
 
             if (!allowedTypes.includes(file.type)) {
                 setLoading(false);
+                console.debug("[AccountAdd][handlePhotoUpload] blocked: invalid type", {
+                    label,
+                    type: file.type,
+                    name: file.name,
+                });
                 setAlert({
                     message: "Invalid file type. Please upload JPG, PNG, or PDF.",
                     color: "red",
@@ -378,6 +516,11 @@ const AccountAdd = (props) => {
             }
             if (file.size > maxSize) {
                 setLoading(false);
+                console.debug("[AccountAdd][handlePhotoUpload] blocked: file too large", {
+                    label,
+                    size: file.size,
+                    name: file.name,
+                });
                 setAlert({
                     message: "File size exceeds 10MB limit.",
                     color: "red",
@@ -406,10 +549,19 @@ const AccountAdd = (props) => {
             formData.append('fileTypeImage1', file.type);
             formData.append('type', type);
             formData.append('accountId', ownerAdded?.ownerId);
+            console.debug("[AccountAdd][handlePhotoUpload] calling API", {
+                label,
+                type,
+                accountId: ownerAdded?.ownerId,
+            });
 
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_PHOTO, formData);
-
-            console.log('DATA IN DOC INSERT :', data);
+            console.debug("[AccountAdd][handlePhotoUpload] API response", {
+                label,
+                success: data?.success,
+                message: data?.message,
+                documentId: data?.data?.id,
+            });
 
 
             if (data?.success) {
@@ -431,33 +583,19 @@ const AccountAdd = (props) => {
                 setTimeout(() => setAlert(null), 5000);
             }
         } catch (err) {
+            console.error("[AccountAdd][handlePhotoUpload] error", { label, error: err });
             setAlert({
                 message: "An error occurred while uploading the photo.",
                 color: "red",
             });
             setTimeout(() => setAlert(null), 5000);
+            setLoading(false);
         }
     };
 
 
-    const handleGoogleAddressSelect = (place) => {
-        if (!place || !place.formatted_address) {
-            console.error("Google Address selection is invalid", place);
-            return;
-        }
-
-        const parsedAddress = parseAddress(place.formatted_address);
-        parsedAddress.pincode = extractPincode(place.address_components);
-
-        setFieldValue("address", place.formatted_address);
-
-        if (isSameAddress) {
-            setFieldValue("street", parsedAddress.street);
-            setFieldValue("thaluk", parsedAddress.taluk);
-            setFieldValue("district", parsedAddress.district);
-            setFieldValue("state", parsedAddress.state);
-            setFieldValue("pincode", parsedAddress.pincode);
-        }
+    const handleGoogleAddressSelect = () => {
+        // Address value is already set by LocationInput via form.setFieldValue.
     };
 
     const parseAddress = (address) => {
@@ -486,6 +624,13 @@ const AccountAdd = (props) => {
 
     return (
         <div className="p-4">
+            <OwnerCabWizardLayout
+                title="Owner Onboarding Wizard"
+                subtitle="Each step has its own URL page. Account step includes Aadhaar and Live Photo."
+                steps={wizardSteps}
+                currentStep={currentStep}
+                onStepChange={handleStepChange}
+            />
             {alert && (
                 <div className='mb-2'>
                     <Alert
@@ -496,6 +641,8 @@ const AccountAdd = (props) => {
                     </Alert>
                 </div>
             )}
+            {isAccountStep && (
+            <>
             <h2 className="text-2xl font-bold mb-4">Add new Account</h2>
             <Formik
                 initialValues={initialValues}
@@ -505,6 +652,7 @@ const AccountAdd = (props) => {
             >
                 {({ handleSubmit, dirty, isValid, setFieldValue, values, errors, touched }) => (
                     <Form className="space-y-4">
+                        <FormDirtyTracker onDirtyChange={setIsFormDirty} />
                         <div className="grid grid-cols-1 gap-4">
                             <div className='grid grid-cols-2 gap-4'>
                                 <div>
@@ -517,7 +665,7 @@ const AccountAdd = (props) => {
                                     <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type == 'driverWithVehicles' ? "Full Name" : 'Company Name'}</label>
+                                    <label htmlFor="name" className="text-sm font-medium text-gray-700">{values.type === 'Individual' ? "Full Name" : 'Company Name'}</label>
                                     <Field type="text" name="name" disabled={!isEditable} className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" />
                                     <ErrorMessage name="name" component="div" className="text-red-500 text-sm my-1" />
                                 </div>
@@ -733,91 +881,26 @@ const AccountAdd = (props) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                    {values.type === "Individual" && (
-                                                    <DocumentUpload
-                                                        label="Driving License Image"
-                                                        value={imagePreviews.drivingLicenseImage?.image1}
-                                                        name="drivingLicenseImage"
-                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "drivingLicenseImage")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.drivingLicenseImage}
-                                                        image2={imagePreviews.drivingLicenseImage?.image2}
-                                                    />
-                                                    )}
                                                     <DocumentUpload
                                                     label="Aadhaar Image"
                                                     value={imagePreviews.aadhaarImage?.image1}
+                                                    status={getNormalizedDocStatus(imagePreviews.aadhaarImage)}
                                                     name="aadhaarImage"
                                                     onChange={(e) => handleImageUpload(e, setFieldValue, "aadhaarImage")}
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.aadhaarImage}
                                                     image2={imagePreviews.aadhaarImage?.image2}
                                                     />
-                                                    {values.type !== "Company" && values.type !== "Individual" && (
-                                                    <DocumentUpload
-                                                        label="PAN Image"
-                                                        value={imagePreviews.panImage?.image1}
-                                                        name="panImage"
-                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "panImage")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.panImage}
-                                                        image2={imagePreviews.panImage?.image2}
-                                                    />
-                                                    )}
                                                     <DocumentUpload
                                                     label="Live Photo"
                                                     value={imagePreviews.livePhoto?.image1}
+                                                    status={getNormalizedDocStatus(imagePreviews.livePhoto)}
                                                     name="livePhoto"
                                                     onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto")}
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.livePhoto}
                                                     image2={imagePreviews.livePhoto?.image2}
                                                     />
-                                                    <DocumentUpload
-                                                    label="RC"
-                                                    value={imagePreviews.rc?.image1}
-                                                    name="rc"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "rc")}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.rc}
-                                                    image2={imagePreviews.rc?.image2}
-                                                    />
-                                                    <DocumentUpload
-                                                    label="Vehicle Photo"
-                                                    value={imagePreviews.vehiclePhoto?.image1}
-                                                    name="vehiclePhoto"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhoto")}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.vehiclePhoto}
-                                                    image2={imagePreviews.vehiclePhoto?.image2}
-                                                    />
-                                                    <DocumentUpload
-                                                        label="Insurance"
-                                                        value={imagePreviews.insurance?.image1}
-                                                        name="insurance"
-                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.insurance}
-                                                    />
-                                                    <DocumentUpload
-                                                        label="Permit"
-                                                        value={imagePreviews.permit?.image1}
-                                                        name="permit"
-                                                        onChange={(e) => handleImageUpload(e, setFieldValue, "permit")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.permit}
-                                                    />
-                                                    {values.type !== "Company" && values.type !== "Individual" && (
-                                                    <DocumentUpload
-                                                        label="Bank Statement"
-                                                        value={imagePreviews.bankStatement?.image1}
-                                                        name="bankStatement"
-                                                        onChange={(e) => handlePhotoUpload(e, setFieldValue, "bankStatement")}
-                                                        setModalData={setModalData}
-                                                        fullDocVal={imagePreviews.bankStatement}
-                                                        image2={imagePreviews.bankStatement?.image2}
-                                                    />
-                                            )}
                                         </tbody>
                                         </table>
                                     </CardBody>
@@ -843,11 +926,34 @@ const AccountAdd = (props) => {
                                 >
                                     Edit
                                 </Button>
+                                <Button
+                                    fullWidth
+                                    onClick={handleAccountStepSubmit}
+                                    className={`my-6 mx-2 ${ColorStyles.continueButtonColor}`}
+                                >
+                                    Submit
+                                </Button>
                             </div>
                         }
                     </Form>
                 )}
             </Formik>
+            </>
+            )}
+            {isReviewStep && (
+                <Card className="mt-2">
+                    <CardBody className="space-y-2">
+                        <Typography variant="h5">Review & Submit</Typography>
+                        <Typography className="text-sm">Owner ID: {ownerAdded?.ownerId || '-'}</Typography>
+                        <Typography className="text-sm">Aadhaar: {imagePreviews?.aadhaarImage?.image1 ? 'Uploaded' : 'Pending'}</Typography>
+                        <Typography className="text-sm">Live Photo: {imagePreviews?.livePhoto?.image1 ? 'Uploaded' : 'Pending'}</Typography>
+                        <Typography className="text-sm text-blue-gray-600">
+                            Final review is complete when account is created and required account documents are uploaded.
+                        </Typography>
+                    </CardBody>
+                </Card>
+            )}
+
             {modalData && (
                 <Dialog open={Boolean(modalData)} handler={() => setModalData(null)} size="md">
                     <DialogHeader>

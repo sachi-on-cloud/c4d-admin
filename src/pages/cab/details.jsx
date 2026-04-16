@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import PriceTable from '@/components/PriceTable';
 import { Button } from '@material-tailwind/react';
@@ -26,6 +26,8 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
     };
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const returnTo = location.state?.returnTo || "";
     const [cab, setCab] = useState({});
     const [packageDetails, setPackageDetails] = useState([]);
     const { id } = useParams();
@@ -232,13 +234,17 @@ const CabDetails = ({ btnShow = false, noApprove = false }) => {
             <CabPriceTableLog id={id} />
             {!btnShow && <div className='flex justify-center w-full'>
                 <Button
-                    onClick={() => navigate(`/dashboard/vendors/account/details/${cab?.result?.AccountId}`)}
+                    onClick={() => navigate(returnTo || `/dashboard/vendors/account/details/${cab?.result?.AccountId}`)}
                     className={`my-6 px-8 ${ColorStyles.backButton}`}
                 >
                     Back
                 </Button>
                 <Button
-                    onClick={() => navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`)}
+                    onClick={() =>
+                        navigate(`/dashboard/vendors/account/allVehicles/edit/${id}`, {
+                            state: { returnTo: returnTo || `/dashboard/vendors/account/details/${cab?.result?.AccountId}` },
+                        })
+                    }
                     className='my-6 px-8 text-white border-2 rounded-xl'
                 >
                     Edit

@@ -97,7 +97,7 @@ const updatePricesForCarType = (carType, values, setFieldValue, packageDetails) 
     setFieldValue("prices", newPrices);
 };
 
-const CabAdd = () => {
+const CabAdd = ({ ownerName: ownerNameProp, type: typeProp, accountId: accountIdProp, embedded = false, showTitle = true, onCancel, onSuccess }) => {
     const [cabVal, setCabVal] = useState({});
     const [alert, setAlert] = useState(false);
     const [packageDetails, setPackageDetails] = useState([]);
@@ -114,7 +114,11 @@ const CabAdd = () => {
     const [modalData, setModalData] = useState(null);
     const [showCarTypeError, setShowCarTypeError] = useState(false);
     const location = useLocation();
-    const { ownerName, type, accountId } = location.state;
+    const routeState = location.state || {};
+    const ownerName = ownerNameProp ?? routeState.ownerName ?? "";
+    const type = typeProp ?? routeState.type ?? "";
+    const accountId = accountIdProp ?? routeState.accountId ?? "";
+    const returnTo = routeState.returnTo || "";
 
     const getAccountNames = async () => {
         try {
@@ -200,7 +204,9 @@ const getPackageListDetails = async () => {
         getCarTypes();
         getPackageListDetails();
         getAccountNames();
-        getAccountRelatedDrivers(accountId);
+        if (accountId) {
+            getAccountRelatedDrivers(accountId);
+        }
         // checkDriver();
         // if (isEditMode) {
         //     fetchItem(id);
@@ -421,9 +427,10 @@ const getPackageListDetails = async () => {
                     resetForm();
                 } 
             else if (resp?.success && resp?.code === 200) {
-                setAlert({ message: 'Cab Added Successfully', color: 'green' }, () => {
-                    navigate(`/dashboard/vendors/account/details/${cabDetails?.accountId}`);
-                });
+                setAlert({ message: 'Cab Added Successfully', color: 'green' });
+                if (embedded && onSuccess) {
+                    onSuccess(resp?.data, cabDetails);
+                }
             }
             // else {
             //     // navigate('/dashboard/vendors/account/', {
@@ -441,11 +448,14 @@ const getPackageListDetails = async () => {
     };
     useEffect(() => {
         let timeoutId;
-        if (alert?.message === 'Cab Added Successfully') {
+        if (alert?.message === 'Cab Added Successfully' && !embedded) {
             timeoutId = setTimeout(() => {
                 setAlert(null);
-                console.log('Navigating to:', `/dashboard/vendors/account/details/${accountId}`);
-                navigate(`/dashboard/vendors/account/details/${accountId}`);
+                if (returnTo) {
+                    navigate(returnTo);
+                } else {
+                    navigate(`/dashboard/vendors/account/details/${accountId}`);
+                }
             }, 2000);
         }
         return () => {
@@ -453,7 +463,7 @@ const getPackageListDetails = async () => {
                 clearTimeout(timeoutId);
             }
         };
-    }, [alert, accountId, navigate]);
+    }, [alert, accountId, embedded, navigate, returnTo]);
     const currentDate = () => {
         return (new Date()).toISOString().split('T')[0];
     };
@@ -468,7 +478,7 @@ const getPackageListDetails = async () => {
                     {alert.message}
                 </Alert>
             </div>}
-            <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>
+            {showTitle && <h2 className="text-2xl font-bold mb-4">Add New Cab</h2>}
             <Formik
                 initialValues={initialValues}
                 validationSchema={CAB_ADD_SCHEMA}
@@ -816,7 +826,13 @@ const getPackageListDetails = async () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => { navigate('/dashboard/vendors/account'); }}
+                                onClick={() => {
+                                    if (embedded && onCancel) {
+                                        onCancel();
+                                    } else {
+                                        navigate(returnTo || '/dashboard/vendors/account');
+                                    }
+                                }}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel

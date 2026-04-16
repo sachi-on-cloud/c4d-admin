@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Button, Card,Alert, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody } from '@material-tailwind/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 import { CAB_SCHEMA } from '@/utils/validations';
 import moment from 'moment';
@@ -67,6 +67,8 @@ const CabEdit = () => {
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
+    const location = useLocation();
+    const returnTo = location.state?.returnTo || "";
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalData, setModalData] = useState(null);
     const [blockedReason, setBlockedReason] = useState(cabVal?.result?.blockedReason || '');
@@ -163,11 +165,11 @@ const getPackageListDetails = async () => {
                 getAccountRelatedDrivers(data?.data?.result?.Account?.id)
             } else {
                 console.error('No cab data received');
-                navigate('/dashboard/vendors/account/allVehicles');
+                navigate(returnTo || '/dashboard/vendors/account/allVehicles');
             }
         } catch (error) {
             console.error('Error fetching driver:', error);
-            navigate('/dashboard/vendors/account/allVehicles');
+            navigate(returnTo || '/dashboard/vendors/account/allVehicles');
         }
     };
 
@@ -409,8 +411,7 @@ const getPackageListDetails = async () => {
     if (alert?.message === 'Cab Updated Successfully') {
       timeoutId = setTimeout(() => {
         setAlert(null);
-        // console.log('Navigating to:', `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
-        navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
+        navigate(returnTo || `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`);
       }, 5000);
     }
     return () => {
@@ -418,7 +419,7 @@ const getPackageListDetails = async () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [alert, cabVal, navigate]);
+  }, [alert, cabVal, navigate, returnTo]);
   
 
 
@@ -748,7 +749,7 @@ const getPackageListDetails = async () => {
                         <div className='flex flex-row'>
                             <Button
                                 fullWidth
-                                onClick={() => navigate(`/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`)}
+                                onClick={() => navigate(returnTo || `/dashboard/vendors/account/details/${cabVal?.result?.Account?.id}`)}
                                 className='my-6 mx-2 text-black border-2 border-gray-400 bg-white rounded-xl'
                             >
                                 Cancel
