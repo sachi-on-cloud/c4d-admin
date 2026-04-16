@@ -59,11 +59,8 @@ const DriverEdit = () => {
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
-        vehiclePhoto: null,
         consentForm: null,
-        panImage: null,
-        insurance: null,
-        permit: null
+        panImage: null
     });
     const { id } = useParams();
     const isEditMode = !!id;
@@ -134,10 +131,7 @@ const DriverEdit = () => {
                     policeClearance: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.POLICE_CLEARANCE),
                     consentForm: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.CONSENT_FORM),
                     livePhoto: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.LIVE_PHOTO),
-                    panImage: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.PAN),
-                    vehiclePhoto: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.VEHICLE_PHOTO),
-                    insurance: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.INSURANCE),
-                    permit: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.PERMIT)
+                    panImage: getDocumentByType(data?.data?.result?.Proofs, KYC_PROCESS.PAN)
                 });
             } else {
                 console.error('No driver data received');
@@ -398,7 +392,7 @@ const [blockedReason, setBlockedReason] = useState('');
                             name={name}
                             onChange={onChange}
                             className="hidden"
-                            multiple={name !== "livePhoto" && name !== "insurance" && name !== "permit"}
+                            multiple={name !== "livePhoto"}
                         />
                     </div>
                 </td>
@@ -408,7 +402,7 @@ const [blockedReason, setBlockedReason] = useState('');
                             variant="small"
                             className="font-semibold underline cursor-pointer text-primary-900"
                             onClick={() => {
-                                if (label === 'Live Photo' || label === 'Insurance' || label === 'Permit') {
+                                if (label === 'Live Photo') {
                                     setModalData({
                                         image: fullDocVal?.image1
                                     })
@@ -489,9 +483,8 @@ const [blockedReason, setBlockedReason] = useState('');
 
             const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR :
                 label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE :
-                    label === 'vehiclePhoto' ? KYC_PROCESS.VEHICLE_PHOTO :
                     label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM :
-                        label === 'panImage' ? KYC_PROCESS.PAN : label === 'insurance' ? KYC_PROCESS.INSURANCE : label === 'permit' ? KYC_PROCESS.PERMIT : '';
+                        label === 'panImage' ? KYC_PROCESS.PAN : '';
 
 
             // Create FormData
@@ -504,7 +497,7 @@ const [blockedReason, setBlockedReason] = useState('');
                 formData.append("extImage1", files[0].name.split(".").pop());
                 formData.append("fileTypeImage1", files[0].type);
             }
-            if (files[1] && label !== "insurance" && label !== "permit") {
+            if (files[1]) {
                 formData.append("image2", files[1]);
                 formData.append("extImage2", files[1].name.split(".").pop());
                 formData.append("fileTypeImage2", files[1].type);
@@ -1143,15 +1136,6 @@ const [blockedReason, setBlockedReason] = useState('');
                                                     fullDocVal={imagePreviews.drivingLicenseImage}
                                                     image2={imagePreviews.drivingLicenseImage?.image2}
                                                 />
-                                                <DocumentUpload
-                                                    label="Vehicle Photo"
-                                                    value={imagePreviews.vehiclePhoto?.image1}
-                                                    name="vehiclePhoto"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhoto", imagePreviews?.vehiclePhoto?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.vehiclePhoto}
-                                                    image2={imagePreviews.vehiclePhoto?.image2}
-                                                />
                                                 {/* <DocumentUpload
                                                     label="Pan Image"
                                                     value={imagePreviews.panImage?.image1}
@@ -1176,22 +1160,6 @@ const [blockedReason, setBlockedReason] = useState('');
                                                     onChange={(e) => handlePhotoUpload(e, setFieldValue, "livePhoto", imagePreviews?.livePhoto?.id)}
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.livePhoto}
-                                                />
-                                                <DocumentUpload
-                                                    label="Insurance"
-                                                    value={imagePreviews.insurance?.image1}
-                                                    name="insurance"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "insurance", imagePreviews?.insurance?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.insurance}
-                                                />
-                                                <DocumentUpload
-                                                    label="Permit"
-                                                    value={imagePreviews.permit?.image1}
-                                                    name="permit"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "permit", imagePreviews?.permit?.id)}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.permit}
                                                 />
                                             </tbody>
                                         </table>

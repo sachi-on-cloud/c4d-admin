@@ -73,13 +73,8 @@ const DriverAdd = () => {
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
-        vehiclePhoto: null,
         consentForm: null,
-        panImage: null,
-        rc: null,
-        insurance: null,
-        permit: null,
-        bankStatement: null
+        panImage: null
     });
     const [modalData, setModalData] = useState(null);
     const { id } = useParams();
@@ -375,7 +370,7 @@ const DriverAdd = () => {
                             name={name}
                             onChange={onChange}
                             className="hidden"
-                            multiple={name !== "livePhoto" && name !== "insurance" && name !== "permit"}
+                            multiple={name !== "livePhoto"}
                         />
                     </div>
                 </td>
@@ -385,7 +380,7 @@ const DriverAdd = () => {
                             variant="small"
                             className="font-semibold underline cursor-pointer text-primary-900"
                             onClick={() => {
-                                if (label === 'Live Photo' || label === 'Insurance' || label === 'Permit') {
+                                if (label === 'Live Photo') {
                                     setModalData({
                                         image: fullDocVal?.image1
                                     })
@@ -452,40 +447,7 @@ const DriverAdd = () => {
 
             setFieldValue(label, uploadedFiles);
 
-            let type = "";
-            switch (label) {
-                case "aadhaarImage":
-                    type = KYC_PROCESS.AADHAAR;
-                    break;
-                case "drivingLicenseImage":
-                    type = KYC_PROCESS.DRIVING_LICENSE;
-                    break;
-                case "vehiclePhoto":
-                    type = KYC_PROCESS.VEHICLE_PHOTO;
-                    break;
-                case "consentForm":
-                    type = KYC_PROCESS.CONSENT_FORM;
-                    break;
-                case "panImage":
-                    type = KYC_PROCESS.PAN;
-                    break;
-                case "rc":
-                    type = KYC_PROCESS.RC_COPY;
-                    break;
-                case "insurance":
-                    type = KYC_PROCESS.INSURANCE;
-                    break;
-                case "permit":
-                    type = KYC_PROCESS.PERMIT;
-                    break;
-                case "bankStatement":
-                    type = KYC_PROCESS.BANK_STATEMENT;
-                    break;
-                default:
-                    type = KYC_PROCESS.LIVE_PHOTO;
-                    break;
-            }
-            const isSingleFileDoc = label === "insurance" || label === "permit";
+            const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR : label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE : label === 'consentForm' ? KYC_PROCESS.CONSENT_FORM : label === 'panImage' ? KYC_PROCESS.PAN : KYC_PROCESS.LIVE_PHOTO;
 
             const formData = new FormData();
             formData.append('type', type);
@@ -496,11 +458,9 @@ const DriverAdd = () => {
             formData.append('image1', files[0]);
             formData.append('extImage1', files[0].name.split('.')[1]);
             formData.append('fileTypeImage1', files[0].type);
-            if (files[1] && !isSingleFileDoc) {
             formData.append('image2', files[1]);
             formData.append('extImage2', files[1].name.split('.')[1]);
             formData.append('fileTypeImage2', files[1].type);
-            }
             console.log('formData ->', formData);
             const data = await ApiRequestUtils.postDocs(API_ROUTES.UPLOAD_KYC_DOCUMENTS, formData);
             console.log('DATA IN DOC INSERT :', data);
@@ -1182,16 +1142,7 @@ const DriverAdd = () => {
                                                     fullDocVal={imagePreviews.rc}
                                                     image2={imagePreviews.rc?.image2}
                                                 />}
-                                                <DocumentUpload
-                                                    label="Vehicle Photo"
-                                                    value={imagePreviews.vehiclePhoto?.image1}
-                                                    name="vehiclePhoto"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhoto")}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.vehiclePhoto}
-                                                    image2={imagePreviews.vehiclePhoto?.image2}
-                                                />
-                                                 <DocumentUpload
+                                                {values.serviceType !== 'DRIVER' && <DocumentUpload
                                                     label="Insurance"
                                                     value={imagePreviews.insurance?.image1}
                                                     name="insurance"
@@ -1199,16 +1150,7 @@ const DriverAdd = () => {
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.insurance}
                                                     image2={imagePreviews.insurance?.image2}
-                                                />
-                                                <DocumentUpload
-                                                    label="Permit"
-                                                    value={imagePreviews.permit?.image1}
-                                                    name="permit"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "permit")}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.permit}
-                                                    image2={imagePreviews.permit?.image2}
-                                                />
+                                                />}
                                                 {values.serviceType !== 'DRIVER' && <DocumentUpload
                                                     label="Bank Statement"
                                                     value={imagePreviews.bankStatement?.image1}
