@@ -77,7 +77,6 @@ const ParcelAdd = (props) => {
         vehiclePhoto: null,
         drivingLicenseImage: null,
         insurance: null,
-        permit: null,
     });
 
     const initialValues = {
@@ -183,7 +182,7 @@ const ParcelAdd = (props) => {
                             name={name}
                             onChange={onChange}
                             className="hidden"
-                            multiple={name !== "livePhoto" && name !== "bankStatement" && name !== "insurance" && name !== "permit"}
+                            multiple={name !== "livePhoto" && name !== "bankStatement" && name !== "insurance"}
                         />
                     </div>
                 </td>
@@ -292,9 +291,6 @@ const ParcelAdd = (props) => {
                 case 'insurance':
                     type = KYC_PROCESS.INSURANCE;
                     break;
-                case 'permit':
-                    type = KYC_PROCESS.PERMIT;
-                    break;
                 default:
                     type = '';
             }
@@ -304,7 +300,7 @@ const ParcelAdd = (props) => {
             formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
-            const isSingleFile = label === "livePhoto" || label === "bankStatement" || label === "insurance" || label === "permit";
+            const isSingleFile = label === "livePhoto" || label === "bankStatement" || label === "insurance";
             
             if (files[0]) {
                 formData.append('image1', files[0]);
@@ -761,14 +757,6 @@ const ParcelAdd = (props) => {
                                                     onChange={(e) => handleImageUpload(e, setFieldValue, "insurance")}
                                                     setModalData={setModalData}
                                                     fullDocVal={imagePreviews.insurance}
-                                                    />
-                                                    <DocumentUpload
-                                                    label="Permit"
-                                                    value={imagePreviews.permit?.image1}
-                                                    name="permit"
-                                                    onChange={(e) => handleImageUpload(e, setFieldValue, "permit")}
-                                                    setModalData={setModalData}
-                                                    fullDocVal={imagePreviews.permit}
                                                     />
                                         </tbody>
                                         </table>

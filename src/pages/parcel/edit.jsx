@@ -78,15 +78,15 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                     <label htmlFor={name} className="inline-block text-center text-white border border-gray-400 bg-blue-600 rounded-lg px-4 py-1 cursor-pointer hover:bg-blue-700 transition-colors">
                         Update
                     </label>
-                    <input
-                        type="file"
-                        accept="image/*, application/pdf"
-                        id={name}
-                        name={name}
-                        onChange={onChange}
-                        className="hidden"
-                        multiple={name !== "livePhoto" && name !== "bankStatementImage" && name !== "insurranceImage" && name !== "permitImage"}
-                    />
+                        <input
+                            type="file"
+                            accept="image/*, application/pdf"
+                            id={name}
+                            name={name}
+                            onChange={onChange}
+                            className="hidden"
+                            multiple={name !== "livePhoto" && name !== "bankStatementImage" && name !== "insurranceImage"}
+                        />
                 </div>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -129,7 +129,6 @@ const ParcelEdit = () => {
         vehiclePhotoImage: null,
         bankStatementImage: null,
         insurranceImage: null,
-        permitImage: null,
     });
 
     useEffect(() => {
@@ -152,7 +151,6 @@ const ParcelEdit = () => {
             rcImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.RC_COPY),
             vehiclePhotoImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.VEHICLE_PHOTO),
             insurranceImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.INSURANCE),
-            permitImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.PERMIT),
         });
     };
 
@@ -212,9 +210,6 @@ const ParcelEdit = () => {
                 case 'insurranceImage':
                     type = KYC_PROCESS.INSURANCE;
                     break;
-                case 'permitImage':
-                    type = KYC_PROCESS.PERMIT;
-                    break;
                 default:
                     type = '';
             }
@@ -224,7 +219,7 @@ const ParcelEdit = () => {
             formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
-            const isSingleFile = label === "livePhoto" || label === "bankStatementImage" || label === "insurranceImage" || label === "permitImage";
+            const isSingleFile = label === "livePhoto" || label === "bankStatementImage" || label === "insurranceImage";
             
             if (files[0]) {
                 formData.append('image1', files[0]);
@@ -539,14 +534,6 @@ const ParcelEdit = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.insurranceImage}
-                                            />
-                                            <DocumentUpload
-                                                label="Permit"
-                                                value={imagePreviews.permitImage?.image1}
-                                                name="permitImage"
-                                                onChange={(e) => handleImageUpload(e, setFieldValue, "permitImage", imagePreviews?.permitImage?.id)}
-                                                setModalData={setModalData}
-                                                fullDocVal={imagePreviews.permitImage}
                                             />
                                         </tbody>
                                     </table>
