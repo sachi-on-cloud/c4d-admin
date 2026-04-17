@@ -16,6 +16,7 @@ export const constants = {
 export const getBaseUrl = () => {
     return constants.url + '/api/customer/dev';
 }
+export const DISABLE_GLOBAL_AUTOCOMPLETE = true; // true -> off false -> on
 
 export const GENDER = {
     MALE: 'Male',
