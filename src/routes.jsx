@@ -75,6 +75,7 @@ import RentalsMasterPriceEdit from "./pages/finance/masterPriceTable/RentalsMast
 import GeoMarkings from "./pages/geoMarkings/geoMarkings";
 import NotificationList from "./pages/vendor/notificationList";
 import NotificationListApp from "./pages/vendor/notificationadd";
+import NotificationListEdit from "./pages/vendor/notificationEdit";
 import DriverIncentiveList from "./pages/marketing/DriverIncentive/list";
 import DriverIncentiveEdit from "./pages/marketing/DriverIncentive/edit";
 import DriverIncentiveAdd from "./pages/marketing/DriverIncentive/add";
@@ -283,6 +284,14 @@ export const routes = [
         name: "marketing add",
         path: "/vendors/notification/add",
         element: <NotificationListApp />,
+        display: true,
+        permission: "Marketing",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "marketing edit",
+        path: "/vendors/notification/edit/:id",
+        element: <NotificationListEdit />,
         display: true,
         permission: "Marketing",
       },

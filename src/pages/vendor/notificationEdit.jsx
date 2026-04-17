@@ -3,7 +3,7 @@ import { Formik, Field, ErrorMessage, Form } from 'formik';
 import { Button } from '@material-tailwind/react';
 import { ColorStyles, API_ROUTES } from '@/utils/constants';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Select from 'react-select';
 import * as Yup from 'yup';
 
@@ -35,13 +35,26 @@ const validationSchema = Yup.object({
     }),
 });
 
-const toUtcIso = (dateLikeValue) => {
-  const dt = dateLikeValue ? new Date(dateLikeValue) : new Date();
-  return Number.isNaN(dt.getTime()) ? '' : dt.toISOString();
-};
+const NotificationListEdit = () => {
+  const toUtcIso = (dateLikeValue) => {
+    const dt = dateLikeValue ? new Date(dateLikeValue) : new Date();
+    return Number.isNaN(dt.getTime()) ? '' : dt.toISOString();
+  };
 
-const NotificationListApp = () => {
-  const initialValues = {
+  const toDateTimeLocalValue = (isoValue) => {
+    if (!isoValue) return '';
+    const dt = new Date(isoValue);
+    if (Number.isNaN(dt.getTime())) return '';
+    const timezoneOffsetMs = dt.getTimezoneOffset() * 60000;
+    return new Date(dt.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
+  };
+
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [serviceAreas, setServiceAreas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [initialValues, setInitialValues] = useState({
     title: '',
     message: '',
     type: '',
@@ -49,12 +62,57 @@ const NotificationListApp = () => {
     timing: '',
     deliverySchedule: '',
     scheduledAtUtc: '',
-    city:'',
+    city: '',
     scheduleType:'ANY_TIME',
-  };
+  });
 
-  const [serviceAreas, setServiceAreas] = useState([]);
-  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchGeoData = async () => {
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
+          type: 'Service Area',
+        });
+        setServiceAreas(response?.data || []);
+      } catch (error) {
+        console.error('Error fetching GEO_MARKINGS_LIST:', error);
+      }
+    };
+
+    const fetchNotificationById = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GET_NOTIFICATION, { id });
+        const row = Array.isArray(response?.data)
+          ? response.data.find((item) => String(item.id) === String(id))
+          : response?.data;
+
+        if (row) {
+          setInitialValues({
+            title: row.title || '',
+            message: row.message || '',
+            type: row.type || '',
+            app: row.app || '',
+            timing: row.timing || '',
+            deliverySchedule: row.deliverySchedule || '',
+            scheduledAtUtc: toDateTimeLocalValue(row.scheduledAtUtc),
+            city: row.city || '',
+            scheduleType:'ANY_TIME',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching notification by id:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGeoData();
+    fetchNotificationById();
+  }, [id]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -67,41 +125,26 @@ const NotificationListApp = () => {
         deliverySchedule: values.deliverySchedule,
         city: values.city,
         scheduleType: values.scheduleType || 'ANY_TIME',
+        marketingId: id,
+        notificationId: id,
         scheduledAtUtc:
           values.deliverySchedule === 'SCHEDULE_LATER'
             ? toUtcIso(values.scheduledAtUtc)
             : toUtcIso(),
       };
-      console.log('Submitting payload:', payload);
 
-      const data = await ApiRequestUtils.post(API_ROUTES.POST_NOTIFICATION_ADD, payload);
-      console.log('Submitted successfully:', data);
-      // resetForm();
-      if(data?.success)
-      {
-        navigate('/dashboard/vendors/notificationList')
+      console.log('Payload for update:', payload);
+
+      const data = await ApiRequestUtils.update(API_ROUTES.UPDATE_NOTIFICATION, payload);
+      if (data?.success) {
+        navigate('/dashboard/vendors/notificationList');
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('Notification update error:', error);
     } finally {
       setSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    const fetchGeoData = async () => {
-      try {
-        const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {
-          type: 'Service Area',
-        });
-        console.log('GEO MARKINGS RESPONSE:', response);
-        setServiceAreas(response?.data || []);
-      } catch (error) {
-        console.error('Error fetching GEO_MARKINGS_LIST:', error);
-      }
-    };
-    fetchGeoData();
-  }, []);
 
   const ZONE_OPTIONS = [
     { value: 'All', label: 'All' },
@@ -111,13 +154,18 @@ const NotificationListApp = () => {
     })),
   ];
 
+  if (loading) {
+    return <div className="p-4">Loading...</div>;
+  }
+
   return (
     <div className="p-4 mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Add New</h2>
+      <h2 className="text-2xl font-bold mb-4">Edit Push Notification</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         {({ isSubmitting, setFieldValue, values }) => (
           <Form className="space-y-4">
@@ -139,29 +187,29 @@ const NotificationListApp = () => {
                 </div>
                 <div>
                   <label htmlFor="app" className="text-sm font-medium text-gray-700">App</label>
-                      <Field
-                      as="select"
-                      name="app"
-                      className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
-                      >
-                      <option value="">Select Type</option>
-                      <option value="CUSTOMER">Customer App</option>
-                      <option value="DRIVER">Driver App</option>
-                      </Field>
+                  <Field
+                    as="select"
+                    name="app"
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="CUSTOMER">Customer App</option>
+                    <option value="DRIVER">Driver App</option>
+                  </Field>
                   <ErrorMessage name="app" component="div" className="text-red-500 text-sm my-1" />
                 </div>
-                 <div>
-                  <label htmlFor="app" className="text-sm font-medium text-gray-700">Select Time Zone</label>
-                      <Field
-                      as="select"
-                      name="timing"
-                      className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
-                      >
-                      <option value="">Select Timing</option>
-                      <option value="MORNING">Morning</option>
-                      <option value="AFTERNOON">Afternoon</option>
-                      <option value="EVENING">Evening</option>
-                      </Field>
+                <div>
+                  <label htmlFor="timing" className="text-sm font-medium text-gray-700">Select Time Zone</label>
+                  <Field
+                    as="select"
+                    name="timing"
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                  >
+                    <option value="">Select Timing</option>
+                    <option value="MORNING">Morning</option>
+                    <option value="AFTERNOON">Afternoon</option>
+                    <option value="EVENING">Evening</option>
+                  </Field>
                   <ErrorMessage name="timing" component="div" className="text-red-500 text-sm my-1" />
                 </div>
                 <div>
@@ -172,8 +220,8 @@ const NotificationListApp = () => {
                     className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
                   >
                     <option value="">Select Delivery Schedule</option>
-                    <option value="SEND_NOW">Send Now</option>
-                    <option value="SCHEDULE_LATER">Schedule Later</option>
+                    <option value="SEND_NOW">SEND_NOW</option>
+                    <option value="SCHEDULE_LATER">SCHEDULE_LATER</option>
                   </Field>
                   <ErrorMessage name="deliverySchedule" component="div" className="text-red-500 text-sm my-1" />
                 </div>
@@ -190,11 +238,11 @@ const NotificationListApp = () => {
                 )}
                 <div>
                   <label htmlFor="city" className="text-sm font-medium text-gray-700">Select City</label>
-                  <Select name="city" options={ZONE_OPTIONS} isMulti
-                    value={ values.city ? values.city.split(',').map((val) => ({
-                            value: val,
-                            label: val,
-                          })) : [] }
+                  <Select
+                    name="city"
+                    options={ZONE_OPTIONS}
+                    isMulti
+                    value={values.city ? values.city.split(',').map((val) => ({ value: val, label: val })) : []}
                     onChange={(selectedOptions) => {
                       const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
                       if (selectedValues.includes('All')) {
@@ -228,7 +276,11 @@ const NotificationListApp = () => {
                 </div>
                 <div>
                   <label htmlFor="message" className="text-sm font-medium text-gray-700">Message</label>
-                  <Field as="textarea" name="message" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm" rows="4"
+                  <Field
+                    as="textarea"
+                    name="message"
+                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm"
+                    rows="4"
                   />
                   <ErrorMessage name="message" component="div" className="text-red-500 text-sm my-1" />
                 </div>
@@ -239,7 +291,7 @@ const NotificationListApp = () => {
                 fullWidth
                 className={`my-6 mx-2 rounded-xl ${ColorStyles.backButton}`}
                 type="button"
-                onClick={() => navigate(`/dashboard/vendors/notificationList`)}
+                onClick={() => navigate('/dashboard/vendors/notificationList')}
               >
                 Back
               </Button>
@@ -250,7 +302,7 @@ const NotificationListApp = () => {
                 type="submit"
                 disabled={isSubmitting}
               >
-                Send
+                Update
               </Button>
             </div>
           </Form>
@@ -260,4 +312,4 @@ const NotificationListApp = () => {
   );
 };
 
-export default NotificationListApp;
+export default NotificationListEdit;
