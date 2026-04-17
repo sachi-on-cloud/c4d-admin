@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Alert, Button, Input, List, ListItem, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -120,6 +120,7 @@ const ParcelEdit = () => {
     const [isSameAddress, setIsSameAddress] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         livePhoto: null,
@@ -133,6 +134,30 @@ const ParcelEdit = () => {
     useEffect(() => {
         fetchItem(id);
     }, [id]);
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
+    }, []);
+
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district,
+    }));
 
     const getDocumentByType = (value, type) => {
         return value.find(proof => proof.type === type) || "";
@@ -437,8 +462,15 @@ const ParcelEdit = () => {
                                     <Field type="text" name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                    <Field type="text" name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">Zone</label>
+                                    <Field as="select" name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Select District</option>
+                                        {districtOptions.map((district) => (
+                                            <option key={district.id} value={district.id}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </Field>
                                 </div>
                                 <div>
                                     <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>

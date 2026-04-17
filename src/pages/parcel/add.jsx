@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
+import { API_ROUTES, STATE_LIST, THALUK_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { Alert, Button, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Input, List, ListItem, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -65,6 +65,7 @@ const ParcelAdd = (props) => {
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [isSameAddress, setIsSameAddress] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [ownerAdded, setOwnerAdded] = useState({
         ownerId: "",
         value: false
@@ -90,6 +91,21 @@ const ParcelAdd = (props) => {
         state: "",
         pincode: "",
     };
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
+    }, []);
 
     const onSubmit = async (values, { setSubmitting }) => {
         // console.log('Form submission started with values:', values);
@@ -141,9 +157,13 @@ const ParcelAdd = (props) => {
         setSubmitting(false);
     };
 
-    const districtOptions = DISTRICT_LIST.map(district => ({
-        id: district.value,
-        name: district.label
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district
     }));
 
     const thalukOptions = THALUK_LIST.map(thaluk => ({
@@ -588,7 +608,7 @@ const ParcelAdd = (props) => {
                                 </div>
                                 <div>
                                     <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                        District
+                                       Zone
                                     </label>
                                     <select
                                         id="district"

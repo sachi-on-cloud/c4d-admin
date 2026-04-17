@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Alert, Button, Input, List, ListItem, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -146,6 +146,7 @@ const AutoEdit = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [blockedReason, setBlockedReason] = useState(accountVal?.result?.blockedReason || '');
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
@@ -162,6 +163,21 @@ const AutoEdit = () => {
     useEffect(() => {
         fetchItem(id);
     }, [id]);
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
+    }, []);
 
 
     const getDocumentByType = (value, type) => {
@@ -472,9 +488,13 @@ const AutoEdit = () => {
         setSubmitting(false);
     };
 
-    const districtOptions = DISTRICT_LIST.map(district => ({
-        id: district.value,
-        name: district.label
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district
     }));
 
     const filteredDistricts = districtOptions.filter(district =>
@@ -663,7 +683,7 @@ const AutoEdit = () => {
                                 </div>
                                 <div>
                                     <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                        District
+                                        Zone
                                     </label>
                                     <select
                                         id="district"
