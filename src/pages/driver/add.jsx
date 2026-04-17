@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, DISTRICT_LIST, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
+import { API_ROUTES, THALUK_LIST, STATE_LIST, KYC_PROCESS, ColorStyles } from '@/utils/constants';
 import { Alert, Button, Card, CardBody, Typography, Input, List, ListItem, Dialog, DialogHeader, DialogBody,Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
@@ -66,6 +66,7 @@ const DriverAdd = () => {
     const [thalukSearchText, setThalukSearchText] = useState("");
     const [stateSearchText, setStateSearchText] = useState("");
     const [owner, setOwners] = useState([]);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [isEditable, setIsEditable] = useState(true);
     const [loading, setLoading] = useState(false);
     const [imagePreviews, setImagePreviews] = useState({
@@ -130,6 +131,21 @@ const DriverAdd = () => {
     useEffect(() => {
         // getPackageListDetails();
         getOwnersList();
+    }, []);
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
     }, []);
 
     const initialValues = {
@@ -315,9 +331,13 @@ const DriverAdd = () => {
         setSubmitting(false);
     };
 
-    const districtOptions = DISTRICT_LIST.map(district => ({
-        id: district.value,
-        name: district.label
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district
     }));
 
     const filteredDistricts = districtOptions.filter(district =>
@@ -872,7 +892,7 @@ const DriverAdd = () => {
                                         </div>
                                         <div>
                                             <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                                District
+                                                Zone
                                             </label>
                                             <select
                                                 id="district"
