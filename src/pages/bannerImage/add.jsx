@@ -70,9 +70,9 @@ const AddBanner = () => {
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
         value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
       ),
-      // fromDate: Yup.string().required('Start Date is required'),
-      // toDate: Yup.string().required('End Date is required'),
-      zone: Yup.string().required('Zone is required')
+    //   fromDate: Yup.string().required('Start Date is required'),
+    //   toDate: Yup.string().required('End Date is required'),
+    //   zone: Yup.string().required('Zone is required')
   });
 
   const handleImageUpload = (file, setFieldValue) => {
@@ -130,7 +130,7 @@ const AddBanner = () => {
       // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      const isNewCustomer = values.type === "NEW_CUSTOMER";
+      const isNewCustomer = values.type === "NEW_CUSTOMER" || values.type === "INTRO_SLIDES";
       if (!isNewCustomer) {
         formData.append('fromDate', values.fromDate);
         formData.append('toDate', values.toDate);
@@ -185,7 +185,7 @@ const AddBanner = () => {
                   onChange={(e) => {
                     const selectedType = e.target.value;
                     setFieldValue('type', selectedType);
-                    if (selectedType === 'NEW_CUSTOMER') {
+                    if (selectedType === 'NEW_CUSTOMER'|| selectedType === 'INTRO_SLIDES') {
                       setFieldValue('zone', 'All');
                     }
                   }}
@@ -202,10 +202,11 @@ const AddBanner = () => {
                   <option value="PROMOTION">Promotion</option>
                   <option value="BOTTOM_NEW">Bottom New</option>
                   <option value="NEW_CUSTOMER">New Customer</option>
+                  <option value="INTRO_SLIDES">Intro Slides</option>         
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
-                   {values.type !== 'NEW_CUSTOMER' && (
+                   {values.type !== 'NEW_CUSTOMER' && values.type !== 'INTRO_SLIDES' && (
                 <>
               <div>
                 <label className="text-sm font-medium text-gray-700">From Date</label>
@@ -234,7 +235,7 @@ const AddBanner = () => {
                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
               </div>
 
-              <div  className={`${values.type == 'NEW_CUSTOMER' ? 'hidden' : ''}`}>
+              <div  className={`${values.type == 'NEW_CUSTOMER' || values.type == 'INTRO_SLIDES' ? 'hidden' : ''}`}>
                 <label htmlFor="zone" className="text-sm font-medium text-gray-700">
                   Zone
                 </label>
@@ -243,14 +244,14 @@ const AddBanner = () => {
                   value={ZONE_OPTIONS.find((opt) => opt.value === values.zone) || null}
                   onChange={(opt) => setFieldValue('zone', opt?.value || '')}
                   placeholder="Select Zone"
-                  isDisabled={values.type === 'NEW_CUSTOMER'}
+                  isDisabled={values.type === 'NEW_CUSTOMER' || values.type === 'INTRO_SLIDES'}
                   className="w-full"
                   name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 
               {/* Drop Location (New Field) */}
-              {values.type !== 'NEW_CUSTOMER' && (
+              {values.type !== 'NEW_CUSTOMER' && values.type !== 'INTRO_SLIDES' && (
                 <>              
               <div>
                 <label className="text-sm font-medium text-gray-700">Drop Location </label>
