@@ -6,6 +6,7 @@ export const constants = {
     // url_dev : 'https://leading-alien-thankfully.ngrok-free.app', //balaji
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
+    url_dev: 'https://perihelial-ariella-unserious.ngrok-free.dev',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
     url_uat: 'https://uat.api.c4d.smartapis.cyou',
@@ -917,6 +918,8 @@ export const API_ROUTES = {
     'GEO_MARKINGS_DELETE': '/geo-markings',
     'GET_CAR_TYPE': '/car-type/',
     'POST_NOTIFICATION_ADD': '/send-notification',
+    'UPDATE_NOTIFICATION': '/update-scheduled-notification',
+    'CANCEL_NOTIFICATION': '/cancel-scheduled-notification',
     'GET_NOTIFICATION': '/get-notification',
     'INSTANT_REWARD': '/instant-reward',
     'GET_REWARD': '/get-instant-reward',
@@ -1036,6 +1039,8 @@ export const KYC_PROCESS = {
     BANK_STATEMENT: 'PASSBOOK',
     RC_COPY: 'RC_COPY',
     INSURANCE: 'INSURANCE',
+    PERMIT: 'PERMIT',
+    VEHICLE_PHOTO: 'VEHICLE_PHOTO',
 };
 
 export const ASYNC_STORAGE_KEYS = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Alert, Button, Input, List, ListItem, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -78,15 +78,15 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                     <label htmlFor={name} className="inline-block text-center text-white border border-gray-400 bg-blue-600 rounded-lg px-4 py-1 cursor-pointer hover:bg-blue-700 transition-colors">
                         Update
                     </label>
-                    <input
-                        type="file"
-                        accept="image/*, application/pdf"
-                        id={name}
-                        name={name}
-                        onChange={onChange}
-                        className="hidden"
-                        multiple={name !== "livePhoto" && name !== "bankStatementImage"}
-                    />
+                        <input
+                            type="file"
+                            accept="image/*, application/pdf"
+                            id={name}
+                            name={name}
+                            onChange={onChange}
+                            className="hidden"
+                            multiple={name !== "livePhoto" && name !== "bankStatementImage" && name !== "insurranceImage"}
+                        />
                 </div>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
@@ -120,12 +120,14 @@ const ParcelEdit = () => {
     const [isSameAddress, setIsSameAddress] = useState(false);
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         livePhoto: null,
         drivingLicenseImage: null,
         panImage: null,
         rcImage: null,
+        vehiclePhotoImage: null,
         bankStatementImage: null,
         insurranceImage: null,
     });
@@ -133,6 +135,30 @@ const ParcelEdit = () => {
     useEffect(() => {
         fetchItem(id);
     }, [id]);
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
+    }, []);
+
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district,
+    }));
 
     const getDocumentByType = (value, type) => {
         return value.find(proof => proof.type === type) || "";
@@ -148,6 +174,7 @@ const ParcelEdit = () => {
             bankStatementImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.BANK_STATEMENT),
             panImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.PAN),
             rcImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.RC_COPY),
+            vehiclePhotoImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.VEHICLE_PHOTO),
             insurranceImage: getDocumentByType(data?.data?.data?.Proofs || [], KYC_PROCESS.INSURANCE),
         });
     };
@@ -193,6 +220,9 @@ const ParcelEdit = () => {
                 case 'drivingLicenseImage':
                     type = KYC_PROCESS.DRIVING_LICENSE;
                     break;
+                case 'vehiclePhotoImage':
+                    type = KYC_PROCESS.VEHICLE_PHOTO;
+                    break;
                 case 'panImage':
                     type = KYC_PROCESS.PAN;
                     break;
@@ -214,7 +244,7 @@ const ParcelEdit = () => {
             formData.append('accountId', String(accountIdNum));
             
             // Handle single or multiple files
-            const isSingleFile = label === "livePhoto" || label === "bankStatementImage";
+            const isSingleFile = label === "livePhoto" || label === "bankStatementImage" || label === "insurranceImage";
             
             if (files[0]) {
                 formData.append('image1', files[0]);
@@ -437,8 +467,15 @@ const ParcelEdit = () => {
                                     <Field type="text" name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
-                                    <Field type="text" name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">Zone</label>
+                                    <Field as="select" name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Select District</option>
+                                        {districtOptions.map((district) => (
+                                            <option key={district.id} value={district.id}>
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </Field>
                                 </div>
                                 <div>
                                     <label htmlFor="state" className="text-sm font-medium text-gray-700">State</label>
@@ -513,6 +550,22 @@ const ParcelEdit = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rcImage", imagePreviews?.rcImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Vehicle Photo"
+                                                value={imagePreviews.vehiclePhotoImage?.image1}
+                                                name="vehiclePhotoImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhotoImage", imagePreviews?.vehiclePhotoImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.vehiclePhotoImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Insurance"
+                                                value={imagePreviews.insurranceImage?.image1}
+                                                name="insurranceImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.insurranceImage}
                                             />
                                         </tbody>
                                     </table>

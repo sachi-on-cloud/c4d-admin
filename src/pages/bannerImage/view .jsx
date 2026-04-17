@@ -107,10 +107,13 @@ const BannerView = () => {
   const positionUpdate = async (bannerId) => {
     try {
       setLoading(true);
-      const newPosition = positionValues[bannerId];
-      const result = await ApiRequestUtils.update(API_ROUTES.BANNER_POSITION_UPDATE, {
+      const currentBanner = bannerList.find((item) => item.id === bannerId);
+      const newPosition = positionValues[bannerId] ?? currentBanner?.position;
+      await ApiRequestUtils.update(API_ROUTES.BANNER_POSITION_UPDATE, {
         bannerId: bannerId,
-        position: newPosition
+        position: newPosition,
+        type: currentBanner?.type,
+        driverType: currentBanner?.driverType || '',
       });
       
       setBannerList((prevList) =>
@@ -177,7 +180,11 @@ const BannerView = () => {
   { value: 'TOP_NEW', label: 'Top New'},
   { value: 'MIDCAROUSEL', label: 'Mid Carousel'},
   { value: 'PROMOTION', label: 'Promotion'},
-  { value: 'BOTTOM_NEW', label: 'Bottom New'}
+  { value: 'BOTTOM_NEW', label: 'Bottom New'},
+  { value: 'NEW_CUSTOMER', label: 'New Customer' },
+  { value: 'INTRO_SLIDES', label: 'Intro Slides' },
+  { value: 'INTRO_SLIDES_DRIVER', label: 'Intro Slides (Driver)' },
+  { value: 'TRAINING_VIDEO_DRIVER', label: 'Training Video (Driver)' },
 ];
 
   const zoneOptions = [
@@ -256,6 +263,7 @@ const BannerView = () => {
                   <th className="py-3 px-5 text-left  text-gray-700">Redirect URL</th>
                   <th className="py-3 px-5 text-left  text-gray-700">From Date</th>
                   <th className="py-3 px-5 text-left  text-gray-700">To Date</th>
+                  <th className="py-3 px-5 text-left  text-gray-700">Driver Type</th>
                   <th className="py-3 px-5 text-left  text-gray-700">Status</th>
                   <th className="py-3 px-5 text-left  text-gray-700">Position</th>
                   <th className="py-3 px-5 text-left  text-gray-700">
@@ -295,6 +303,9 @@ const BannerView = () => {
                         {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
                       </td>
                       <td className="py-3 px-5">
+                        {item.driverType || '-'}
+                      </td>
+                      <td className="py-3 px-5">
                         <Switch
                           color="blue"
                           checked={item.status}
@@ -332,16 +343,29 @@ const BannerView = () => {
                                   return;
                                 }
 
-                                const isDuplicate = bannerList.some(b =>
-                                  b.id !== item.id &&
-                                  b.type === item.type &&
-                                  String(b.position) === newPosition
-                                );
+                                const isDuplicate = bannerList.some((b) => {
+                                  if (b.id === item.id) return false;
+                                  if (String(b.position) !== newPosition) return false;
+                                  if (b.type !== item.type) return false;
+
+                                  if (
+                                    item.type === 'INTRO_SLIDES_DRIVER' ||
+                                    item.type === 'TRAINING_VIDEO_DRIVER'
+                                  ) {
+                                    return (b.driverType || '') === (item.driverType || '');
+                                  }
+
+                                  return true;
+                                });
 
                                 if (isDuplicate) {
                                   setPositionErrorById(prev => ({
                                     ...prev,
-                                    [item.id]: `Another ${item.type} banner already uses position ${newPosition}`,
+                                    [item.id]:
+                                      item.type === 'INTRO_SLIDES_DRIVER' ||
+                                      item.type === 'TRAINING_VIDEO_DRIVER'
+                                        ? `Another ${item.type} (${item.driverType || 'N/A'}) banner already uses position ${newPosition}`
+                                        : `Another ${item.type} banner already uses position ${newPosition}`,
                                   }));
                                   return;
                                 }

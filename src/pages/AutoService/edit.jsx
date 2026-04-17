@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
-import { API_ROUTES, ColorStyles, DISTRICT_LIST, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
+import { API_ROUTES, ColorStyles, KYC_PROCESS, STATE_LIST, THALUK_LIST } from '@/utils/constants';
 import { Alert, Button, Input, List, ListItem, Dialog, DialogHeader, DialogBody, Typography, Card, CardBody, Spinner } from '@material-tailwind/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ACCOUNT_EDIT_SCHEMA } from '@/utils/validations';
@@ -98,7 +98,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                         name={name}
                         onChange={onChange}
                         className="hidden"
-                        multiple={name !== "livePhoto" && name !== "bankStatement"}
+                        multiple={name !== "livePhoto" && name !== "bankStatement" && name !== "insurranceImage" && name !== "permitImage"}
                     />
                 </div>
             </td>
@@ -108,7 +108,7 @@ const DocumentUpload = ({ label, value, name, onChange, setModalData, fullDocVal
                         variant="small"
                         className="font-semibold underline cursor-pointer text-blue-900"
                         onClick={() => {
-                            if (label === 'Live Photo' || label === 'Bank Statement') {
+                            if (label === 'Live Photo' || label === 'Bank Statement' || label === 'Insurance Image' || label === 'Permit Image') {
                                 setModalData({
                                     image: fullDocVal?.image1
                                 })
@@ -146,22 +146,40 @@ const AutoEdit = () => {
     const [stateSearchText, setStateSearchText] = useState("");
     const [addressSuggestions, setAddressSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [serviceAreas, setServiceAreas] = useState([]);
     const [blockedReason, setBlockedReason] = useState(accountVal?.result?.blockedReason || '');
     const [imagePreviews, setImagePreviews] = useState({
         aadhaarImage: null,
         policeClearance: null,
         livePhoto: null,
         drivingLicenseImage: null,
+        vehiclePhotoImage: null,
         consentForm: null,
         panImage: null,
         rcImage: null,
         bankStatementImage: null,
         insurranceImage: null,
+        permitImage: null,
     });
 
     useEffect(() => {
         fetchItem(id);
     }, [id]);
+
+    useEffect(() => {
+        const fetchGeoData = async () => {
+            try {
+                const response = await ApiRequestUtils.getWithQueryParam('/geo-markings', {
+                    type: 'Service Area',
+                });
+                setServiceAreas(response?.data || []);
+            } catch (error) {
+                console.error('Error fetching service areas:', error);
+            }
+        };
+
+        fetchGeoData();
+    }, []);
 
 
     const getDocumentByType = (value, type) => {
@@ -187,7 +205,9 @@ const AutoEdit = () => {
             bankStatementImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.BANK_STATEMENT),
             panImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.BANK_STATEMENT),
             rcImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.RC_COPY),
+            vehiclePhotoImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.VEHICLE_PHOTO),
             insurranceImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.INSURANCE),
+            permitImage: getDocumentByType(data?.data?.data?.Proofs, KYC_PROCESS.PERMIT),
         });
     };
 
@@ -266,11 +286,13 @@ const AutoEdit = () => {
             const type = label === 'aadhaarImage' ? KYC_PROCESS.AADHAAR :
                 label === 'rcImage' ? KYC_PROCESS.RC_COPY :
                     label === 'drivingLicenseImage' ? KYC_PROCESS.DRIVING_LICENSE :
-                        label === 'panImage' ? KYC_PROCESS.PAN : '';
+                        label === 'vehiclePhotoImage' ? KYC_PROCESS.VEHICLE_PHOTO :
+                        label === 'panImage' ? KYC_PROCESS.PAN : label === 'insurranceImage' ? KYC_PROCESS.INSURANCE : label === 'permitImage' ? KYC_PROCESS.PERMIT : '';
 
             const formData = new FormData();
             formData.append('type', type);
             formData.append('accountId', accountVal?.id);
+            const isSingleFileDoc = label === "insurranceImage" || label === "permitImage";
 
             if (files[0]) {
                 formData.append('image1', files[0]);
@@ -278,7 +300,7 @@ const AutoEdit = () => {
                 formData.append('fileTypeImage1', files[0].type);
             }
 
-            if (files[1]) {
+            if (files[1] && !isSingleFileDoc) {
                 formData.append('image2', files[1]);
                 formData.append('extImage2', files[1].name.split('.').pop());
                 formData.append('fileTypeImage2', files[1].type);
@@ -472,9 +494,13 @@ const AutoEdit = () => {
         setSubmitting(false);
     };
 
-    const districtOptions = DISTRICT_LIST.map(district => ({
-        id: district.value,
-        name: district.label
+    const districtOptions = [...new Set(
+        serviceAreas
+            .map((area) => area?.district || area?.name)
+            .filter(Boolean)
+    )].map((district) => ({
+        id: district,
+        name: district
     }));
 
     const filteredDistricts = districtOptions.filter(district =>
@@ -663,7 +689,7 @@ const AutoEdit = () => {
                                 </div>
                                 <div>
                                     <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                        District
+                                        Zone
                                     </label>
                                     <select
                                         id="district"
@@ -811,6 +837,30 @@ const AutoEdit = () => {
                                                 onChange={(e) => handleImageUpload(e, setFieldValue, "rcImage", imagePreviews?.rcImage?.id)}
                                                 setModalData={setModalData}
                                                 fullDocVal={imagePreviews.rcImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Vehicle Photo"
+                                                value={imagePreviews?.vehiclePhotoImage?.image1}
+                                                name="vehiclePhotoImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "vehiclePhotoImage", imagePreviews?.vehiclePhotoImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.vehiclePhotoImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Insurance Image"
+                                                value={imagePreviews?.insurranceImage?.image1}
+                                                name="insurranceImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "insurranceImage", imagePreviews?.insurranceImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.insurranceImage}
+                                            />
+                                            <DocumentUpload
+                                                label="Permit Image"
+                                                value={imagePreviews?.permitImage?.image1}
+                                                name="permitImage"
+                                                onChange={(e) => handleImageUpload(e, setFieldValue, "permitImage", imagePreviews?.permitImage?.id)}
+                                                setModalData={setModalData}
+                                                fullDocVal={imagePreviews.permitImage}
                                             />
                                            
 
