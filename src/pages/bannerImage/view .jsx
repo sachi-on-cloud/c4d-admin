@@ -182,6 +182,9 @@ const BannerView = () => {
   { value: 'PROMOTION', label: 'Promotion'},
   { value: 'BOTTOM_NEW', label: 'Bottom New'},
   { value: 'NEW_CUSTOMER', label: 'New Customer' },
+  { value: 'INTRO_SLIDES', label: 'Intro Slides' },
+  { value: 'INTRO_SLIDES_DRIVER', label: 'Intro Slides (Driver)' },
+  { value: 'TRAINING_VIDEO_DRIVER', label: 'Training Video (Driver)' },
 ];
 
   const zoneOptions = [
@@ -345,7 +348,10 @@ const BannerView = () => {
                                   if (String(b.position) !== newPosition) return false;
                                   if (b.type !== item.type) return false;
 
-                                  if (item.type === 'INTRO_SLIDES_DRIVER') {
+                                  if (
+                                    item.type === 'INTRO_SLIDES_DRIVER' ||
+                                    item.type === 'TRAINING_VIDEO_DRIVER'
+                                  ) {
                                     return (b.driverType || '') === (item.driverType || '');
                                   }
 
@@ -356,7 +362,8 @@ const BannerView = () => {
                                   setPositionErrorById(prev => ({
                                     ...prev,
                                     [item.id]:
-                                      item.type === 'INTRO_SLIDES_DRIVER'
+                                      item.type === 'INTRO_SLIDES_DRIVER' ||
+                                      item.type === 'TRAINING_VIDEO_DRIVER'
                                         ? `Another ${item.type} (${item.driverType || 'N/A'}) banner already uses position ${newPosition}`
                                         : `Another ${item.type} banner already uses position ${newPosition}`,
                                   }));

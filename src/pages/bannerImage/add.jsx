@@ -131,7 +131,7 @@ const AddBanner = () => {
       // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER';
+      const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER' || values.type === 'TRAINING_VIDEO_DRIVER';
       const isNewCustomer = values.type === "NEW_CUSTOMER";
       if (!isNewCustomer && !isIntroType) {
         formData.append('fromDate', values.fromDate);
@@ -142,7 +142,10 @@ const AddBanner = () => {
         formData.append('dropLong', values.dropLocation?.lng || '');
         formData.append('navigateTo', values.navigateTo.trim());
       }
-      if (values.type === 'INTRO_SLIDES_DRIVER') {
+      if (values.type === 'TRAINING_VIDEO_DRIVER') {
+        formData.append('redirectUrl', values.redirectUrl.trim());
+      }
+      if (values.type === 'INTRO_SLIDES_DRIVER' || values.type === 'TRAINING_VIDEO_DRIVER') {
         formData.append('driverType', values.driverType);
       }
       formData.append('status', values.status === 'true' || values.status === true);
@@ -178,7 +181,7 @@ const AddBanner = () => {
         onSubmit={handleSubmit}
       >
         {({ isSubmitting, values,setFieldValue }) => {
-          const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER';
+          const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER' || values.type === 'TRAINING_VIDEO_DRIVER';
           const hideStandardFields = values.type === 'NEW_CUSTOMER' || isIntroType;
           return (
           <Form className="space-y-4">
@@ -193,10 +196,10 @@ const AddBanner = () => {
                   onChange={(e) => {
                     const selectedType = e.target.value;
                     setFieldValue('type', selectedType);
-                    if (selectedType === 'NEW_CUSTOMER' || selectedType === 'INTRO_SLIDES' || selectedType === 'INTRO_SLIDES_DRIVER') {
+                    if (selectedType === 'NEW_CUSTOMER' || selectedType === 'INTRO_SLIDES' || selectedType === 'INTRO_SLIDES_DRIVER' || selectedType === 'TRAINING_VIDEO_DRIVER') {
                       setFieldValue('zone', 'All');
                     }
-                    if (selectedType !== 'INTRO_SLIDES_DRIVER') {
+                    if (selectedType !== 'INTRO_SLIDES_DRIVER' && selectedType !== 'TRAINING_VIDEO_DRIVER') {
                       setFieldValue('driverType', '');
                     }
                   }}
@@ -215,10 +218,11 @@ const AddBanner = () => {
                   <option value="NEW_CUSTOMER">New Customer</option>
                   <option value="INTRO_SLIDES">Intro Slides</option>         
                   <option value="INTRO_SLIDES_DRIVER">Intro Slides (Driver)</option>         
+                  <option value="TRAINING_VIDEO_DRIVER">Training Video (Driver)</option>         
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
-              {values.type === 'INTRO_SLIDES_DRIVER' && (
+              {(values.type === 'INTRO_SLIDES_DRIVER' || values.type === 'TRAINING_VIDEO_DRIVER') && (
                 <div>
                   <label className="text-sm font-medium text-gray-700">Driver Type</label>
                   <Field
@@ -235,6 +239,19 @@ const AddBanner = () => {
                   </Field>
                   <ErrorMessage name="driverType" component="div" className="text-red-500 text-sm" />
                 </div>
+              )}
+              {values.type === 'TRAINING_VIDEO_DRIVER' && (
+                <>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Redirect URL</label>
+                    <Field
+                      name="redirectUrl"
+                      type="text"
+                      className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                    />
+                    <ErrorMessage name="redirectUrl" component="div" className="text-red-500 text-sm" />
+                  </div>
+                </>
               )}
               {!hideStandardFields && (
                 <>
@@ -343,6 +360,7 @@ const AddBanner = () => {
 
               {/* Image Upload */}
 
+              
               <div>
                 <label htmlFor="image" className="text-sm font-medium text-gray-700">
                   Image
@@ -359,6 +377,7 @@ const AddBanner = () => {
                 />
                 <ErrorMessage name="image" component="div" className="text-red-500 text-sm" />
               </div>
+              
             </div>
 
             <div className="flex flex-row">
