@@ -35,6 +35,7 @@ const AddBanner = () => {
     dropAddress: '',        
     dropLocation: null,     
     navigateTo: '',         
+    driverType: '',
   };
 
   const fetchGeoData = async () => {
@@ -130,8 +131,9 @@ const AddBanner = () => {
       // console.log('Sending image:', values.image?.name, values.image?.type);
 
       const formData = new FormData();
-      const isNewCustomer = values.type === "NEW_CUSTOMER" || values.type === "INTRO_SLIDES";
-      if (!isNewCustomer) {
+      const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER';
+      const isNewCustomer = values.type === "NEW_CUSTOMER";
+      if (!isNewCustomer && !isIntroType) {
         formData.append('fromDate', values.fromDate);
         formData.append('toDate', values.toDate);
         formData.append('redirectUrl', values.redirectUrl.trim());
@@ -140,9 +142,12 @@ const AddBanner = () => {
         formData.append('dropLong', values.dropLocation?.lng || '');
         formData.append('navigateTo', values.navigateTo.trim());
       }
+      if (values.type === 'INTRO_SLIDES_DRIVER') {
+        formData.append('driverType', values.driverType);
+      }
       formData.append('status', values.status === 'true' || values.status === true);
       formData.append('type', values.type.trim());
-      formData.append('zone', isNewCustomer ? 'All' : values.zone);
+      formData.append('zone', isNewCustomer || isIntroType ? 'All' : values.zone);
       formData.append('image', values.image, values.image.name);
       formData.append('fileTypeImage', values.image?.type || '');
       formData.append('extImage', values.image?.name?.split('.').pop()?.toLowerCase() || '');
@@ -172,7 +177,10 @@ const AddBanner = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting, values,setFieldValue }) => (
+        {({ isSubmitting, values,setFieldValue }) => {
+          const isIntroType = values.type === 'INTRO_SLIDES' || values.type === 'INTRO_SLIDES_DRIVER';
+          const hideStandardFields = values.type === 'NEW_CUSTOMER' || isIntroType;
+          return (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               
@@ -185,8 +193,11 @@ const AddBanner = () => {
                   onChange={(e) => {
                     const selectedType = e.target.value;
                     setFieldValue('type', selectedType);
-                    if (selectedType === 'NEW_CUSTOMER'|| selectedType === 'INTRO_SLIDES') {
+                    if (selectedType === 'NEW_CUSTOMER' || selectedType === 'INTRO_SLIDES' || selectedType === 'INTRO_SLIDES_DRIVER') {
                       setFieldValue('zone', 'All');
+                    }
+                    if (selectedType !== 'INTRO_SLIDES_DRIVER') {
+                      setFieldValue('driverType', '');
                     }
                   }}
                 >
@@ -203,10 +214,29 @@ const AddBanner = () => {
                   <option value="BOTTOM_NEW">Bottom New</option>
                   <option value="NEW_CUSTOMER">New Customer</option>
                   <option value="INTRO_SLIDES">Intro Slides</option>         
+                  <option value="INTRO_SLIDES_DRIVER">Intro Slides (Driver)</option>         
                 </Field>
                 <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
               </div>
-                   {values.type !== 'NEW_CUSTOMER' && values.type !== 'INTRO_SLIDES' && (
+              {values.type === 'INTRO_SLIDES_DRIVER' && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Driver Type</label>
+                  <Field
+                    as="select"
+                    name="driverType"
+                    className="p-2 w-full rounded-md border border-gray-300 shadow-sm"
+                  >
+                    <option value="">Select Driver Type</option>
+                    <option value="ACTING_DRIVER">ACTING_DRIVER</option>
+                    <option value="CAB">CAB</option>
+                    <option value="AUTO">AUTO</option>
+                    <option value="PARCEL">PARCEL</option>
+                    <option value="ALL">ALL</option>
+                  </Field>
+                  <ErrorMessage name="driverType" component="div" className="text-red-500 text-sm" />
+                </div>
+              )}
+              {!hideStandardFields && (
                 <>
               <div>
                 <label className="text-sm font-medium text-gray-700">From Date</label>
@@ -235,7 +265,7 @@ const AddBanner = () => {
                 <ErrorMessage name="status" component="div" className="text-red-500 text-sm" />
               </div>
 
-              <div  className={`${values.type == 'NEW_CUSTOMER' || values.type == 'INTRO_SLIDES' ? 'hidden' : ''}`}>
+              <div  className={`${hideStandardFields ? 'hidden' : ''}`}>
                 <label htmlFor="zone" className="text-sm font-medium text-gray-700">
                   Zone
                 </label>
@@ -244,14 +274,14 @@ const AddBanner = () => {
                   value={ZONE_OPTIONS.find((opt) => opt.value === values.zone) || null}
                   onChange={(opt) => setFieldValue('zone', opt?.value || '')}
                   placeholder="Select Zone"
-                  isDisabled={values.type === 'NEW_CUSTOMER' || values.type === 'INTRO_SLIDES'}
+                  isDisabled={hideStandardFields}
                   className="w-full"
                   name="zone" />
                 <ErrorMessage name="zone" component="div" className="text-red-500 text-sm" />
               </div>
 
               {/* Drop Location (New Field) */}
-              {values.type !== 'NEW_CUSTOMER' && values.type !== 'INTRO_SLIDES' && (
+              {!hideStandardFields && (
                 <>              
               <div>
                 <label className="text-sm font-medium text-gray-700">Drop Location </label>
@@ -351,7 +381,8 @@ const AddBanner = () => {
               </Button>
             </div>
           </Form>
-        )}
+          );
+        }}
       </Formik>
     </div>
   );
