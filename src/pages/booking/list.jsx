@@ -32,9 +32,9 @@ const isBrowser = () => typeof window !== 'undefined';
 const getItemSafe = (key) => {
     if (!isBrowser()) return null;
     try {
-        return localStorage.getItem(key);
+        return sessionStorage.getItem(key);
     } catch (error) {
-        console.error(`Error getting localStorage key "${key}":`, error);
+        console.error(`Error getting sessionStorage key "${key}":`, error);
         return null;
     }
 };
@@ -42,9 +42,19 @@ const getItemSafe = (key) => {
 const setItemSafe = (key, value) => {
     if (!isBrowser()) return;
     try {
-        localStorage.setItem(key, value);
+        sessionStorage.setItem(key, value);
     } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error);
+        console.error(`Error setting sessionStorage key "${key}":`, error);
+    }
+};
+
+const getLocalItemSafe = (key) => {
+    if (!isBrowser()) return null;
+    try {
+        return localStorage.getItem(key);
+    } catch (error) {
+        console.error(`Error getting localStorage key "${key}":`, error);
+        return null;
     }
 };
 
@@ -84,7 +94,7 @@ const loadBookingFilters = ({setActiveTab,setStatusFilter,setServiceTypeFilter,s
             }));
         }
     } catch (error) {
-        console.error('Error loading booking list filters from localStorage:', error);
+        console.error('Error loading booking list filters from sessionStorage:', error);
     } finally {
         setFiltersLoaded(true);
     }
@@ -95,7 +105,7 @@ const saveBookingFilters = ({activeTab,statusFilter,serviceTypeFilter,sourceFilt
         const filtersToStore = {activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage};
         setItemSafe(BOOKING_FILTERS_KEY, JSON.stringify(filtersToStore));
     } catch (error) {
-        console.error('Error saving booking list filters to localStorage:', error);
+        console.error('Error saving booking list filters to sessionStorage:', error);
     }
 };
 
@@ -106,7 +116,7 @@ const saveBookingFilters = ({activeTab,statusFilter,serviceTypeFilter,sourceFilt
                 const parsed = JSON.parse(storedFilters);
                 return parsed.activeTab || "ALL_BOOKINGS";
             } catch (error) {
-                console.error('Error reading initial activeTab from localStorage:', error);
+                console.error('Error reading initial activeTab from sessionStorage:', error);
                 return "ALL_BOOKINGS";
             }
         };
@@ -154,7 +164,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [allUsers, setAllUsers] = useState([]); 
 
 useEffect(() => {
-  const storedUser = getItemSafe('loggedInUser');
+  const storedUser = getLocalItemSafe('loggedInUser');
   if (storedUser) {
     const userData = JSON.parse(storedUser);     
     setUserId(userData.id); 
@@ -670,7 +680,7 @@ if (!statusFilter.includes('All')) {
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
         setEffectiveSearchId('');
-        localStorage.removeItem('bookingSearchId');
+        sessionStorage.removeItem('bookingSearchId');
         triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], ['All'], '');
     };
 

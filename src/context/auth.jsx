@@ -20,6 +20,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('loggedInUser');
+    sessionStorage.removeItem('bookingSearchId');
+    sessionStorage.removeItem('bookingListFilters');
+    sessionStorage.removeItem('driverViewFilters');
+    sessionStorage.removeItem('autoViewFilters');
+    sessionStorage.removeItem('accountViewFilters');
+    sessionStorage.removeItem('docVerificationAllFilters');
+    sessionStorage.removeItem('docVerificationPendingFilters');
     setUser(null);
   };
 

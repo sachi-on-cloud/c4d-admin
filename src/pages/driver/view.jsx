@@ -31,9 +31,9 @@ const isBrowser = () => typeof window !== 'undefined';
 const getItemSafe = (key) => {
   if (!isBrowser()) return null;
   try {
-    return localStorage.getItem(key);
+    return sessionStorage.getItem(key);
   } catch (err) {
-    console.error(`Error reading localStorage key "${key}":`, err);
+    console.error(`Error reading sessionStorage key "${key}":`, err);
     return null;
   }
 };
@@ -41,9 +41,9 @@ const getItemSafe = (key) => {
 const setItemSafe = (key, value) => {
   if (!isBrowser()) return;
   try {
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
   } catch (err) {
-    console.error(`Error writing localStorage key "${key}":`, err);
+    console.error(`Error writing sessionStorage key "${key}":`, err);
   }
 };
  
@@ -107,7 +107,7 @@ const [zoneOptions, setZoneOptions] = useState([]);
 
   const navigate = useNavigate();
  
-  // Load filters from localStorage on initial mount
+  // Load filters from sessionStorage on initial mount
   useEffect(() => {
     const stored = getItemSafe(DRIVER_VIEW_FILTERS_KEY);
     if (!stored) {
@@ -138,7 +138,7 @@ const [zoneOptions, setZoneOptions] = useState([]);
     }
   }, []);
  
-  // Save filters to localStorage whenever they change
+  // Save filters to sessionStorage whenever they change
   useEffect(() => {
     if (!filtersLoaded) return;
  
@@ -245,7 +245,7 @@ const [zoneOptions, setZoneOptions] = useState([]);
   }, [paramsPassed, navigate, location.pathname]);
  
   const handleRefresh = () => {
-    localStorage.removeItem(DRIVER_VIEW_FILTERS_KEY);
+    sessionStorage.removeItem(DRIVER_VIEW_FILTERS_KEY);
     setPagination({
       currentPage: 1,
       totalPages: 1,

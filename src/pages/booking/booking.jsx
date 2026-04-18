@@ -135,7 +135,7 @@ const Booking = (props) => {
   }, []);
 
   useEffect(() => {
-    const storedSearchId = localStorage.getItem('bookingSearchId') || '';
+    const storedSearchId = sessionStorage.getItem('bookingSearchId') || '';
     if (storedSearchId) {
       setSearchBookingId((prev) => prev || storedSearchId);
       setSearchText((prev) => prev || storedSearchId);
@@ -1556,7 +1556,7 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
                                                     
-                                                    localStorage.removeItem('bookingSearchId');
+                                                    sessionStorage.removeItem('bookingSearchId');
                                                    if (refreshFn) refreshFn();
                                                    
                                                 }}
