@@ -28,9 +28,9 @@ const isBrowser = () => typeof window !== "undefined";
 const getItemSafe = (key) => {
   if (!isBrowser()) return null;
   try {
-    return localStorage.getItem(key);
+    return sessionStorage.getItem(key);
   } catch (err) {
-    console.error(`Error reading localStorage key "${key}":`, err);
+    console.error(`Error reading sessionStorage key "${key}":`, err);
     return null;
   }
 };
@@ -38,18 +38,18 @@ const getItemSafe = (key) => {
 const setItemSafe = (key, value) => {
   if (!isBrowser()) return;
   try {
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
   } catch (err) {
-    console.error(`Error writing localStorage key "${key}":`, err);
+    console.error(`Error writing sessionStorage key "${key}":`, err);
   }
 };
 
 const removeItemSafe = (key) => {
   if (!isBrowser()) return;
   try {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   } catch (err) {
-    console.error(`Error removing localStorage key "${key}":`, err);
+    console.error(`Error removing sessionStorage key "${key}":`, err);
   }
 };
 

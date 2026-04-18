@@ -59,7 +59,7 @@ const ZonesTab = () => {
 
   const fetchServiceAreas = async () => {
     try {
-      const response = await ApiRequestUtils.get(API_ROUTES.GEO_MARKINGS_LIST+'?type=Service%20Area');
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {type: 'Service Area'});
       if (response?.success) {
         setServiceAreas(response.data || []);
       } else {
@@ -75,7 +75,7 @@ const ZonesTab = () => {
     
     try {
       setIsLoading(true);
-      const response = await ApiRequestUtils.get(`${API_ROUTES.GEO_MARKINGS_LIST}?type=Zone&parent_id=${selectedServiceArea}`);
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {type: 'Zone',parent_id: selectedServiceArea});
       if (response?.success) {
         setZones(response.data || []);
         setUpdatedZones(response.data || []);
@@ -203,6 +203,9 @@ const ZonesTab = () => {
     setError(null);
   };
 
+  const selectedServiceAreaName =
+    serviceAreas.find((area) => String(area.id) === String(selectedServiceArea))?.name || '';
+
   // Show create/edit form with map
   if (isCreating || selectedItem) {
     return (
@@ -269,6 +272,10 @@ const ZonesTab = () => {
           label="Select Service Area"
           value={selectedServiceArea}
           onChange={handleServiceAreaChange}
+          selected={() => selectedServiceAreaName || ''}
+          menuProps={{
+            className: 'max-h-40 overflow-y-scroll',
+          }}
         >
           {serviceAreas.map((area) => (
             <Option key={area.id} value={String(area.id)}>

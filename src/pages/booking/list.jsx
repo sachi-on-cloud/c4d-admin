@@ -25,11 +25,39 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import moment from "moment";
 // import DateRangeFilter from './DateRangeFilter';
 
-const BOOKING_FILTERS_KEY = 'bookingListFilters';
-
 const isBrowser = () => typeof window !== 'undefined';
 
+const toStorageScope = (pathname = '') => {
+    const normalized = String(pathname || '').toLowerCase();
+    const scope = normalized.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    return scope || 'dashboard_booking';
+};
+
+const getBookingFiltersKey = (pathname) => `bookingFilters_${toStorageScope(pathname)}`;
+const getBookingSearchKey = (pathname) => `bookingSearchId_${toStorageScope(pathname)}`;
+const LEGACY_BOOKING_FILTERS_KEY = 'bookingListFilters';
+const LEGACY_BOOKING_SEARCH_KEY = 'bookingSearchId';
+
 const getItemSafe = (key) => {
+    if (!isBrowser()) return null;
+    try {
+        return sessionStorage.getItem(key);
+    } catch (error) {
+        console.error(`Error getting sessionStorage key "${key}":`, error);
+        return null;
+    }
+};
+
+const setItemSafe = (key, value) => {
+    if (!isBrowser()) return;
+    try {
+        sessionStorage.setItem(key, value);
+    } catch (error) {
+        console.error(`Error setting sessionStorage key "${key}":`, error);
+    }
+};
+
+const getLocalItemSafe = (key) => {
     if (!isBrowser()) return null;
     try {
         return localStorage.getItem(key);
@@ -39,18 +67,16 @@ const getItemSafe = (key) => {
     }
 };
 
-const setItemSafe = (key, value) => {
-    if (!isBrowser()) return;
+const loadBookingFilters = ({ filtersKey, setActiveTab, setStatusFilter, setServiceTypeFilter, setSourceFilter, setTripCoordinatorFilter, setZoneFilter, setDateFilter, setCustomDateFrom, setCustomDateTo, setPagination, setFiltersLoaded }) => {
     try {
-        localStorage.setItem(key, value);
-    } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error);
-    }
-};
-
-const loadBookingFilters = ({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded}) => {
-    try {
-        const storedFilters = getItemSafe(BOOKING_FILTERS_KEY);
+        let storedFilters = getItemSafe(filtersKey);
+        if (!storedFilters) {
+            const legacyFilters = getItemSafe(LEGACY_BOOKING_FILTERS_KEY);
+            if (legacyFilters) {
+                storedFilters = legacyFilters;
+                setItemSafe(filtersKey, legacyFilters);
+            }
+        }
         if (!storedFilters) {
             setFiltersLoaded(true);
             return;
@@ -84,38 +110,37 @@ const loadBookingFilters = ({setActiveTab,setStatusFilter,setServiceTypeFilter,s
             }));
         }
     } catch (error) {
-        console.error('Error loading booking list filters from localStorage:', error);
+        console.error('Error loading booking list filters from sessionStorage:', error);
     } finally {
         setFiltersLoaded(true);
     }
 };
 
-const saveBookingFilters = ({activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage}) => {
-    try {
-        const filtersToStore = {activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage};
-        setItemSafe(BOOKING_FILTERS_KEY, JSON.stringify(filtersToStore));
-    } catch (error) {
-        console.error('Error saving booking list filters to localStorage:', error);
-    }
-};
-
-        const getInitialActiveTab = () => {
+        const getInitialActiveTab = (filtersKey) => {
             try {
-                const storedFilters = getItemSafe(BOOKING_FILTERS_KEY);
-                if (!storedFilters) return "ALL_BOOKINGS";
+                const storedFilters = getItemSafe(filtersKey);
+                if (!storedFilters) {
+                    const legacyFilters = getItemSafe(LEGACY_BOOKING_FILTERS_KEY);
+                    if (!legacyFilters) return "ALL_BOOKINGS";
+                    const parsedLegacy = JSON.parse(legacyFilters);
+                    return parsedLegacy.activeTab || "ALL_BOOKINGS";
+                }
                 const parsed = JSON.parse(storedFilters);
                 return parsed.activeTab || "ALL_BOOKINGS";
             } catch (error) {
-                console.error('Error reading initial activeTab from localStorage:', error);
+                console.error('Error reading initial activeTab from sessionStorage:', error);
                 return "ALL_BOOKINGS";
             }
         };
 
 export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
+    const location = useLocation();
+    const bookingFiltersKey = getBookingFiltersKey(location.pathname);
+    const bookingSearchKey = getBookingSearchKey(location.pathname);
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-    const [activeTab, setActiveTab] = useState(getInitialActiveTab);
+    const [activeTab, setActiveTab] = useState(() => getInitialActiveTab(bookingFiltersKey));
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -154,7 +179,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const [allUsers, setAllUsers] = useState([]); 
 
 useEffect(() => {
-  const storedUser = getItemSafe('loggedInUser');
+  const storedUser = getLocalItemSafe('loggedInUser');
   if (storedUser) {
     const userData = JSON.parse(storedUser);     
     setUserId(userData.id); 
@@ -192,26 +217,54 @@ useEffect(() => {
 }, []);
 
     useEffect(() => {
-        loadBookingFilters({setActiveTab,setStatusFilter,setServiceTypeFilter,setSourceFilter,setTripCoordinatorFilter,setZoneFilter,setDateFilter,setCustomDateFrom,setCustomDateTo,setPagination,setFiltersLoaded,
+        setFiltersLoaded(false);
+        loadBookingFilters({
+            filtersKey: bookingFiltersKey,
+            setActiveTab,
+            setStatusFilter,
+            setServiceTypeFilter,
+            setSourceFilter,
+            setTripCoordinatorFilter,
+            setZoneFilter,
+            setDateFilter,
+            setCustomDateFrom,
+            setCustomDateTo,
+            setPagination,
+            setFiltersLoaded,
         });
-    }, []);
+    }, [bookingFiltersKey]);
 
     useEffect(() => {
         if (!filtersLoaded) return;
-            saveBookingFilters({activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,currentPage: pagination.currentPage
-        });
-    }, [filtersLoaded,activeTab,statusFilter,serviceTypeFilter,sourceFilter,tripCoordinatorFilter,zoneFilter,dateFilter,customDateFrom,customDateTo,pagination.currentPage]);
+        try {
+            const filtersToStore = {
+                activeTab,
+                statusFilter,
+                serviceTypeFilter,
+                sourceFilter,
+                tripCoordinatorFilter,
+                zoneFilter,
+                dateFilter,
+                customDateFrom,
+                customDateTo,
+                currentPage: pagination.currentPage,
+            };
+            setItemSafe(bookingFiltersKey, JSON.stringify(filtersToStore));
+        } catch (error) {
+            console.error('Error saving booking list filters to sessionStorage:', error);
+        }
+    }, [filtersLoaded, bookingFiltersKey, activeTab, statusFilter, serviceTypeFilter, sourceFilter, tripCoordinatorFilter, zoneFilter, dateFilter, customDateFrom, customDateTo, pagination.currentPage]);
 
     useEffect(() => {
-        const stored = getItemSafe('bookingSearchId') || '';
+        const stored = getItemSafe(bookingSearchKey) || getItemSafe(LEGACY_BOOKING_SEARCH_KEY) || '';
         const newEffective = searchBookingId || stored;
         setEffectiveSearchId(newEffective);
         if (newEffective) {
-            setItemSafe('bookingSearchId', newEffective);
+            setItemSafe(bookingSearchKey, newEffective);
         } else if (!searchBookingId) {
-            setItemSafe('bookingSearchId', '');
+            setItemSafe(bookingSearchKey, '');
         }
-    }, [searchBookingId]);
+    }, [searchBookingId, bookingSearchKey]);
     const handleToggleDriverHours = () => {
   setShowDriverHours(true);
 };
@@ -357,7 +410,6 @@ const handleTabChange = (value) => {
         </Popover>
     );
 
-    const location = useLocation();
     const paramsPassed = location.state;
 
     useEffect(() => {
@@ -670,7 +722,8 @@ if (!statusFilter.includes('All')) {
         setCustomDateTo('');
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
         setEffectiveSearchId('');
-        localStorage.removeItem('bookingSearchId');
+        sessionStorage.removeItem(bookingSearchKey);
+        sessionStorage.removeItem(LEGACY_BOOKING_SEARCH_KEY);
         triggerFilteredAPICall('', '', 1, ['All'], ['All'], ['All'], ['All'], ['All'], '');
     };
 

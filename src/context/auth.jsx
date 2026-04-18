@@ -20,6 +20,21 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('loggedInUser');
+    sessionStorage.removeItem('bookingSearchId');
+    sessionStorage.removeItem('bookingListFilters');
+    for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+      const key = sessionStorage.key(index);
+      if (!key) continue;
+      if (key.startsWith('bookingSearchId_') || key.startsWith('bookingFilters_')) {
+        sessionStorage.removeItem(key);
+      }
+    }
+    sessionStorage.removeItem('driverViewFilters');
+    sessionStorage.removeItem('autoViewFilters');
+    sessionStorage.removeItem('accountViewFilters');
+    sessionStorage.removeItem('docVerificationAllFilters');
+    sessionStorage.removeItem('docVerificationPendingFilters');
     setUser(null);
   };
 

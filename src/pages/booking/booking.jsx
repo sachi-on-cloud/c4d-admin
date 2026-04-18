@@ -59,6 +59,13 @@ const toTitleLabel = (value = '') =>
         .replace(/_/g, ' ')
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
+const toStorageScope = (pathname = '') => {
+    const normalized = String(pathname || '').toLowerCase();
+    const scope = normalized.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    return scope || 'dashboard_booking';
+};
+const LEGACY_BOOKING_SEARCH_KEY = 'bookingSearchId';
+
 const Booking = (props) => {
     const [loading, setLoading] = useState(false);
     const [packageTypeSelectedData, setPackageTypeSelectedData] = useState([]);
@@ -112,6 +119,9 @@ const Booking = (props) => {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser') || "{}");
     const loggedInUserId = loggedInUser.id || 0;
      const [refreshFn, setRefreshFn] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const bookingSearchKey = `bookingSearchId_${toStorageScope(location.pathname)}`;
 
 
 
@@ -135,12 +145,15 @@ const Booking = (props) => {
   }, []);
 
   useEffect(() => {
-    const storedSearchId = localStorage.getItem('bookingSearchId') || '';
+    const storedSearchId = sessionStorage.getItem(bookingSearchKey) || sessionStorage.getItem(LEGACY_BOOKING_SEARCH_KEY) || '';
+    if (storedSearchId) {
+      sessionStorage.setItem(bookingSearchKey, storedSearchId);
+    }
     if (storedSearchId) {
       setSearchBookingId((prev) => prev || storedSearchId);
       setSearchText((prev) => prev || storedSearchId);
     }
-  }, []);
+  }, [bookingSearchKey]);
 
   useEffect(() => {
     if (selectedAreaId) {
@@ -166,8 +179,6 @@ const Booking = (props) => {
         }
     };
 
-    const navigate = useNavigate();
-    const location = useLocation();
     const params = location.state;
 
     useEffect(() => {
@@ -1556,7 +1567,8 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                                                     setSelectedCustomer(0);
                                                     setSearchResults([]); 
                                                     
-                                                    localStorage.removeItem('bookingSearchId');
+                                                    sessionStorage.removeItem(bookingSearchKey);
+                                                    sessionStorage.removeItem(LEGACY_BOOKING_SEARCH_KEY);
                                                    if (refreshFn) refreshFn();
                                                    
                                                 }}
