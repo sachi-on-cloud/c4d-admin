@@ -29,7 +29,7 @@ const ServiceAreasTab = () => {
   const fetchServiceAreas = async () => {
     try {
       setIsLoading(true);
-      const response = await ApiRequestUtils.get(`${API_ROUTES.GEO_MARKINGS_LIST}?type=Service%20Area`);
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {type: 'Service Area'});
       if (response?.success) {
         setServiceAreas(response.data || []);
         setUpdatedServiceAreas(response.data || []); // Initialize local copy
@@ -45,9 +45,7 @@ const ServiceAreasTab = () => {
 
   const fetchZones = async () => {                      
     try {
-      const response = await ApiRequestUtils.get(
-        `${API_ROUTES.GEO_MARKINGS_LIST}?type=Zone`
-      );
+      const response = await ApiRequestUtils.getWithQueryParam(API_ROUTES.GEO_MARKINGS_LIST, {type: 'Zone'});
       if (response?.success) {
         setZones(response.data || []);
       }
