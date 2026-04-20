@@ -462,7 +462,7 @@ const ParcelEdit = () => {
                                     <Field type="text" name="thaluk" className="p-2 w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
                                 <div>
-                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">Zone</label>
+                                    <label htmlFor="district" className="text-sm font-medium text-gray-700">District</label>
                                     <Field as="select" name="district" className="p-2 w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Select District</option>
                                         {districtOptions.map((district) => (

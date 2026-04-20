@@ -1000,7 +1000,7 @@ const [blockedReason, setBlockedReason] = useState('');
                                 </div>
                                 <div>
                                     <label htmlFor="district" className="text-sm font-medium text-gray-700">
-                                        Zone
+                                        District
                                     </label>
                                     <select
                                         id="district"
