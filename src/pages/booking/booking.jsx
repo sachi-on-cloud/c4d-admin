@@ -1632,15 +1632,9 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
             </div>
             <div>
                 {isOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" onClick={() => {
-                        setIsOpen(false)
-                        onConfirmBooking()
-                        setSelectedCustomer(0);
-                        setEditBookingView();
-                        setEditBooking();
-                        setQuoteDetails();
-                        setSearchBookingId('')
-                        setShowQuickCreateCustomer(false);
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full" 
+                    onClick={(e) => {
+                        e.stopPropagation();
                     }}>
                         <div className="bg-black-gray-500 rounded-2xl  h-screen p-2 w-[75%]  shadow-lg relative" onClick={(e) => e.stopPropagation()}>
                                 <div className='justify-end items-end  absolute -right-6'>

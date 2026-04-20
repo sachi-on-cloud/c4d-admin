@@ -178,7 +178,7 @@ const BannerView = () => {
   { value: 'BANNER', label: 'Banner' },
   { value: 'STATS', label: 'Stats' },
   { value: 'TOP_NEW', label: 'Top New'},
-  { value: 'MIDCAROUSEL', label: 'Mid Carousel'},
+  // { value: 'MIDCAROUSEL', label: 'Mid Carousel'},
   { value: 'PROMOTION', label: 'Promotion'},
   { value: 'BOTTOM_NEW', label: 'Bottom New'},
   { value: 'NEW_CUSTOMER', label: 'New Customer' },
