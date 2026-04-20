@@ -69,7 +69,7 @@ const AddBanner = () => {
     image: Yup.mixed()
       .required('Image is required')
       .test('fileType', 'Only JPEG or PNG files are allowed', (value) =>
-        value ? ['image/jpeg', 'image/png','image/gif'].includes(value.type) : false
+        value ? ['image/jpeg', 'image/png','image/gif','image/avif'].includes(value.type) : false
       ),
     //   fromDate: Yup.string().required('Start Date is required'),
     //   toDate: Yup.string().required('End Date is required'),
@@ -77,9 +77,9 @@ const AddBanner = () => {
   });
 
   const handleImageUpload = (file, setFieldValue) => {
-    const validTypes = ['image/jpeg', 'image/png','image/gif'];
+    const validTypes = ['image/jpeg', 'image/png','image/gif','image/avif'];
     if (!file || !validTypes.includes(file.type)) {
-      alert('Only JPEG and PNG images are allowed.');
+      alert('Only JPEG, PNG, GIF, and AVIF images are allowed.');
       return;
     }
 

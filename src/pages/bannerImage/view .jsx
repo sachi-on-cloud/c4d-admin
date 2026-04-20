@@ -32,6 +32,14 @@ const BannerView = () => {
   const [statusTab, setStatusTab] = useState('active');
   const [positionErrorById, setPositionErrorById] = useState({});
 
+  const formatTypeText = (type) => {
+    if (!type) return '-';
+    return String(type)
+      .toLowerCase()
+      .replaceAll('_', ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   useEffect(() => {
     const fetchBanners = async () => {
       try {
@@ -248,7 +256,7 @@ const BannerView = () => {
               <Spinner className="h-10 w-10" />
             </div>
           ) : (
-            <table className="w-full min-w-[640px] table-auto">
+            <table className="min-w-full w-max table-auto">
               <thead>
                 <tr className=" text-black">
                   <th className="py-3 px-5 text-left text-gray-700">Image</th>
@@ -291,19 +299,19 @@ const BannerView = () => {
                         <img
                           src={item.imageUrl}
                           alt="banner"
-                          className="w-32 h-auto rounded-xl"
+                          className="w-8 h-auto rounded-xl"
                         />
                       </td>
-                      <td className="py-3 px-5">{item.type || '-'}</td>
-                      <td className="py-3 px-5">{item.redirectUrl || '-'}</td>
-                      <td className="py-3 px-5">
+                      <td className="py-3 px-5">{formatTypeText(item.type)}</td>
+                      <td className="py-3 px-5 break-all">{item.redirectUrl || '-'}</td>
+                      <td className="py-3 px-5 whitespace-nowrap">
                         {item.fromDate ? moment(item.fromDate).format('DD-MM-YYYY') : '-'}
                       </td> 
-                      <td className="py-3 px-5">
+                      <td className="py-3 px-5 whitespace-nowrap">
                         {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
                       </td>
                       <td className="py-3 px-5">
-                        {item.driverType || '-'}
+                        {formatTypeText(item.driverType)}
                       </td>
                       <td className="py-3 px-5">
                         <Switch
