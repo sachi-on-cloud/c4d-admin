@@ -212,7 +212,7 @@ const AddBanner = () => {
                   <option value="BANNER">Banner</option>
                   <option value="STATS">Stats</option>
                   <option value="TOP_NEW">Top New</option>
-                  <option value="MIDCAROUSEL">MidCarousel</option>
+                  {/* <option value="MIDCAROUSEL">MidCarousel</option> */}
                   <option value="PROMOTION">Promotion</option>
                   <option value="BOTTOM_NEW">Bottom New</option>
                   <option value="NEW_CUSTOMER">New Customer</option>
