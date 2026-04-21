@@ -326,7 +326,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                 <div className="flex space-x-5">
                                     <Button
                                         onClick={() => {
-                                            if (["RC_COPY", "LICENSE"].includes(modalData?.type) ? hasVehicleRecords : true) {
+                                            if (type !== "driver" && ["RC_COPY", "LICENSE"].includes(modalData?.type) ? hasVehicleRecords : true) {
                                                 handleStatusChange(modalData?.id, "APPROVED", "")
                                             } else {
                                                 handleCloseModal();
