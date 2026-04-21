@@ -4,8 +4,18 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const LEGACY_LOCAL_FILTER_KEYS = [
+    'bookingListFilters',
+    'bookingSearchId',
+    'driverViewFilters',
+    'autoViewFilters',
+    'accountViewFilters',
+    'docVerificationAllFilters',
+    'docVerificationPendingFilters',
+  ];
   
   useEffect(() => {
+    LEGACY_LOCAL_FILTER_KEYS.forEach((key) => localStorage.removeItem(key));
     const token = localStorage.getItem('token');
     if (token) {
       setUser({ token });
