@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { ApiRequestUtils } from '@/utils/apiRequestUtils';
 import { API_ROUTES } from '@/utils/constants';
 import { Button, Alert, Input, List, ListItem, Typography } from '@material-tailwind/react';
@@ -51,6 +52,17 @@ const LocationInput = ({ field, form, suggestions, onSearch, type }) => {
         </div>
     );
 };
+
+const validationSchema = Yup.object({
+    modelYear: Yup.string()
+        .required('Year of Model is required')
+        .matches(/^\d{4}$/, 'Model Year must be a 4-digit year')
+        .test('is-valid-year', 'Model Year cannot be in the future', (value) => {
+            if (!value) return true;
+            const currentYear = new Date().getFullYear();
+            return parseInt(value, 10) <= currentYear;
+        }),
+});
 
 const ParcelCabEdit = () => {
     const [parcelCabVal, setParcelCabVal] = useState({});
@@ -224,7 +236,7 @@ const ParcelCabEdit = () => {
             <h2 className="text-2xl font-bold mb-4">Update Parcel Bike</h2>
             <Formik
                 initialValues={initialValues}
-                // validationSchema={PARCEL_CAB_SCHEMA}
+                validationSchema={validationSchema}
                 onSubmit={onSubmit}
                 enableReinitialize={true}
             >
