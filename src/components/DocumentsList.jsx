@@ -21,9 +21,9 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
     const navigate = useNavigate();
     const [isDeclining, setIsDeclining] = useState(false);
     const [declineReason, setDeclineReason] = useState("");
-    const cabs = cabsList || [];
-    const autos = autoList || [];
-    const parcels = parcelsList || [];
+    const cabs = Array.isArray(cabsList) ? cabsList : cabsList ? [cabsList] : [];
+    const autos = Array.isArray(autoList) ? autoList : autoList ? [autoList] : [];
+    const parcels = Array.isArray(parcelsList) ? parcelsList : parcelsList ? [parcelsList] : [];
     const hasVehicleRecords = cabs.length > 0 || autos.length > 0 || parcels.length > 0;
 
     const getVehicleLabel = () => {
@@ -320,7 +320,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                             </div>
                         )}
                     </DialogBody>
-                    {/* {modalData.status !== "APPROVED" && noApprove && ( */}
+                    {modalData?.status !== "APPROVED" && !noApprove && (
                         <DialogFooter className="flex flex-col items-center">
                             {!isDeclining ? (
                                 <div className="flex space-x-5">
@@ -405,7 +405,7 @@ const DocumentsList = ({ id, type, noApprove = true, cabsList, autoList, parcels
                                 </div>
                             )}
                         </DialogFooter>
-                    {/* )} */}
+                    )}
                 </Dialog>
         </>
     )
