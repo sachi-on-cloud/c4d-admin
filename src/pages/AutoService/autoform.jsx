@@ -61,7 +61,14 @@ const validationSchema = Yup.object({
   insurance: Yup.string().required('Insurance Expiry Date is required'),
   autoType: Yup.string().required('Auto Type is required'),
   seater: Yup.string().required('Seater is required'),
-  modelYear: Yup.string().required('Year of Model is required'),
+  modelYear: Yup.string()
+    .required('Year of Model is required')
+    .matches(/^\d{4}$/, 'Model Year must be a 4-digit year')
+    .test('is-valid-year', 'Model Year cannot be in the future', (value) => {
+      if (!value) return true;
+      const currentYear = new Date().getFullYear();
+      return parseInt(value, 10) <= currentYear;
+    }),
 });
 
 const AutoForm = () => {

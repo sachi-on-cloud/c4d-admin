@@ -1281,7 +1281,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             <p className="text-gray-500 font-semibold">Delivery Audio:</p>
                             {audioUrl ? (
                                 <audio controls muted className="flex-1">
@@ -1291,7 +1291,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                             ) : (
                                 <p className="text-sm text-gray-500">No audio available</p>
                             )}
-                        </div>
+                        </div> */}
                     </CardBody>
                 </Card>
             )}
@@ -1915,7 +1915,7 @@ const hasAdditionalCharges = Object.values(additionalCharges || {}).some((value)
                                     </span>
                                 </div>
                             )}
-                            {bookingDetails?.status !== "QUOTED" && (
+                            {bookingDetails?.status !== "QUOTED" && bookingDetails?.serviceType !== "PARCEL" &&(
                                 <div className="flex flex-col-2 gap-2">
                                     <span className="text-gray-500 font-semibold">Start OTP:</span>
                                     <span className="text-gray-900 font-medium">

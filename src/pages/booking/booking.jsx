@@ -325,7 +325,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         	
 	    parcelVehicleType: values?.parcelVehicleType || '',
         subZoneId: values?.subZoneId || 0,
-        weightRange: values?.weightRange || '',
+        // weightRange: values?.weightRange || '',
         orderType: values?.orderType || '',
         orderTypeOther: values?.orderTypeOther || ''
     };
@@ -563,7 +563,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
             dropLong: val?.dropLocation?.lng,
             zone: actualZone,
             parcelVehicleType: val?.parcelVehicleType || 'BIKE',
-            weightRange: val?.weightRange || '',
+            // weightRange: val?.weightRange || '',
             orderType: val?.orderType || null,
             orderTypeOther: val?.orderType === 'Others' ? (val?.orderTypeOther || '') : null,
             deliveryType: 'DOOR_DELIVERY',
@@ -616,7 +616,7 @@ const addQuotationLog = (values, quoteDetails, bookingId = null) => {
         driverEndLocation: null,
         isPickupSameAsDriverStart: false,
         parcelVehicleType: 'BIKE',
-        weightRange: '',
+        // weightRange: 'W_0_7',
         receiverName: '',
         receiverPhone: '+91',
         receiverAddress: '',
@@ -804,7 +804,7 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                 zone: actualZone,
                 landmark: values.landmark || '',
                 parcelVehicleType: values.parcelVehicleType || 'BIKE',
-                weightRange: values.weightRange,
+                // weightRange: values.weightRange,
                 receiverName: values.receiverName || '',
                 receiverPhone: values.receiverPhone || '',
                 receiverAddress: values.receiverAddress || '',
@@ -1197,7 +1197,7 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
         setFieldValue('driverEndLocation', null);
         setFieldValue('isPickupSameAsDriverStart', false);
         setFieldValue('parcelVehicleType', 'BIKE');
-        setFieldValue('weightRange', '');
+        // setFieldValue('weightRange', 'W_0_7');
         setFieldValue('receiverName', '');
         setFieldValue('receiverPhone', '+91');
         setFieldValue('receiverAddress', '');
@@ -2709,17 +2709,14 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                                                  {/* Source Type Field for all services */}
                                                 {values.serviceType && (
                                                     <>
-                                                        {values.serviceType === 'PARCEL' && (
-                                                            <div className="p-2 space-y-3">
+                                                        {/* {values.serviceType === 'PARCEL' && (
+                                                            <div className="p-2 space-y-3  hidden">
                                                                 <label className="text-sm font-medium text-gray-700">
                                                                     Weight Range <span className="text-red-500">*</span>
                                                                 </label>
                                                                 <div className="grid grid-cols-2 gap-3 pt-1">
                                                                     {[
-                                                                        { value: 'W_0_1', label: '0 to 1 Kg' },
-                                                                        { value: 'W_1_5', label: '1 to 5 Kg' },
-                                                                        { value: 'W_5_10', label: '5 to 10 Kg' },
-                                                                        { value: 'W_10_PLUS', label: '10+ Kg' },
+                                                                        ...(values.parcelVehicleType === 'AUTO' ? [{ value: 'W_8_40', label: '8 to 40 Kg' }] : [{ value: 'W_0_7', label: '0 to 7 Kg' }]),
                                                                     ].map((opt) => (
                                                                         <label key={opt.value} className="flex items-center space-x-2 cursor-pointer">
                                                                             <Field
@@ -2853,7 +2850,7 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                                                                     />
                                                                 </div>
                                                             </div>
-                                                        )}
+                                                        )} */}
                                                     <div className="p-2 space-y-2 ">
                                                         <label htmlFor="sourceType" className="text-sm font-medium text-gray-700">Source Type <span className="text-red-500">*</span></label>
                                                         <Field as="select" name="sourceType" className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">

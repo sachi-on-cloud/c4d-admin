@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, List, ListItem, Typography } from '@material-tailwind/react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import Select from 'react-select';
 import { API_ROUTES, ColorStyles } from '@/utils/constants';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -54,16 +55,16 @@ const LocationInput = ({ field, form, suggestions, onSearch, onSelect, type }) =
   );
 };
 
-// const validationSchema = Yup.object({
-//   name: Yup.string().required('Vehicle Name is required'),
-//   ownerName: Yup.string().required('Owner Name is required'),
-//   autoNumber: Yup.string().required('Auto Number is required'),
-//   address: Yup.string().required('Address is required'),
-//   insurance: Yup.string().required('Insurance Expiry Date is required'),
-//   autoType: Yup.string().required('Auto Type is required'),
-//   seater: Yup.string().required('Seater is required'),
-//   modelYear: Yup.string().required('Year of Model is required'),
-// });
+const validationSchema = Yup.object({
+  modelYear: Yup.string()
+    .required('Year of Model is required')
+    .matches(/^\d{4}$/, 'Model Year must be a 4-digit year')
+    .test('is-valid-year', 'Model Year cannot be in the future', (value) => {
+      if (!value) return true;
+      const currentYear = new Date().getFullYear();
+      return parseInt(value, 10) <= currentYear;
+    }),
+});
 
 const ParcelCabAdd = () => {
   const navigate = useNavigate();
@@ -162,7 +163,7 @@ const ParcelCabAdd = () => {
           zoneDescription: '',
           subZoneId: '',
         }}
-        // validationSchema={validationSchema}
+        validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
             if (!values.serviceArea) {

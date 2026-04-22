@@ -64,12 +64,22 @@ const CabEdit = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [insuranceImagePreview, setInsuranceImagePreview] = useState(null);
     const [accountRelatedDrivers, setAccountRelatedDrivers] = useState([]);
+    const [carTypeOptions, setCarTypeOptions] = useState([]);
+    const [selectedCarType, setSelectedCarType] = useState('');
     const { id } = useParams();
     const isEditMode = !!id;
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalData, setModalData] = useState(null);
     const [blockedReason, setBlockedReason] = useState(cabVal?.result?.blockedReason || '');
+
+    const getSelectedCarTypeLabel = (carType) => {
+        if (carType === 'MINI') return 'Mini';
+        if (carType === 'SUV') return 'SUV';
+        if (carType === 'MUV') return 'MUV';
+        if (carType === 'Sedan') return 'Sedan';
+        return '';
+    };
 
     // const getAccountNames = async () => {
     //     try {
@@ -95,6 +105,13 @@ const CabEdit = () => {
             setAccountRelatedDrivers(data?.data);
         }
     }
+
+    const getCarTypes = async () => {
+        const data = await ApiRequestUtils.get(API_ROUTES.GET_CAR_TYPE + "all");
+        if (data?.success && data?.data.length > 0) {
+            setCarTypeOptions(data?.data);
+        }
+    };
 
     function getNameById(id, obj) {
         for (const key in obj) {
@@ -150,10 +167,15 @@ const getPackageListDetails = async () => {
 };
 
     useEffect(() => {
+        getCarTypes();
         getPackageListDetails();
         // getAccountNames();
         fetchItem(id);
     }, [id]);
+
+    useEffect(() => {
+        setSelectedCarType(getSelectedCarTypeLabel(cabVal?.result?.carType));
+    }, [cabVal?.result?.carType]);
 
     const fetchItem = async (itemId) => {
         try {
@@ -484,19 +506,55 @@ const getPackageListDetails = async () => {
                                 <p className="text-sm font-medium text-gray-700 mb-2">Car Type</p>
                                 <div className="space-x-4">
                                     <label className="inline-flex items-center">
-                                        <Field type="radio"  name="carType" value="MINI" className="form-radio" />
+                                        <Field
+                                            type="radio"
+                                            name="carType"
+                                            value="MINI"
+                                            className="form-radio"
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("Mini");
+                                            }}
+                                        />
                                         <span className="ml-2">Mini</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio"  name="carType" value="SUV" className="form-radio" />
+                                        <Field
+                                            type="radio"
+                                            name="carType"
+                                            value="SUV"
+                                            className="form-radio"
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("SUV");
+                                            }}
+                                        />
                                         <span className="ml-2">SUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio"  name="carType" value="MUV" className="form-radio" />
+                                        <Field
+                                            type="radio"
+                                            name="carType"
+                                            value="MUV"
+                                            className="form-radio"
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("MUV");
+                                            }}
+                                        />
                                         <span className="ml-2">MUV</span>
                                     </label>
                                     <label className="inline-flex items-center">
-                                        <Field type="radio"  name="carType" value="Sedan" className="form-radio" />
+                                        <Field
+                                            type="radio"
+                                            name="carType"
+                                            value="Sedan"
+                                            className="form-radio"
+                                            onChange={(e) => {
+                                                handleChange(e);
+                                                setSelectedCarType("Sedan");
+                                            }}
+                                        />
                                         <span className="ml-2">Sedan</span>
                                     </label>
                                 </div>
@@ -505,7 +563,20 @@ const getPackageListDetails = async () => {
 
                             <div>
                                 <label htmlFor="vehicleType" className="text-sm font-medium text-gray-700">Vehicle Type</label>
-                                <Field type="text" name="vehicleType"  className="p-2 w-full rounded-md border-gray-300" maxLength={20} />
+                                <Field
+                                    as="select"
+                                    name="vehicleType"
+                                    className="p-2 w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                                >
+                                    <option value="">Select Type</option>
+                                    {carTypeOptions
+                                        .filter((type) => type.carType === selectedCarType)
+                                        .map((type) => (
+                                            <option key={type.id} value={type.carModel}>
+                                                {type.carModel}
+                                            </option>
+                                        ))}
+                                </Field>
                                 <ErrorMessage name="vehicleType" component="div" className="text-red-500 text-sm" />
                             </div>
                             <div>
