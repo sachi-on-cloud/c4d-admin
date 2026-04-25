@@ -713,6 +713,14 @@ export const routes = [
           display: false,
           permission: "All bookings",
         },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "Return Trips Records",
+        path: "/booking/list/returntrips",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RETURN_TRIPS} />,
+        display: false,
+        permission: "All bookings",
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",

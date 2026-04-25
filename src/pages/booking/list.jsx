@@ -136,11 +136,14 @@ const loadBookingFilters = ({ filtersKey, setActiveTab, setStatusFilter, setServ
 export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookingId = '', bookingStage, onAssignDriver, onSelectBooking, type, setIsOpen = false, onTypeChange }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const isReturnTripsList =
+        String(type || "").toUpperCase() === "RETURN_TRIPS" ||
+        String(location.pathname || "").toLowerCase().includes("/booking/list/returntrips");
     const bookingFiltersKey = getBookingFiltersKey(location.pathname);
     const bookingSearchKey = getBookingSearchKey(location.pathname);
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-    const [activeTab, setActiveTab] = useState(() => getInitialActiveTab(bookingFiltersKey));
+    const [activeTab, setActiveTab] = useState(() => (isReturnTripsList ? "TODAY" : getInitialActiveTab(bookingFiltersKey)));
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -341,6 +344,13 @@ const fetchServiceAreas = async () => {
     useEffect(() => {
         fetchServiceAreas();
     }, []);
+    useEffect(() => {
+        if (isReturnTripsList && activeTab !== "TODAY") {
+            setActiveTab("TODAY");
+            setDateFilter("Today");
+            setIsCustomDatePopoverOpen(false);
+        }
+    }, [isReturnTripsList, activeTab]);
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
         console.warn('Unexpected value in handleTabChange:', value);
@@ -748,14 +758,19 @@ if (!statusFilter.includes('All')) {
 
     const allTabLabel =
         type === "" ? "All Bookings" : type === "RENTAL" ? "All Rentals" : type === "RIDES" ? "All Rides" : type === "CAB" ? "All Cab" : type === "DRIVER" ? "All Driver" : type === "AUTO" ? "All Auto" : "All Bookings";
+    const tableHeaders = isReturnTripsList
+        ? ["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status"]
+        : ["Booking ID", "Customer Name", "Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status", "Trip Owner", "Follow Up", "Assign Captain"];
 
-    const tabs = [
-        { label: allTabLabel, value:'ALL_BOOKINGS'},
-        // { label: 'Past', value:'PAST'},
-        { label: 'Today', value: 'TODAY' },
-        { label: 'Future', value: 'REMAINING' },
-        { label: 'Custom date', value: 'CUSTOM_DATE' },
-    ];
+    const tabs = isReturnTripsList
+        ? [{ label: 'Today', value: 'TODAY' }]
+        : [
+            { label: allTabLabel, value:'ALL_BOOKINGS'},
+            // { label: 'Past', value:'PAST'},
+            { label: 'Today', value: 'TODAY' },
+            { label: 'Future', value: 'REMAINING' },
+            { label: 'Custom date', value: 'CUSTOM_DATE' },
+        ];
 
     const handleRefresh = () => {
         // Set manual filter flag to prevent useEffect conflicts
@@ -1149,7 +1164,7 @@ if (!statusFilter.includes('All')) {
                                 <table className="w-full table-auto">
                                     <thead>
                                         <tr>
-                                            {["Booking ID", "Customer Name","Driver Name", "Source", "Booking Date", "Created Date", "Zone", "Status","Trip Owner", "Follow Up", "Assign Captain"].map((el) => ( // , "Owner" => cd before Source Type
+                                            {tableHeaders.map((el) => ( // , "Owner" => cd before Source Type
 
                                                 <th
                                                     key={el}
@@ -1483,7 +1498,8 @@ if (!statusFilter.includes('All')) {
                                                                 }`}
                                                             />
                                                         </td>
-                                                       <td className={className}>
+                                                       {!isReturnTripsList && (
+                                                    <td className={className}>
                                                             {data?.userId ? (
                                                                 <Typography className="text-xs font-semibold text-blue-gray-900">
                                                                 {data?.User?.name}
@@ -1503,6 +1519,8 @@ if (!statusFilter.includes('All')) {
                                                                 </Button>
                                                             )}
                                                         </td>
+                                                        )}
+                                                        {!isReturnTripsList && (
                                                         <td className={className}>
                                                             <button
                                                                 className={`text-xs font-semibold text-white flex items-center justify-center gap-2 rounded-sm px-2 py-2 ${(data?.followup || 'NONE') === 'NONE'
@@ -1525,8 +1543,10 @@ if (!statusFilter.includes('All')) {
                                                                 )} */}
                                                                 {getFollowup(data?.followup || 'NONE')}
                                                             </button>
-                                                         </td>
+                                                            </td>
+                                                        )}
                                                         
+                                                        {!isReturnTripsList && (
                                                         <td className={className}>
                                                             {/* {data?.status === 'STARTED' &&
                                                                 <Button
@@ -1623,6 +1643,7 @@ if (!statusFilter.includes('All')) {
                                                                 </Button>
                                                             }
                                                         </td>
+                                                        )}
                                                </tr>
                         );
                                             }
