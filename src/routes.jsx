@@ -84,6 +84,7 @@ import { VehiclesList } from "./pages/vendor/vehiclesList";
 import DriverNotificationList from "./pages/vendor/driverNotificationList";
 import DriverNotificationListAdd from "./pages/vendor/driverNotificationAdd";
 import DriverNotificationListEdit from "./pages/vendor/driverNotificationEdit";
+import DriverReturnTripsList from "./pages/vendor/driverReturnTripsList";
 import VersionControlList from "./pages/versionControl/VersionControlList";
 import VersionControlEdit from "./pages/versionControl/VersionControlEdit";
 import DiscountView from "./pages/discountModule/view";
@@ -596,6 +597,14 @@ export const routes = [
         name: "Account",
         path: "/vendors/account",
         element: <AccountView />,
+        display: true,
+        permission: "Vendors",
+      },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Return Trip Driver Details",
+        path: "/vendors/driver-return-trips",
+        element: <DriverReturnTripsList />,
         display: true,
         permission: "Vendors",
       },

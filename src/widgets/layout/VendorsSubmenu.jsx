@@ -46,6 +46,8 @@ function VendorsSubmenu({ miniSidenav }) {
         return pathname.startsWith("/dashboard/doc-verification");
       case "All Pending Documents":
         return pathname.startsWith("/dashboard/doc-verification/pending");
+      case "Return Trip Driver Details":
+        return pathname.startsWith("/dashboard/vendors/driver-return-trips");
       default:
         return pathname.startsWith(target);
     }
@@ -59,11 +61,12 @@ function VendorsSubmenu({ miniSidenav }) {
     { label: "Online Vehicles List", path: "/dashboard/vendors/onlineVehiclesList", icon: "/img/vehicleslist.png" },
     { label: "All Cab List", path: "/dashboard/vendors/vehicleList", icon: "/img/vehicles.png" },
     { label: "All Auto List", path: "/dashboard/vendors/account/autoList", icon: "/img/auto.png" },
-              { label: "All Bike List", path: "/dashboard/vendors/account/parcel", icon: "/img/Parcel_driver.png" },
+    { label: "All Bike List", path: "/dashboard/vendors/account/parcel", icon: "/img/Parcel_driver.png" },
+    { label: "Return Trip Driver Details", path: "/dashboard/vendors/driver-return-trips", icon: "/img/driver.png" },
     { label: "All Document Verification", path: "/dashboard/doc-verification", icon: "/img/all.png" },
     { label: "All Pending Documents", path: "/dashboard/doc-verification/pending", icon: "/img/pending_doc.png" },
   ];
-  const rowSize = 5;
+  const rowSize = 6;
   const rows = [];
   for (let i = 0; i < items.length; i += rowSize) {
     rows.push(items.slice(i, i + rowSize));
