@@ -7,6 +7,7 @@ export const constants = {
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
     // url_dev: 'https://perihelial-ariella-unserious.ngrok-free.dev',
+    // url_dev: 'https://z2s9hjbf-3000.inc1.devtunnels.ms',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
     url_uat: 'https://uat.api.c4d.smartapis.cyou',

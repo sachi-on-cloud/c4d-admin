@@ -6,6 +6,7 @@ import {
   Typography,
   Button,
   Spinner,
+  Chip,
 } from "@material-tailwind/react";
 import { ApiRequestUtils } from "@/utils/apiRequestUtils";
 import { API_ROUTES, ColorStyles } from "@/utils/constants";
@@ -34,6 +35,43 @@ const setItemSafe = (key, value) => {
   } catch (err) {
     console.error(`Error writing sessionStorage key "${key}":`, err);
   }
+};
+
+const getStatusChipStyles = (status = "") => {
+  const normalizedStatus = String(status).toUpperCase();
+
+  switch (normalizedStatus) {
+    case "ACTIVE":
+      return { color: "green", className: "bg-green-100 text-green-700" };
+    case "BOOKED":
+      return { color: "blue", className: "bg-blue-100 text-blue-700" };
+    case "EXPIRED":
+      return { color: "red", className: "bg-red-100 text-red-700" };
+    default:
+      return {
+        color: "blue-gray",
+        className: "bg-blue-gray-100 text-blue-gray-700",
+      };
+  }
+};
+
+const formatDuration = (minutesValue) => {
+  const totalMinutes = Number(minutesValue);
+
+  if (!Number.isFinite(totalMinutes) || totalMinutes < 0) return "N/A";
+
+  const roundedMinutes = Math.round(totalMinutes);
+  if (roundedMinutes < 60) {
+    return `${roundedMinutes} min${roundedMinutes === 1 ? "" : "s"}`;
+  }
+
+  const hours = Math.floor(roundedMinutes / 60);
+  const mins = roundedMinutes % 60;
+  if (mins === 0) {
+    return `${hours} hr${hours === 1 ? "" : "s"}`;
+  }
+
+  return `${hours} hr${hours === 1 ? "" : "s"} ${mins} min${mins === 1 ? "" : "s"}`;
 };
 
 export function DriverReturnTripsList() {
@@ -174,13 +212,14 @@ export function DriverReturnTripsList() {
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
-                {["Created Date", "ID", "Driver Name", "Phone Number"].map((el) => (
+                {["Created Date","Duration","status", "Zone", "Driver Name", "Phone Number","Pickup Location", "Destination Location","Car Type","Total","Discount"].map((el) => (
                   <th
                     key={el}
                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
                   >
                     {el === "Created Date" ? (
-                      <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    <Typography
+                      <div onClick={() => handleSort("created_at")} className="cursor-pointer flex items-center">    
+                      <Typography
                         variant="small"
                         className="text-[11px] font-bold uppercase text-black"
                       >
@@ -225,7 +264,11 @@ export function DriverReturnTripsList() {
                 </tr>
               ) : (
                 accounts.map(
-                  ({ id, created_at, name, phoneNumber }, key) => {
+                  ({ id, zone,created_at, name, phoneNumber,Driver,firstName,address,pickupLocation,destinationLocation,fareSnapshot,carType,fareBreakdown,total,discount,status,metadata,durationMinutes }, key) => {
+                    const statusStyles = getStatusChipStyles(status);
+                    const displayDuration = formatDuration(
+                      metadata?.durationMinutes ?? durationMinutes
+                    );
                     const className = `py-3 px-5 ${key === accounts.length - 1
                       ? ""
                       : "border-b border-blue-gray-50"
@@ -235,36 +278,64 @@ export function DriverReturnTripsList() {
                       <tr key={id}>
                         <td className={className}>
                           <Typography className="text-xs font-semibold text-blue-gray-900">
-                            {moment(created_at).format("DD-MM-YYYY")}
+                           {moment(created_at).format("DD-MM-YYYY" + " hh:mm A")}
+                          </Typography>
+                        </td>
+                         <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                           {displayDuration}
+                          </Typography>
+                        </td>
+                           <td className={className}>
+                          <Chip
+                            variant="ghost"
+                            color={statusStyles.color}
+                            value={status || "N/A"}
+                            className={`py-0.5 px-2 text-[11px] font-medium w-fit ${statusStyles.className}`}
+                          />
+                        </td>
+                        <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {zone}
                           </Typography>
                         </td>
                         <td className={className}>
                           <Typography className="text-xs font-semibold text-blue-gray-900">
-                            {id}
-                          </Typography>
+                         {Driver?.firstName || name || 'N/A'}
+                         </Typography>
                         </td>
-                        <td className={className}>
-                          <div className="flex items-center gap-4">
-                            <Link to={`/dashboard/vendors/account/details/${id}`}>
-                              <Typography
-                                variant="small"
-                                color="blue"
-                                className="font-semibold underline cursor-pointer"
-                              >
-                                {name}
-                              </Typography>
-                            </Link>
-                          </div>
-                        </td>
+                        
                       
                         <td className={className}>
                           <Typography className="text-xs font-semibold text-blue-gray-900">
-                            {formatPhoneNumber(phoneNumber)}
+                            {formatPhoneNumber(Driver?.phoneNumber || phoneNumber) || 'N/A'}
                           </Typography>
                         </td>
-                       
-
-                        
+                        <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {pickupLocation?.address || 'N/A'}
+                          </Typography>
+                        </td>
+                          <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {destinationLocation?.address || 'N/A'}
+                          </Typography>
+                        </td>
+                          <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {fareSnapshot?.carType || 'N/A'}
+                          </Typography>
+                        </td>
+                          <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {fareSnapshot?.fareBreakdown?.total || 'N/A'}
+                          </Typography>
+                        </td>
+                         <td className={className}>
+                          <Typography className="text-xs font-semibold text-blue-gray-900">
+                            {(discount || 0)} %
+                          </Typography>
+                        </td>                     
 
                       </tr>
                     );
