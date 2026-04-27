@@ -396,12 +396,12 @@ export function Sidenav({ brandImg, brandName, routes, permissions = [] }) {
                           <Typography color="inherit" className={NAV_UI.typography.sidebarLabel}>
                             {name}
                           </Typography>
-                            {name === "Home" && (
+                            {name === "Home" && homeTotalBookingCount > 0 && (
                               <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white leading-none">
                                 {homeTotalBookingCount}
                               </span>
                             )}
-                            {name === "All Inquiries" && (
+                            {name === "All Inquiries" && allInquiriesCount > 0 && (
                               <span className="ml-auto rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white leading-none">
                                 {allInquiriesCount}
                               </span>
