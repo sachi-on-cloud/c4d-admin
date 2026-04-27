@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback, useRef} from 'react';
 import {
   Card,
   CardHeader,
@@ -41,6 +41,7 @@ export function VehiclesList({ id = 0 }) {
     itemsPerPage: 15,
     search:'',
   });
+  const prevSearchRef = useRef('');
   const [statusCheckedDriverIds, setStatusCheckedDriverIds] = useState([]);
   const navigate = useNavigate();
 
@@ -91,19 +92,19 @@ export function VehiclesList({ id = 0 }) {
         currentPage:1,
         search:searchQuery,
       }))
-      fetchCabList(1,searchQuery,true);
     },1000),
-    [pagination.itemsPerPage]
+    []
   )
 
   useEffect(() => {
-    fetchCabList(pagination.currentPage,pagination.search, true);
-  }, [id, pagination.currentPage, pagination.itemsPerPage]);
+    const searchChanged = prevSearchRef.current !== (pagination.search || '');
+    prevSearchRef.current = pagination.search || '';
+    fetchCabList(pagination.currentPage,pagination.search, !searchChanged);
+  }, [id, pagination.currentPage, pagination.itemsPerPage, pagination.search]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages) {
       setPagination((prev) => ({ ...prev, currentPage: page }));
-      fetchCabList(page,pagination.search, true)
     }
   };
 

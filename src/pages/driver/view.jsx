@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Card,
   CardHeader,
@@ -46,15 +46,6 @@ const setItemSafe = (key, value) => {
     console.error(`Error writing sessionStorage key "${key}":`, err);
   }
 };
- 
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
-
 export function DriverView() {
   const [drivers, setDrivers] = useState([]);
   const [alert, setAlert] = useState(false);
@@ -67,6 +58,7 @@ export function DriverView() {
   const [zoneFilter, setZoneFilter] = useState(['All']);
 const [zoneOptions, setZoneOptions] = useState([]);
   const [kycStatusCounts, setKycStatusCounts] = useState(EMPTY_KYC_STATUS_COUNTS);
+  const prevSearchRef = useRef('');
 
   const [pagination, setPagination] = useState(() => {
     const stored = getItemSafe(DRIVER_VIEW_FILTERS_KEY);
@@ -209,8 +201,7 @@ const [zoneOptions, setZoneOptions] = useState([]);
     }
   };
 
-  const getDrivers = useCallback(
-    debounce((searchQuery) => {
+  const getDrivers = useCallback((searchQuery) => {
       setPagination((prev) => {
         if (prev.search === searchQuery) return prev;
         return {
@@ -219,9 +210,7 @@ const [zoneOptions, setZoneOptions] = useState([]);
         search: searchQuery,
       };
       });
-    }, 1000),
-    []
-  );
+  }, []);
  
   useEffect(() => {
     if (!filtersLoaded) return;
@@ -230,7 +219,9 @@ const [zoneOptions, setZoneOptions] = useState([]);
 
   useEffect(() => {
     if (!filtersLoaded) return;
-    fetchDrivers(pagination.currentPage, pagination.search, true);
+    const searchChanged = prevSearchRef.current !== (pagination.search || '');
+    prevSearchRef.current = pagination.search || '';
+    fetchDrivers(pagination.currentPage, pagination.search, !searchChanged);
   }, [filtersLoaded, pagination.currentPage, pagination.search, statusFilter, sourceFilter,
       serviceTypeFilter, subscriptionStatusFilter, documentTypeFilter, zoneFilter]);
  

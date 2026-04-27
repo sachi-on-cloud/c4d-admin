@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Card,
   CardHeader,
@@ -71,6 +71,7 @@ export function AutoView() {
   const [zoneFilter, setZoneFilter] = useState(['All']);
   const [zoneOptions, setZoneOptions] = useState([]);
   const [kycStatusCounts, setKycStatusCounts] = useState(EMPTY_KYC_STATUS_COUNTS);
+  const prevSearchRef = useRef('');
 
   const [pagination, setPagination] = useState(() => {
     const stored = getItemSafe(AUTO_VIEW_FILTERS_KEY);
@@ -215,7 +216,9 @@ export function AutoView() {
 
   useEffect(() => {
   if (!filtersLoaded) return;
-    fetchAccounts(pagination.currentPage, pagination.search, true);
+    const searchChanged = prevSearchRef.current !== (pagination.search || '');
+    prevSearchRef.current = pagination.search || '';
+    fetchAccounts(pagination.currentPage, pagination.search, !searchChanged);
   }, [filtersLoaded, pagination.currentPage, pagination.search, statusFilter, sourceFilter,
       serviceTypeFilter, documentTypeFilter, availableStatusFilter, zoneFilter]);
  

@@ -109,6 +109,7 @@ export function DocumentVerificationView() {
   const [filtersLoaded, setFiltersLoaded] = useState(false);
   const navigate = useNavigate();
   const latestRequestIdRef = useRef(0);
+  const prevSearchRef = useRef('');
   const resolveAccountType = (record = {}) => {
     const serviceType = record["Account.serviceType"];
     if (record["Register.id"] || record["Driver.id"] || serviceType == null || serviceType === "") return "Driver";
@@ -217,7 +218,9 @@ const getDetails = useCallback(
 
   useEffect(() => {
     if (!filtersLoaded) return;
-    fetchDoc(pagination.currentPage, pagination.search, true);
+    const searchChanged = prevSearchRef.current !== (pagination.search || '');
+    prevSearchRef.current = pagination.search || '';
+    fetchDoc(pagination.currentPage, pagination.search, !searchChanged);
   }, [filtersLoaded, pagination.currentPage, pagination.itemsPerPage, pagination.search, statusFilter, typeFilter]);
 
   const handlePageChange = (page) => {
