@@ -132,7 +132,7 @@ export function BookingsList({  onRegisterRefresh , customerId = 0, searchBookin
     const bookingSearchKey = getBookingSearchKey(location.pathname);
     const [bookingsList, setBookingsList] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
-    const [activeTab, setActiveTab] = useState(() => (isReturnTripsList ? "TODAY" : getInitialActiveTab(bookingFiltersKey)));
+    const [activeTab, setActiveTab] = useState(() => getInitialActiveTab(bookingFiltersKey));
     const [statusFilter, setStatusFilter] = useState(['All']);
     const [serviceTypeFilter, setServiceTypeFilter] = useState(['All']);
     const [sourceFilter, setSourceFilter] = useState(['All']);
@@ -334,13 +334,13 @@ const fetchServiceAreas = async () => {
     useEffect(() => {
         fetchServiceAreas();
     }, []);
-    useEffect(() => {
-        if (isReturnTripsList && activeTab !== "TODAY") {
-            setActiveTab("TODAY");
-            setDateFilter("Today");
-            setIsCustomDatePopoverOpen(false);
-        }
-    }, [isReturnTripsList, activeTab]);
+    // useEffect(() => {
+    //     if (isReturnTripsList && activeTab !== "TODAY") {
+    //         setActiveTab("TODAY");
+    //         setDateFilter("Today");
+    //         setIsCustomDatePopoverOpen(false);
+    //     }
+    // }, [isReturnTripsList, activeTab]);
 const handleTabChange = (value) => {
     if (typeof value !== 'string') {
         console.warn('Unexpected value in handleTabChange:', value);
@@ -767,7 +767,11 @@ if (!statusFilter.includes('All')) {
     const tabs = useMemo(
         () =>
             isReturnTripsList
-        ? [{ label: 'Today', value: 'TODAY' }]
+        ? [
+            { label: allTabLabel, value:'ALL_BOOKINGS'},
+            { label: 'Today', value: 'TODAY' },
+            { label: 'Custom date', value: 'CUSTOM_DATE' }
+        ]
         : [
             { label: allTabLabel, value:'ALL_BOOKINGS'},
             { label: 'Today', value: 'TODAY' },
