@@ -1616,6 +1616,8 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                             setSearchBookingId={(value) => {setSearchBookingId(value)}}
                         />
                     </div>} */}
+                    {String(props.typeProp || "").toUpperCase() !== "RETURN_TRIPS" &&
+                        !String(location.pathname || "").toLowerCase().includes("/booking/list/returntrips") && (
                     <button
                         onClick={() => setIsOpen(true)}
                         className={`relative rounded-xl px-6 py-2 mr-2 text-sm w-40 h-10 mt-2 ${ColorStyles.addButtonColor}`}
@@ -1625,6 +1627,7 @@ const sendQuotationLogs = async (bookingId, userId, fallbackSubZoneId = null) =>
                         Add New Booking
                         </div>
                     </button>
+                    )}
                     
 
                 </div>

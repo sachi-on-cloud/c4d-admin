@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Card,
   CardHeader,
@@ -40,6 +40,7 @@ export function ParcelView({ type, ownerName, id }) {
     itemsPerPage: 15,
     search: '',
   });
+  const prevSearchRef = useRef('');
 
   const fetchParcelAccounts = useCallback(
     async (
@@ -87,15 +88,20 @@ export function ParcelView({ type, ownerName, id }) {
 
   const debouncedFetch = useCallback(
     debounce((search) => {
-      fetchParcelAccounts(1, search, true);
+      setPagination((prev) => ({
+        ...prev,
+        currentPage: 1,
+        search: search.trim(),
+      }));
     }, 500), // Reduced debounce delay for better UX
-    [fetchParcelAccounts]
+    []
   );
 
   useEffect(() => {
-    // Initial fetch and page change
-    fetchParcelAccounts(pagination.currentPage, pagination.search, true);
-  }, [pagination.currentPage, fetchParcelAccounts]);
+    const searchChanged = prevSearchRef.current !== (pagination.search || '');
+    prevSearchRef.current = pagination.search || '';
+    fetchParcelAccounts(pagination.currentPage, pagination.search, !searchChanged);
+  }, [pagination.currentPage, pagination.search, fetchParcelAccounts]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= pagination.totalPages && page !== pagination.currentPage) {

@@ -84,6 +84,7 @@ import { VehiclesList } from "./pages/vendor/vehiclesList";
 import DriverNotificationList from "./pages/vendor/driverNotificationList";
 import DriverNotificationListAdd from "./pages/vendor/driverNotificationAdd";
 import DriverNotificationListEdit from "./pages/vendor/driverNotificationEdit";
+import DriverReturnTripsList from "./pages/vendor/driverReturnTripsList";
 import VersionControlList from "./pages/versionControl/VersionControlList";
 import VersionControlEdit from "./pages/versionControl/VersionControlEdit";
 import DiscountView from "./pages/discountModule/view";
@@ -599,6 +600,14 @@ export const routes = [
         display: true,
         permission: "Vendors",
       },
+      {
+        icon: <UserIcon {...icon} />,
+        name: "Return Trip Driver Details",
+        path: "/vendors/driver-return-trips",
+        element: <DriverReturnTripsList />,
+        display: true,
+        permission: "Vendors",
+      },
 
       {
         icon: <UserIcon {...icon} />,
@@ -704,6 +713,14 @@ export const routes = [
           display: false,
           permission: "All bookings",
         },
+        {
+        icon: <UserIcon {...icon} />,
+        name: "Return Trips Records",
+        path: "/booking/list/returntrips",
+        element: <AllBookingsLists type={BOOKING_SERVICE_TYPE.RETURN_TRIPS} />,
+        display: false,
+        permission: "All bookings",
+      },
       {
         icon: <UserIcon {...icon} />,
         name: "Document Verification",

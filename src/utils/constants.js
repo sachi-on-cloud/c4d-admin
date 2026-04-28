@@ -7,6 +7,7 @@ export const constants = {
     // url_dev : 'https://scorpion-flying-rarely.ngrok-free.app',
     // url_dev: 'https://seal-well-mite.ngrok-free.app',
     // url_dev: 'https://perihelial-ariella-unserious.ngrok-free.dev',
+    // url_dev: 'https://z2s9hjbf-3000.inc1.devtunnels.ms',
     url: import.meta.env.VITE_API_ENDPOINT,
     url_sit: 'https://sit.api.c4d.smartapis.cyou',
     url_uat: 'https://uat.api.c4d.smartapis.cyou',
@@ -1028,7 +1029,8 @@ export const API_ROUTES = {
     "GET_TRANSACTIONS_LIST":'/transactions',
     "GET_TRANSACTIONS_CHART":'/transactions/chart',
     "ASSIGN_AUTO":'/confirm-auto-booking',
-    "ADD_SUPPORT_PARCEL_BOOKING":'/add-support-parcel-booking'
+    "ADD_SUPPORT_PARCEL_BOOKING":'/add-support-parcel-booking',
+    'DRIVER_RETURN_TRIP_DETAILS':'/return-trips',
 };
 
 export const KYC_PROCESS = {
@@ -1082,7 +1084,8 @@ export const BOOKING_SERVICE_TYPE = {
     RENTAL: 'RENTAL',
     AUTO: 'AUTO',
     PARCEL: 'PARCEL',
-    ALL_CABS:'ALL_CABS'
+    ALL_CABS:'ALL_CABS',
+    RETURN_TRIPS:'RETURN_TRIPS'
 };
 
 export const PUSH_NOTIFICATION_TYPE = {

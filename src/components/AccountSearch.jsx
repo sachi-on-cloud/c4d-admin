@@ -12,8 +12,13 @@ const AccountSearch = ({ onSearch, initialValue = '' }) => {
   }, [initialValue]);
 
   useEffect(() => {
-    onSearch(searchQuery.trim());
-  }, [searchQuery]);
+    const trimmed = searchQuery.trim();
+    const debounceTimer = setTimeout(() => {
+      onSearch(trimmed);
+    }, 600);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, onSearch]);
   
   return (
     <div className="p-4 border border-gray-300 rounded-lg shadow-sm">

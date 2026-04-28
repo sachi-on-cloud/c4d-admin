@@ -35,6 +35,7 @@ function AllRecordsSubmenu({ miniSidenav }) {
     { label: "Local Records", path: "/dashboard/booking/list/rides", icon: "/img/rides.png" },
     { label: "Rentals Records", path: "/dashboard/booking/list/rentals", icon: "/img/rental.png" },
     { label: "Parcel Records", path: "/dashboard/booking/list/Parcel", icon: "/img/Parcel_driver.png" },
+    { label: "Return Trips Records", path: "/dashboard/booking/list/returntrips", icon: "/img/rides.png" },
   ];
 
   return (
