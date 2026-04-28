@@ -197,6 +197,12 @@ export function DriverReturnTripsList() {
     });
     setAccounts(sortedAccounts);
   };
+
+  const formatDiscount = (value) => {
+    const num = Number(value || 0);
+    if (Number.isNaN(num)) return "0";
+    return Number.isInteger(num) ? String(num) : String(num);
+  };
   return (
     <div className="mb-8 py-4 flex flex-col gap-12">
       <Card>
@@ -248,7 +254,7 @@ export function DriverReturnTripsList() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="py-3 px-5">
+                  <td colSpan={7} className="py-3 px-5">
                     <div className="flex justify-center items-center">
                       <Spinner className="h-12 w-12" />
                     </div>
@@ -256,7 +262,7 @@ export function DriverReturnTripsList() {
                 </tr>
               ) : accounts.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-6 px-5 text-center">
+                  <td colSpan={7} className="py-6 px-5 text-center">
                     <Typography variant="small" className="font-semibold text-blue-gray-700">
                       No Records
                     </Typography>
@@ -333,7 +339,7 @@ export function DriverReturnTripsList() {
                         </td>
                          <td className={className}>
                           <Typography className="text-xs font-semibold text-blue-gray-900">
-                            {(discount || 0)} %
+                            {formatDiscount(discount)} %
                           </Typography>
                         </td>                     
 
