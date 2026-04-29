@@ -216,7 +216,7 @@ const AddBanner = () => {
                   <option value="PROMOTION">Promotion</option>
                   <option value="BOTTOM_NEW">Bottom New</option>
                   <option value="NEW_CUSTOMER">New Customer</option>
-                  <option value="INTRO_SLIDES">Intro Slides</option>         
+                  <option value="INTRO_SLIDES">Intro Slides (customer)</option>         
                   <option value="INTRO_SLIDES_DRIVER">Intro Slides (Driver)</option>         
                   <option value="TRAINING_VIDEO_DRIVER">Training Video (Driver)</option>         
                 </Field>
